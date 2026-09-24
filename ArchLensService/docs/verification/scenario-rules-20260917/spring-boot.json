@@ -1,0 +1,225 @@
+{
+  "schemaVersion" : "archlens.investigation-report.v2",
+  "engineVersion" : "archlens-investigation-0.3",
+  "inputFingerprint" : "7eba3ce36b135fffa4f539b68d86fb9bc9cd2bdbd82936931d6aa3be532a1fc5",
+  "request" : {
+    "schemaVersion" : "archlens.investigation-request.v1",
+    "scenario" : "DEPENDENCY_UPGRADE",
+    "sourceProfile" : {
+      "product" : "Spring Boot",
+      "version" : "2.7.18"
+    },
+    "targetProfile" : {
+      "product" : "Spring Boot",
+      "version" : "3.0.13"
+    },
+    "objective" : "调查 Spring Boot 升级的命名空间、Java 基线和 Servlet 依赖",
+    "constraints" : [ "只读调查，不编译或执行样例" ],
+    "invariants" : [ "保留金额、空值、异常及外部接口约定" ],
+    "files" : [ "LegacyFilter.java", "pom.xml" ],
+    "columnRequest" : null,
+    "budget" : {
+      "maxFiles" : 30,
+      "maxBytes" : 1000000,
+      "timeoutMillis" : 30000
+    }
+  },
+  "status" : "PARTIAL",
+  "startedAt" : "2026-09-17T08:54:27.401149400Z",
+  "finishedAt" : "2026-09-17T08:54:27.676980400Z",
+  "sources" : [ {
+    "sourceId" : "ad6f0e1e45e452ed0af108453f1ae6f181a277ba9863d1bdcb1454df5c261ee7",
+    "path" : "LegacyFilter.java",
+    "sha256" : "3cfe077ea3a1ffb7df57b773c30fef2d5089f8d61ebb2f96876d5cafe0568bc9",
+    "bytes" : 244,
+    "collectedAt" : "2026-09-17T08:54:27.434843500Z",
+    "location" : {
+      "path" : "LegacyFilter.java",
+      "startLine" : 1,
+      "startColumn" : 1,
+      "endLine" : 6,
+      "endColumn" : 1,
+      "byteOffset" : 0,
+      "byteLength" : 244,
+      "metadataKey" : null
+    },
+    "producerVersion" : "archlens-investigation-0.3"
+  }, {
+    "sourceId" : "b59bd1fcda9bab89c57206b4a827e0749d74fc3396559dcac62362c960608ebf",
+    "path" : "pom.xml",
+    "sha256" : "1fab0b8313ad47cbcbad4e19c3cf1bfb5875bddeafdb7357cbc2123c296ed99c",
+    "bytes" : 657,
+    "collectedAt" : "2026-09-17T08:54:27.443923Z",
+    "location" : {
+      "path" : "pom.xml",
+      "startLine" : 1,
+      "startColumn" : 1,
+      "endLine" : 10,
+      "endColumn" : 1,
+      "byteOffset" : 0,
+      "byteLength" : 657,
+      "metadataKey" : null
+    },
+    "producerVersion" : "archlens-investigation-0.3"
+  } ],
+  "coverageGaps" : [ {
+    "code" : "JAVA_UPGRADE_IMPORTS_ONLY",
+    "source" : "LegacyFilter.java: fully qualified uses, API overloads, reflection, config and transitive dependencies unchecked"
+  }, {
+    "code" : "MAVEN_EFFECTIVE_MODEL_UNRESOLVED",
+    "source" : "pom.xml"
+  }, {
+    "code" : "DECLARED_PROFILES_UNVERIFIED",
+    "source" : "Source/target versions are request declarations, not live runtime observations"
+  }, {
+    "code" : "SCENARIO_COVERAGE_LIMITED",
+    "source" : "Only registered source features; no whole-system compatibility or behavioral equivalence proof"
+  }, {
+    "code" : "EXPLICIT_FILES_ONLY",
+    "source" : "No recursive/full-project or business-database collection"
+  }, {
+    "code" : "NON_ATOMIC_SOURCES",
+    "source" : "Source collection and recheck are not an atomic snapshot"
+  } ],
+  "clarificationItems" : [ ],
+  "findings" : [ {
+    "findingId" : "884b6266383f6389e8f245ceaa42d8fd0d74b477f82ad4124cb85a877579f060",
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "BOOT_JAKARTA@archlens-rules-1.0",
+    "evidenceIds" : [ "26ee42342394845aa492292ef087362310a45e57370a3cd26a44b26cda129649" ],
+    "conditions" : [ "按请求声明的升级目标评估；有效依赖图、类路径及旧新依赖并存情况未解析" ],
+    "unknownReasons" : [ ],
+    "subjectId" : "87965b3aef6daa3fa962a8c9b1e1cc6a44f426cad250c4f372ec0a1ea884167f",
+    "summary" : "该 Java EE 导入与 Spring Boot 3 的 Jakarta API 命名空间不一致。",
+    "evidence" : [ {
+      "evidenceId" : "26ee42342394845aa492292ef087362310a45e57370a3cd26a44b26cda129649",
+      "sourceId" : "ad6f0e1e45e452ed0af108453f1ae6f181a277ba9863d1bdcb1454df5c261ee7",
+      "sourceHash" : "3cfe077ea3a1ffb7df57b773c30fef2d5089f8d61ebb2f96876d5cafe0568bc9",
+      "location" : {
+        "path" : "LegacyFilter.java",
+        "startLine" : 2,
+        "startColumn" : 1,
+        "endLine" : 2,
+        "endColumn" : 29,
+        "byteOffset" : 16,
+        "byteLength" : 28,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_IMPORT_AST"
+    } ],
+    "rule" : {
+      "ruleId" : "BOOT_JAKARTA",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Spring Boot 2.7.x",
+      "targetRange" : "Spring Boot 3.0.x",
+      "requiredFacts" : [ "Java import of migrated EE package" ],
+      "officialSources" : [ "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide/902835141ceffe40397423e5bd095505a2b0e40e" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "按实际 API 改为 Jakarta 依赖及导入，验证容器/JPA/校验集成；不要全局替换 javax.*，JDK 的 javax.xml 等不在此规则内。" ],
+    "impacts" : [ {
+      "subject" : "javax.servlet.Filter",
+      "certainty" : "CONFIRMED_IMPORT",
+      "changeRequired" : "YES",
+      "reason" : "声明处直接影响；下游调用与运行行为未推断"
+    } ]
+  }, {
+    "findingId" : "a7bf19db8a5b2135271d1a7bcc3ce5c7f90373155367f5e92eb9e4ba70469237",
+    "outcome" : "CONDITIONAL",
+    "ruleRef" : "BOOT_JAVA17@archlens-rules-1.0",
+    "evidenceIds" : [ "cb21b52daac88b3da3029f8809ab0b95ec74ed65f55a2ee6a27d48297abf2fe8" ],
+    "conditions" : [ "需确认该属性是否进入有效编译/运行配置；未执行 Maven 或解析父 POM/profiles" ],
+    "unknownReasons" : [ ],
+    "subjectId" : "3285b2cc7f2800b3deb5b04fc38ea7647342f3b0ed21b2c2734c0dc5ffa39b43",
+    "summary" : "Maven 的 java.version 声明低于 Spring Boot 3 的 Java 17 基线。",
+    "evidence" : [ {
+      "evidenceId" : "cb21b52daac88b3da3029f8809ab0b95ec74ed65f55a2ee6a27d48297abf2fe8",
+      "sourceId" : "b59bd1fcda9bab89c57206b4a827e0749d74fc3396559dcac62362c960608ebf",
+      "sourceHash" : "1fab0b8313ad47cbcbad4e19c3cf1bfb5875bddeafdb7357cbc2123c296ed99c",
+      "location" : {
+        "path" : "pom.xml",
+        "startLine" : 1,
+        "startColumn" : 1,
+        "endLine" : 10,
+        "endColumn" : 1,
+        "byteOffset" : 0,
+        "byteLength" : 657,
+        "metadataKey" : null
+      },
+      "kind" : "MAVEN_DIRECT_XML"
+    } ],
+    "rule" : {
+      "ruleId" : "BOOT_JAVA17",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Spring Boot 2.7.x",
+      "targetRange" : "Spring Boot 3.0.x",
+      "requiredFacts" : [ "Literal Maven java.version/compiler.release below 17" ],
+      "officialSources" : [ "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide/902835141ceffe40397423e5bd095505a2b0e40e" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "核对 effective POM、CI JDK、编译 release 和部署运行时，统一升级后验证。" ],
+    "impacts" : [ {
+      "subject" : "java.version",
+      "certainty" : "CONFIRMED_LITERAL",
+      "changeRequired" : "UNKNOWN",
+      "reason" : "静态属性不等于实际运行 JDK"
+    } ]
+  }, {
+    "findingId" : "983c091be0ad4972b9e26018601bd2ceba2aef62ad06cb8d07ae59c72eba22de",
+    "outcome" : "CONDITIONAL",
+    "ruleRef" : "BOOT_SERVLET_DEPENDENCY@archlens-rules-1.0",
+    "evidenceIds" : [ "cb21b52daac88b3da3029f8809ab0b95ec74ed65f55a2ee6a27d48297abf2fe8" ],
+    "conditions" : [ "应确认依赖用途、scope、排除项和实际容器；旧新 API 可并存但不能相互替代" ],
+    "unknownReasons" : [ ],
+    "subjectId" : "773585f71227c8e7a20aae414f5d57d4a570c17e36e836065c2650a6165ffffc",
+    "summary" : "直接依赖仍声明旧 Servlet API 坐标。",
+    "evidence" : [ {
+      "evidenceId" : "cb21b52daac88b3da3029f8809ab0b95ec74ed65f55a2ee6a27d48297abf2fe8",
+      "sourceId" : "b59bd1fcda9bab89c57206b4a827e0749d74fc3396559dcac62362c960608ebf",
+      "sourceHash" : "1fab0b8313ad47cbcbad4e19c3cf1bfb5875bddeafdb7357cbc2123c296ed99c",
+      "location" : {
+        "path" : "pom.xml",
+        "startLine" : 1,
+        "startColumn" : 1,
+        "endLine" : 10,
+        "endColumn" : 1,
+        "byteOffset" : 0,
+        "byteLength" : 657,
+        "metadataKey" : null
+      },
+      "kind" : "MAVEN_DIRECT_XML"
+    } ],
+    "rule" : {
+      "ruleId" : "BOOT_SERVLET_DEPENDENCY",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Spring Boot 2.7.x",
+      "targetRange" : "Spring Boot 3.0.x",
+      "requiredFacts" : [ "Direct Maven javax.servlet:javax.servlet-api dependency" ],
+      "officialSources" : [ "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide/902835141ceffe40397423e5bd095505a2b0e40e" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "按 Spring Boot 3 的依赖管理评估 jakarta.servlet:jakarta.servlet-api，检查过滤器、监听器及容器集成。" ],
+    "impacts" : [ {
+      "subject" : "javax.servlet:javax.servlet-api",
+      "certainty" : "CONFIRMED_DECLARATION",
+      "changeRequired" : "UNKNOWN",
+      "reason" : "有效依赖解析未执行"
+    } ]
+  }, {
+    "findingId" : "4ea31956b883f5f1430d6b46c01c458df7e02b3d578a8e352b23f4c2eab0a14c",
+    "outcome" : "UNKNOWN",
+    "ruleRef" : "no-supported-compatibility-rule",
+    "evidenceIds" : [ "ad6f0e1e45e452ed0af108453f1ae6f181a277ba9863d1bdcb1454df5c261ee7", "b59bd1fcda9bab89c57206b4a827e0749d74fc3396559dcac62362c960608ebf" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ "Unchecked scope remains UNKNOWN; individual rules do not establish whole-project compatibility" ],
+    "subjectId" : null,
+    "summary" : null,
+    "evidence" : [ ],
+    "rule" : null,
+    "recommendations" : [ ],
+    "impacts" : [ ]
+  } ],
+  "verificationSuggestions" : [ "Review declared coverage and resolve unknown versions before making compatibility decisions", "Validate invariants in a user-controlled isolated environment; no verification commands were executed" ],
+  "orchestration" : "DETERMINISTIC_ONLY_NO_MODEL_ORCHESTRATION",
+  "columnAnalysis" : null
+}

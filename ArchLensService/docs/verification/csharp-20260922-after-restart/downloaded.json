@@ -1,0 +1,889 @@
+{
+  "diagnostics": [],
+  "engineVersion": "archlens-agent-0.1",
+  "explanationStatus": "MODEL_EXPLANATION_UNVERIFIED",
+  "explanations": [
+    {
+      "evidenceIds": [
+        "0f5cfe3c842f42bb457dcefd83a2393102176f4f35317f1048312fee5a0606ec"
+      ],
+      "explanation": "CS_DECIMAL 规则判定为 INCOMPATIBLE：授权文件中出现 C# decimal 关键字 token（词法命中）。Java 21 没有内置 decimal 十进制类型，需以 BigDecimal 之类类型替代，而二者在精度、舍入与溢出行为上并不自动等价，因此该处需人工改写与语义核验。",
+      "findingId": "b0cec1221fee0b1961c0d64b8fff8e4915513596748b39a0f6cab318a7a96d6e",
+      "outcome": "INCOMPATIBLE",
+      "verificationSuggestions": [
+        "定位该 decimal 使用点的全部读写链路，列出可表示范围、舍入模式与比较语义要求",
+        "在 Java 21 侧选定 BigDecimal 等替代方案后，编写对照用例覆盖精度、舍入、比较与序列化输出",
+        "因工具仅做词法命中、未解析绑定，请人工确认该 token 是否确为 decimal 类型声明或字面量"
+      ]
+    },
+    {
+      "evidenceIds": [
+        "9ce934afa08be419fcaf9e63ce2cd2c4da1c3779ada6954fc15b6053684cbea0"
+      ],
+      "explanation": "另一处 CS_DECIMAL 命中同样为 INCOMPATIBLE，说明金额相关十进制使用不止一处；多处命中会放大改写与回归验证的工作量与风险面。",
+      "findingId": "04c9b3f0bd751182667e8abd8ef41936cbd34a642a9e0afa8bca45db18c1844b",
+      "outcome": "INCOMPATIBLE",
+      "verificationSuggestions": [
+        "汇总所有 decimal 命中点并按金额/非金额用途分类，区分必须精确与可容忍近似的场景",
+        "逐一建立迁移前后数值对照测试（含边界值与溢出路径）"
+      ]
+    },
+    {
+      "evidenceIds": [
+        "61133513f690054704461b29b068804473809341d9d975f76a9777ea769a4a90"
+      ],
+      "explanation": "CS_UNSIGNED 判定为 INCOMPATIBLE：检测到 C# uint/ulong 关键字 token。Java 原语均为有符号，无对应无符号类型，位运算、比较与溢出语义在新语言中不等价，需显式改写（如更大宽度类型或 Integer/Long 无符号辅助方法）。",
+      "findingId": "a4cc1718c62a8832e884a6f2118b34a9dd8254cc0c9ecfbee8b287ddafc0ab59",
+      "outcome": "INCOMPATIBLE",
+      "verificationSuggestions": [
+        "定位每个 uint/ulong 使用点，确认是否依赖无符号比较、移位或溢出回绕语义",
+        "在 Java 侧用 Long/Integer 无符号 API 或更宽类型改写，并补充边界值（最大值、回绕）测试",
+        "由于工具只做词法命中，请人工确认该 token 是否为实际类型使用而非注释或标识符"
+      ]
+    },
+    {
+      "evidenceIds": [
+        "af923c72770fe31efdd45ed6970dff0b555f788e8027802cb6f6b61406938c84"
+      ],
+      "explanation": "CS_PROJECT_PROFILE 为 UNKNOWN：工程文件存在直接（非求值）声明，但未执行 MSBuild 求值，无法确认最终生效的 TFM、语言版本与 SDK 配置。请注意 C# 12 是语言版本、net8.0 一类是框架版本，二者不可互换，本次结论只覆盖 C# 12.x 词法范围。",
+      "findingId": "6cbb9e8f88ab9a90b77dc78d765abe7b4dad01ca8350da2ab9d7ea0ee846a9d5",
+      "outcome": "UNKNOWN",
+      "verificationSuggestions": [
+        "人工核对 .csproj/props/targets 中直接书写的 LangVersion 与 TargetFramework 声明",
+        "如需真实求值结果，请由你在本地执行 MSBuild 求值（本工具不执行构建）"
+      ]
+    },
+    {
+      "evidenceIds": [
+        "759b2b0e63ed350f492a1d22bc87765092989bdecebae43be48101b7a48b4f35"
+      ],
+      "explanation": "CS_PROJECT_DEPENDENCY 为 UNKNOWN：只识别到工程文件中的直接包/程序集/框架声明，未做 restore 或传递依赖解析，因此既不能确认依赖可移植性，也不能宣布依赖无问题。",
+      "findingId": "d08fe7971d8035e75afd51ecc644b3d34101ad22666c4f763d7e6e1ce9ff83ad",
+      "outcome": "UNKNOWN",
+      "verificationSuggestions": [
+        "人工导出直接依赖清单，逐一确认 Java 21 侧是否有功能等价替代库",
+        "在迁移后执行依赖解析（如构建工具）以确认传递依赖与版本冲突；本工具不执行 restore"
+      ]
+    },
+    {
+      "evidenceIds": [
+        "83b6a5637c037279e4adb5012b0a8a461ae10ebc31199dedb3c942e47a37ba7a"
+      ],
+      "explanation": "CS_AWAIT 为 UNKNOWN：检测到 await token，但未解析其绑定与异步状态机，无法判断取消传播、上下文捕获与异常传播在 Java 21 的 CompletableFuture/虚拟线程模型下是否等价。用户要求保持异步取消语义，此处为本轮最需要人工确认的未决点。",
+      "findingId": "4c66ef40badf4139e1a44da58b3e917c982c1453b6dbe3628cf00276cb49b2af",
+      "outcome": "UNKNOWN",
+      "verificationSuggestions": [
+        "人工梳理每个 await 点所属异步链路，标注 CancellationToken 传递路径与取消后的清理行为",
+        "在 Java 21 侧选定等价并发模型后，编写取消、超时与异常传播的场景用例做行为对照"
+      ]
+    }
+  ],
+  "finishedAt": "2026-09-22T05:47:38.228175200Z",
+  "interpretedTarget": {
+    "scenario": "LANGUAGE_MIGRATION",
+    "sourceProfile": {
+      "product": "C#",
+      "version": "12"
+    },
+    "targetProfile": {
+      "product": "Java",
+      "version": "21"
+    }
+  },
+  "investigation": {
+    "clarificationItems": [],
+    "columnAnalysis": null,
+    "coverageGaps": [
+      {
+        "code": "CS_PROJECT_DECLARATIONS_ONLY",
+        "source": "Core/Core.csproj: imports, conditions, SDK defaults, central versions, transitive packages and generated code are not evaluated"
+      },
+      {
+        "code": "CSHARP_LEXICAL_ONLY",
+        "source": "Core/Money.cs: no Roslyn binding, preprocessor evaluation, resolved .NET APIs or behavioral analysis"
+      },
+      {
+        "code": "CS_COMPILE_ITEMS_UNEVALUATED",
+        "source": "MigrationSample.csproj"
+      },
+      {
+        "code": "CS_PROJECT_DECLARATIONS_ONLY",
+        "source": "MigrationSample.csproj: imports, conditions, SDK defaults, central versions, transitive packages and generated code are not evaluated"
+      },
+      {
+        "code": "CSHARP_LEXICAL_ONLY",
+        "source": "Payment.cs: no Roslyn binding, preprocessor evaluation, resolved .NET APIs or behavioral analysis"
+      },
+      {
+        "code": "DECLARED_PROFILES_UNVERIFIED",
+        "source": "Source/target versions are request declarations, not live runtime observations"
+      },
+      {
+        "code": "SCENARIO_COVERAGE_LIMITED",
+        "source": "Only registered source features; no whole-system compatibility or behavioral equivalence proof"
+      },
+      {
+        "code": "EXPLICIT_FILES_ONLY",
+        "source": "No recursive/full-project or business-database collection"
+      },
+      {
+        "code": "NON_ATOMIC_SOURCES",
+        "source": "Source collection and recheck are not an atomic snapshot"
+      }
+    ],
+    "engineVersion": "archlens-investigation-0.4",
+    "findings": [
+      {
+        "conditions": [
+          "仅静态 XML 声明，可能受条件、导入和 SDK 默认值影响"
+        ],
+        "evidence": [
+          {
+            "evidenceId": "af923c72770fe31efdd45ed6970dff0b555f788e8027802cb6f6b61406938c84",
+            "kind": "CS_PROJECT_XML_DECLARATION",
+            "location": {
+              "byteLength": 146,
+              "byteOffset": 0,
+              "endColumn": 1,
+              "endLine": 2,
+              "metadataKey": null,
+              "path": "Core/Core.csproj",
+              "startColumn": 1,
+              "startLine": 1
+            },
+            "sourceHash": "2660d69f97ff51118858c9326db6040f515e85ec65d92749e2bc9f07d1aa0dd4",
+            "sourceId": "d50a410637b87b98bd19f72b7a036b16035103397c6e79b12f49947895170e54"
+          }
+        ],
+        "evidenceIds": [
+          "af923c72770fe31efdd45ed6970dff0b555f788e8027802cb6f6b61406938c84"
+        ],
+        "findingId": "6cbb9e8f88ab9a90b77dc78d765abe7b4dad01ca8350da2ab9d7ea0ee846a9d5",
+        "impacts": [
+          {
+            "certainty": "DECLARED_PROJECT_METADATA",
+            "changeRequired": "UNKNOWN",
+            "reason": "迁移工作候选，未证明实际编译或运行依赖",
+            "subject": "Core/Core.csproj"
+          }
+        ],
+        "outcome": "UNKNOWN",
+        "recommendations": [
+          "确认有效 C# 语言版本与 .NET 框架版本；为 Java 21 选择构建、宿主、UI/Web/持久化方案。WPF/Windows Forms 等平台能力需单独迁移，不能由 Java 版本替代声明。"
+        ],
+        "rule": {
+          "officialSources": [
+            "https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props"
+          ],
+          "requiredFacts": [
+            "Direct .csproj/props/targets profile declarations, not evaluated MSBuild"
+          ],
+          "reviewedAt": "2026-09-22",
+          "ruleId": "CS_PROJECT_PROFILE",
+          "sourceRange": "C# 12.x",
+          "targetRange": "Java 21.x",
+          "version": "archlens-rules-1.1"
+        },
+        "ruleRef": "CS_PROJECT_PROFILE@archlens-rules-1.1",
+        "subjectId": "685ec3bba0815344eee798b7241981988175094512299ab0104bcb615a6eaf91",
+        "summary": "项目配置声明：Sdk=Microsoft.NET.Sdk；TargetFramework=net8.0；LangVersion=12",
+        "unknownReasons": [
+          "未执行 MSBuild / restore / 编译 / 行为测试"
+        ]
+      },
+      {
+        "conditions": [],
+        "evidence": [
+          {
+            "evidenceId": "0f5cfe3c842f42bb457dcefd83a2393102176f4f35317f1048312fee5a0606ec",
+            "kind": "LEXICAL_FEATURE",
+            "location": {
+              "byteLength": 7,
+              "byteOffset": 53,
+              "endColumn": 28,
+              "endLine": 2,
+              "metadataKey": null,
+              "path": "Core/Money.cs",
+              "startColumn": 21,
+              "startLine": 2
+            },
+            "sourceHash": "5866ce63d31945047369fd075ac4fcf9e1517f4e67438e6482b39f4cbce1a0a7",
+            "sourceId": "2b2fa5e0355f6226bc236a30f20a12ef267b017495174ddcc1d470e92626439b"
+          }
+        ],
+        "evidenceIds": [
+          "0f5cfe3c842f42bb457dcefd83a2393102176f4f35317f1048312fee5a0606ec"
+        ],
+        "findingId": "b0cec1221fee0b1961c0d64b8fff8e4915513596748b39a0f6cab318a7a96d6e",
+        "impacts": [
+          {
+            "certainty": "CONFIRMED_TOKEN",
+            "changeRequired": "YES",
+            "reason": "Limited to the located source feature",
+            "subject": "Core/Money.cs"
+          }
+        ],
+        "outcome": "INCOMPATIBLE",
+        "recommendations": [
+          "评估 BigDecimal；显式确定精度、舍入、除法、相等和 JSON 数字契约；不要直接替换为 double。"
+        ],
+        "rule": {
+          "officialSources": [
+            "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/floating-point-numeric-types",
+            "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/BigDecimal.html"
+          ],
+          "requiredFacts": [
+            "C# decimal keyword token; lexical occurrence only"
+          ],
+          "reviewedAt": "2026-09-17",
+          "ruleId": "CS_DECIMAL",
+          "sourceRange": "C# 12.x",
+          "targetRange": "Java 21.x",
+          "version": "archlens-rules-1.1"
+        },
+        "ruleRef": "CS_DECIMAL@archlens-rules-1.1",
+        "subjectId": "442987e0f66c43eaccd40e9ba6f29c912ed3dd1dac0b56dc48b7e561af6c5bb3",
+        "summary": "C# decimal 原生类型/运算不能原样编译为 Java 21。",
+        "unknownReasons": []
+      },
+      {
+        "conditions": [
+          "仅静态 XML 声明，可能受条件、导入和 SDK 默认值影响"
+        ],
+        "evidence": [
+          {
+            "evidenceId": "759b2b0e63ed350f492a1d22bc87765092989bdecebae43be48101b7a48b4f35",
+            "kind": "CS_PROJECT_XML_DECLARATION",
+            "location": {
+              "byteLength": 376,
+              "byteOffset": 0,
+              "endColumn": 1,
+              "endLine": 6,
+              "metadataKey": null,
+              "path": "MigrationSample.csproj",
+              "startColumn": 1,
+              "startLine": 1
+            },
+            "sourceHash": "0b0d03a04dd5f643e9763ade5a7eb98534908bc05b4599d8d6652f0fbe511b45",
+            "sourceId": "f2086e332a27a9c1b67c3181d2df771bcaf47a2d9a16bdb5e0be7c68876cc007"
+          }
+        ],
+        "evidenceIds": [
+          "759b2b0e63ed350f492a1d22bc87765092989bdecebae43be48101b7a48b4f35"
+        ],
+        "findingId": "d08fe7971d8035e75afd51ecc644b3d34101ad22666c4f763d7e6e1ce9ff83ad",
+        "impacts": [
+          {
+            "certainty": "DECLARED_PROJECT_METADATA",
+            "changeRequired": "UNKNOWN",
+            "reason": "迁移工作候选，未证明实际编译或运行依赖",
+            "subject": "MigrationSample.csproj"
+          }
+        ],
+        "outcome": "UNKNOWN",
+        "recommendations": [
+          "为每个 .NET/NuGet 依赖确定保留协议、Java 替代或重写方案；验证 API、许可证、序列化及集成行为。未解析传递依赖或保证存在等价 Java 包。"
+        ],
+        "rule": {
+          "officialSources": [
+            "https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props"
+          ],
+          "requiredFacts": [
+            "Direct package/assembly/framework declarations, no restore or transitive resolution"
+          ],
+          "reviewedAt": "2026-09-22",
+          "ruleId": "CS_PROJECT_DEPENDENCY",
+          "sourceRange": "C# 12.x",
+          "targetRange": "Java 21.x",
+          "version": "archlens-rules-1.1"
+        },
+        "ruleRef": "CS_PROJECT_DEPENDENCY@archlens-rules-1.1",
+        "subjectId": "0f45b19f522857bfd207061ed3b76847926fbad903d51b33ce5ab95874420657",
+        "summary": "依赖声明：PackageReference System.Text.Json 8.0.5",
+        "unknownReasons": [
+          "未执行 MSBuild / restore / 编译 / 行为测试"
+        ]
+      },
+      {
+        "conditions": [
+          "仅静态 XML 声明，可能受条件、导入和 SDK 默认值影响"
+        ],
+        "evidence": [
+          {
+            "evidenceId": "759b2b0e63ed350f492a1d22bc87765092989bdecebae43be48101b7a48b4f35",
+            "kind": "CS_PROJECT_XML_DECLARATION",
+            "location": {
+              "byteLength": 376,
+              "byteOffset": 0,
+              "endColumn": 1,
+              "endLine": 6,
+              "metadataKey": null,
+              "path": "MigrationSample.csproj",
+              "startColumn": 1,
+              "startLine": 1
+            },
+            "sourceHash": "0b0d03a04dd5f643e9763ade5a7eb98534908bc05b4599d8d6652f0fbe511b45",
+            "sourceId": "f2086e332a27a9c1b67c3181d2df771bcaf47a2d9a16bdb5e0be7c68876cc007"
+          }
+        ],
+        "evidenceIds": [
+          "759b2b0e63ed350f492a1d22bc87765092989bdecebae43be48101b7a48b4f35"
+        ],
+        "findingId": "4df9bd3836941487dbdf78e86a7436b462514e4efa2eb4e4b23ee8aee3a7d421",
+        "impacts": [
+          {
+            "certainty": "DECLARED_PROJECT_METADATA",
+            "changeRequired": "UNKNOWN",
+            "reason": "迁移工作候选，未证明实际编译或运行依赖",
+            "subject": "MigrationSample.csproj"
+          }
+        ],
+        "outcome": "UNKNOWN",
+        "recommendations": [
+          "按项目边界设计 Java 模块并验证公共契约、循环依赖和调用方；声明引用不等于已绑定调用图，条件与编译关系需另验。"
+        ],
+        "rule": {
+          "officialSources": [
+            "https://learn.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-items"
+          ],
+          "requiredFacts": [
+            "Direct ProjectReference declaration and authorized source membership only"
+          ],
+          "reviewedAt": "2026-09-22",
+          "ruleId": "CS_PROJECT_REFERENCE",
+          "sourceRange": "C# 12.x",
+          "targetRange": "Java 21.x",
+          "version": "archlens-rules-1.1"
+        },
+        "ruleRef": "CS_PROJECT_REFERENCE@archlens-rules-1.1",
+        "subjectId": "f26c9d10a08e4235e8831776a6a3f88906e16e96913ad3cfcaadaae394901c77",
+        "summary": "项目引用声明：Core/Core.csproj（目标在来源清单中）",
+        "unknownReasons": [
+          "未执行 MSBuild / restore / 编译 / 行为测试"
+        ]
+      },
+      {
+        "conditions": [
+          "仅静态 XML 声明，可能受条件、导入和 SDK 默认值影响"
+        ],
+        "evidence": [
+          {
+            "evidenceId": "759b2b0e63ed350f492a1d22bc87765092989bdecebae43be48101b7a48b4f35",
+            "kind": "CS_PROJECT_XML_DECLARATION",
+            "location": {
+              "byteLength": 376,
+              "byteOffset": 0,
+              "endColumn": 1,
+              "endLine": 6,
+              "metadataKey": null,
+              "path": "MigrationSample.csproj",
+              "startColumn": 1,
+              "startLine": 1
+            },
+            "sourceHash": "0b0d03a04dd5f643e9763ade5a7eb98534908bc05b4599d8d6652f0fbe511b45",
+            "sourceId": "f2086e332a27a9c1b67c3181d2df771bcaf47a2d9a16bdb5e0be7c68876cc007"
+          }
+        ],
+        "evidenceIds": [
+          "759b2b0e63ed350f492a1d22bc87765092989bdecebae43be48101b7a48b4f35"
+        ],
+        "findingId": "6e900f812fb3c5cba9737b3e97875388839708415413417efcf120d319580384",
+        "impacts": [
+          {
+            "certainty": "DECLARED_PROJECT_METADATA",
+            "changeRequired": "UNKNOWN",
+            "reason": "迁移工作候选，未证明实际编译或运行依赖",
+            "subject": "MigrationSample.csproj"
+          }
+        ],
+        "outcome": "UNKNOWN",
+        "recommendations": [
+          "确认有效 C# 语言版本与 .NET 框架版本；为 Java 21 选择构建、宿主、UI/Web/持久化方案。WPF/Windows Forms 等平台能力需单独迁移，不能由 Java 版本替代声明。"
+        ],
+        "rule": {
+          "officialSources": [
+            "https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props"
+          ],
+          "requiredFacts": [
+            "Direct .csproj/props/targets profile declarations, not evaluated MSBuild"
+          ],
+          "reviewedAt": "2026-09-22",
+          "ruleId": "CS_PROJECT_PROFILE",
+          "sourceRange": "C# 12.x",
+          "targetRange": "Java 21.x",
+          "version": "archlens-rules-1.1"
+        },
+        "ruleRef": "CS_PROJECT_PROFILE@archlens-rules-1.1",
+        "subjectId": "89b27aac3a2751fadf01ce8de7db0d791197f2a39d70aaeed2c20efdd683b0ad",
+        "summary": "项目配置声明：Sdk=Microsoft.NET.Sdk；TargetFramework=net8.0；LangVersion=12；Nullable=enable",
+        "unknownReasons": [
+          "未执行 MSBuild / restore / 编译 / 行为测试"
+        ]
+      },
+      {
+        "conditions": [],
+        "evidence": [
+          {
+            "evidenceId": "9e18b347cd285f61c2877b095f207514a7383869673091908daae9d2e63c855b",
+            "kind": "LEXICAL_FEATURE",
+            "location": {
+              "byteLength": 16,
+              "byteOffset": 148,
+              "endColumn": 22,
+              "endLine": 5,
+              "metadataKey": null,
+              "path": "Payment.cs",
+              "startColumn": 6,
+              "startLine": 5
+            },
+            "sourceHash": "85c1de21bdf176fd77a1271c425900a7fc29c727a53aa9ff9155ece1c7221eb8",
+            "sourceId": "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff"
+          }
+        ],
+        "evidenceIds": [
+          "9e18b347cd285f61c2877b095f207514a7383869673091908daae9d2e63c855b"
+        ],
+        "findingId": "9ba8a5d6366f9740386b935e5ecd8d3f7f027f5bd3d06ad7a4d89e4ef9f70b65",
+        "impacts": [
+          {
+            "certainty": "CONFIRMED_TOKEN",
+            "changeRequired": "UNKNOWN",
+            "reason": "Limited to the located source feature",
+            "subject": "Payment.cs"
+          }
+        ],
+        "outcome": "UNKNOWN",
+        "recommendations": [
+          "确认 System.Text.Json 属性后，核对 Java 序列化配置、字段名、null、枚举、日期和往返样例。"
+        ],
+        "rule": {
+          "officialSources": [
+            "https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/customize-properties"
+          ],
+          "requiredFacts": [
+            "JsonPropertyName attribute candidate; namespace binding unknown"
+          ],
+          "reviewedAt": "2026-09-17",
+          "ruleId": "CS_SERIALIZATION",
+          "sourceRange": "C# 12.x",
+          "targetRange": "Java 21.x",
+          "version": "archlens-rules-1.1"
+        },
+        "ruleRef": "CS_SERIALIZATION@archlens-rules-1.1",
+        "subjectId": "5f03f0f8844d71a6cb4a4f053751b8c392296ee39c187ba7340f353d11cc3eb5",
+        "summary": "发现 JsonPropertyName 属性候选；未解析其命名空间绑定。",
+        "unknownReasons": [
+          "Unresolved semantic binding or behavior"
+        ]
+      },
+      {
+        "conditions": [],
+        "evidence": [
+          {
+            "evidenceId": "9ce934afa08be419fcaf9e63ce2cd2c4da1c3779ada6954fc15b6053684cbea0",
+            "kind": "LEXICAL_FEATURE",
+            "location": {
+              "byteLength": 7,
+              "byteOffset": 193,
+              "endColumn": 19,
+              "endLine": 6,
+              "metadataKey": null,
+              "path": "Payment.cs",
+              "startColumn": 12,
+              "startLine": 6
+            },
+            "sourceHash": "85c1de21bdf176fd77a1271c425900a7fc29c727a53aa9ff9155ece1c7221eb8",
+            "sourceId": "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff"
+          }
+        ],
+        "evidenceIds": [
+          "9ce934afa08be419fcaf9e63ce2cd2c4da1c3779ada6954fc15b6053684cbea0"
+        ],
+        "findingId": "04c9b3f0bd751182667e8abd8ef41936cbd34a642a9e0afa8bca45db18c1844b",
+        "impacts": [
+          {
+            "certainty": "CONFIRMED_TOKEN",
+            "changeRequired": "YES",
+            "reason": "Limited to the located source feature",
+            "subject": "Payment.cs"
+          }
+        ],
+        "outcome": "INCOMPATIBLE",
+        "recommendations": [
+          "评估 BigDecimal；显式确定精度、舍入、除法、相等和 JSON 数字契约；不要直接替换为 double。"
+        ],
+        "rule": {
+          "officialSources": [
+            "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/floating-point-numeric-types",
+            "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/BigDecimal.html"
+          ],
+          "requiredFacts": [
+            "C# decimal keyword token; lexical occurrence only"
+          ],
+          "reviewedAt": "2026-09-17",
+          "ruleId": "CS_DECIMAL",
+          "sourceRange": "C# 12.x",
+          "targetRange": "Java 21.x",
+          "version": "archlens-rules-1.1"
+        },
+        "ruleRef": "CS_DECIMAL@archlens-rules-1.1",
+        "subjectId": "3c7a8d39c633e2b6247d664a47bddda21d5a46f5f47144383b51c2c3a4a8a230",
+        "summary": "C# decimal 原生类型/运算不能原样编译为 Java 21。",
+        "unknownReasons": []
+      },
+      {
+        "conditions": [],
+        "evidence": [
+          {
+            "evidenceId": "61133513f690054704461b29b068804473809341d9d975f76a9777ea769a4a90",
+            "kind": "LEXICAL_FEATURE",
+            "location": {
+              "byteLength": 5,
+              "byteOffset": 233,
+              "endColumn": 17,
+              "endLine": 7,
+              "metadataKey": null,
+              "path": "Payment.cs",
+              "startColumn": 12,
+              "startLine": 7
+            },
+            "sourceHash": "85c1de21bdf176fd77a1271c425900a7fc29c727a53aa9ff9155ece1c7221eb8",
+            "sourceId": "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff"
+          }
+        ],
+        "evidenceIds": [
+          "61133513f690054704461b29b068804473809341d9d975f76a9777ea769a4a90"
+        ],
+        "findingId": "a4cc1718c62a8832e884a6f2118b34a9dd8254cc0c9ecfbee8b287ddafc0ab59",
+        "impacts": [
+          {
+            "certainty": "CONFIRMED_TOKEN",
+            "changeRequired": "YES",
+            "reason": "Limited to the located source feature",
+            "subject": "Payment.cs"
+          }
+        ],
+        "outcome": "INCOMPATIBLE",
+        "recommendations": [
+          "验证上界与溢出语义；评估更宽整数、无符号运算 API 或 BigInteger。"
+        ],
+        "rule": {
+          "officialSources": [
+            "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/integral-numeric-types",
+            "https://docs.oracle.com/javase/specs/jls/se21/html/jls-4.html"
+          ],
+          "requiredFacts": [
+            "C# uint/ulong keyword token; lexical occurrence only"
+          ],
+          "reviewedAt": "2026-09-17",
+          "ruleId": "CS_UNSIGNED",
+          "sourceRange": "C# 12.x",
+          "targetRange": "Java 21.x",
+          "version": "archlens-rules-1.1"
+        },
+        "ruleRef": "CS_UNSIGNED@archlens-rules-1.1",
+        "subjectId": "335f0c851d726f0975f2530e95f66afb9f35d126cdcd11df8853c68e84e89c81",
+        "summary": "Java 21 没有同名的 uint/ulong 基础类型。",
+        "unknownReasons": []
+      },
+      {
+        "conditions": [
+          "词法扫描无法排除上下文标识符，也不能证明异步行为等价"
+        ],
+        "evidence": [
+          {
+            "evidenceId": "83b6a5637c037279e4adb5012b0a8a461ae10ebc31199dedb3c942e47a37ba7a",
+            "kind": "LEXICAL_FEATURE",
+            "location": {
+              "byteLength": 5,
+              "byteOffset": 289,
+              "endColumn": 39,
+              "endLine": 8,
+              "metadataKey": null,
+              "path": "Payment.cs",
+              "startColumn": 34,
+              "startLine": 8
+            },
+            "sourceHash": "85c1de21bdf176fd77a1271c425900a7fc29c727a53aa9ff9155ece1c7221eb8",
+            "sourceId": "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff"
+          }
+        ],
+        "evidenceIds": [
+          "83b6a5637c037279e4adb5012b0a8a461ae10ebc31199dedb3c942e47a37ba7a"
+        ],
+        "findingId": "4c66ef40badf4139e1a44da58b3e917c982c1453b6dbe3628cf00276cb49b2af",
+        "impacts": [
+          {
+            "certainty": "CONFIRMED_TOKEN",
+            "changeRequired": "UNKNOWN",
+            "reason": "Limited to the located source feature",
+            "subject": "Payment.cs"
+          }
+        ],
+        "outcome": "UNKNOWN",
+        "recommendations": [
+          "确认其为异步表达式后设计 CompletableFuture/执行器等方案；验证取消、异常、上下文和调用次序。"
+        ],
+        "rule": {
+          "officialSources": [
+            "https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/",
+            "https://docs.oracle.com/javase/specs/jls/se21/html/jls-3.html"
+          ],
+          "requiredFacts": [
+            "await token; binding and async state machine not resolved"
+          ],
+          "reviewedAt": "2026-09-17",
+          "ruleId": "CS_AWAIT",
+          "sourceRange": "C# 12.x",
+          "targetRange": "Java 21.x",
+          "version": "archlens-rules-1.1"
+        },
+        "ruleRef": "CS_AWAIT@archlens-rules-1.1",
+        "subjectId": "0617c4b4260818901cbe76895d5659ccd68169f2d1bb23147469e1f4f11abd55",
+        "summary": "发现 await 词法候选，尚未绑定异步调用或状态机。",
+        "unknownReasons": [
+          "Unresolved semantic binding or behavior"
+        ]
+      },
+      {
+        "conditions": [],
+        "evidence": [],
+        "evidenceIds": [
+          "d50a410637b87b98bd19f72b7a036b16035103397c6e79b12f49947895170e54",
+          "2b2fa5e0355f6226bc236a30f20a12ef267b017495174ddcc1d470e92626439b",
+          "f2086e332a27a9c1b67c3181d2df771bcaf47a2d9a16bdb5e0be7c68876cc007",
+          "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff"
+        ],
+        "findingId": "c2d06f726b523c31375a7371f38dae935dd80e620e7f5f86bd547677b982a567",
+        "impacts": [],
+        "outcome": "UNKNOWN",
+        "recommendations": [],
+        "rule": null,
+        "ruleRef": "unassessed-scope",
+        "subjectId": null,
+        "summary": null,
+        "unknownReasons": [
+          "Unchecked scope remains UNKNOWN; individual rules do not establish whole-project compatibility"
+        ]
+      }
+    ],
+    "finishedAt": "2026-09-22T05:47:28.546371200Z",
+    "inputFingerprint": "cb902515609153ed0cefe24230e5f25ccdade7659874d3be0752af24b0ca4dd3",
+    "orchestration": "DETERMINISTIC_ONLY_NO_MODEL_ORCHESTRATION",
+    "request": {
+      "budget": {
+        "maxBytes": 50000000,
+        "maxFiles": 1000,
+        "timeoutMillis": 30000
+      },
+      "columnRequest": null,
+      "constraints": [
+        "只读分析，不执行 MSBuild、NuGet restore 或源码"
+      ],
+      "files": [
+        "Core/Core.csproj",
+        "Core/Money.cs",
+        "MigrationSample.csproj",
+        "Payment.cs"
+      ],
+      "invariants": [
+        "保持金额精度、溢出、异步取消和 JSON 字段契约"
+      ],
+      "objective": "调查 C# 项目迁移到 Java 21 的源码特征、框架、包依赖与模块边界，提供证据及验证建议。",
+      "scenario": "LANGUAGE_MIGRATION",
+      "schemaVersion": "archlens.investigation-request.v1",
+      "sourceProfile": {
+        "product": "C#",
+        "version": "12"
+      },
+      "targetProfile": {
+        "product": "Java",
+        "version": "21"
+      }
+    },
+    "schemaVersion": "archlens.investigation-report.v2",
+    "sources": [
+      {
+        "bytes": 146,
+        "collectedAt": "2026-09-22T05:47:27.533973Z",
+        "location": {
+          "byteLength": 146,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 2,
+          "metadataKey": null,
+          "path": "Core/Core.csproj",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "Core/Core.csproj",
+        "producerVersion": "archlens-investigation-0.4",
+        "sha256": "2660d69f97ff51118858c9326db6040f515e85ec65d92749e2bc9f07d1aa0dd4",
+        "sourceId": "d50a410637b87b98bd19f72b7a036b16035103397c6e79b12f49947895170e54"
+      },
+      {
+        "bytes": 88,
+        "collectedAt": "2026-09-22T05:47:27.627085700Z",
+        "location": {
+          "byteLength": 88,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 3,
+          "metadataKey": null,
+          "path": "Core/Money.cs",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "Core/Money.cs",
+        "producerVersion": "archlens-investigation-0.4",
+        "sha256": "5866ce63d31945047369fd075ac4fcf9e1517f4e67438e6482b39f4cbce1a0a7",
+        "sourceId": "2b2fa5e0355f6226bc236a30f20a12ef267b017495174ddcc1d470e92626439b"
+      },
+      {
+        "bytes": 376,
+        "collectedAt": "2026-09-22T05:47:27.717673300Z",
+        "location": {
+          "byteLength": 376,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 6,
+          "metadataKey": null,
+          "path": "MigrationSample.csproj",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "MigrationSample.csproj",
+        "producerVersion": "archlens-investigation-0.4",
+        "sha256": "0b0d03a04dd5f643e9763ade5a7eb98534908bc05b4599d8d6652f0fbe511b45",
+        "sourceId": "f2086e332a27a9c1b67c3181d2df771bcaf47a2d9a16bdb5e0be7c68876cc007"
+      },
+      {
+        "bytes": 314,
+        "collectedAt": "2026-09-22T05:47:27.809000900Z",
+        "location": {
+          "byteLength": 314,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 10,
+          "metadataKey": null,
+          "path": "Payment.cs",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "Payment.cs",
+        "producerVersion": "archlens-investigation-0.4",
+        "sha256": "85c1de21bdf176fd77a1271c425900a7fc29c727a53aa9ff9155ece1c7221eb8",
+        "sourceId": "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff"
+      }
+    ],
+    "startedAt": "2026-09-22T05:47:27.444883500Z",
+    "status": "PARTIAL",
+    "verificationSuggestions": [
+      "按项目声明划分 Java 模块，逐项确认框架与直接/传递依赖的替代及未采集引用",
+      "建立金额精度、舍入、无符号上界、溢出及 JSON 字段/null/日期的输入输出黄金样例",
+      "对异步取消、异常传播、执行顺序、资源释放及平台/UI 能力制定独立回归用例",
+      "人工在隔离环境比较原实现与迁移实现；本次未生成 Java 代码或执行任何构建/行为验证"
+    ]
+  },
+  "modelCalls": 5,
+  "orchestration": "MODEL_TOOL_LOOP",
+  "parentReportHash": "6ed653b95001b29cb073dd8581c0fe35c6973d8bb98bd86fa62b3e967abbc0cd",
+  "questions": [],
+  "request": {
+    "agentBudget": {
+      "maxModelCalls": 16,
+      "maxToolCalls": 24,
+      "timeoutMillis": 120000
+    },
+    "collectionBudget": {
+      "maxBytes": 50000000,
+      "maxFiles": 1000,
+      "timeoutMillis": 30000
+    },
+    "columnRequest": null,
+    "constraints": [
+      "只读分析，不执行 MSBuild、NuGet restore 或源码"
+    ],
+    "files": [
+      "Core/Core.csproj",
+      "Core/Money.cs",
+      "MigrationSample.csproj",
+      "Payment.cs"
+    ],
+    "invariants": [
+      "保持金额精度、溢出、异步取消和 JSON 字段契约"
+    ],
+    "objective": "调查 C# 项目迁移到 Java 21 的源码特征、框架、包依赖与模块边界，提供证据及验证建议。",
+    "schemaVersion": "archlens.agent.v1",
+    "target": {
+      "scenario": "LANGUAGE_MIGRATION",
+      "sourceProfile": {
+        "product": "C#",
+        "version": null
+      },
+      "targetProfile": {
+        "product": "Java",
+        "version": "21"
+      }
+    }
+  },
+  "requestHash": "0cfb11cdf41475812fa4a8383c8a409feb9fd23ee8bed2ec4f4abd724f1d87c3",
+  "revision": 2,
+  "schemaVersion": "archlens.agent.v1",
+  "selectedRuleIds": [
+    "CS_AWAIT",
+    "CS_DECIMAL",
+    "CS_PROJECT_DEPENDENCY",
+    "CS_PROJECT_PROFILE",
+    "CS_PROJECT_REFERENCE",
+    "CS_SERIALIZATION",
+    "CS_UNSIGNED"
+  ],
+  "startedAt": "2026-09-22T05:47:23.438294500Z",
+  "status": "PARTIAL",
+  "trace": [
+    {
+      "argumentsHash": "873db8f3be1bc76a388d227edc065b0670daac9666781f6c02bd8c35e6265604",
+      "elapsedMillis": 85,
+      "resultCode": "OK",
+      "resultHash": "afc18975e8051b410a85484c514713dcd9260cd6c3d37b76577b21865365e80f",
+      "step": 1,
+      "tool": "propose_target"
+    },
+    {
+      "argumentsHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "elapsedMillis": 59,
+      "resultCode": "OK",
+      "resultHash": "545f6f3bf5c9f3b619abe21a89ea41bf44dd76ce8e11c8928957f913e0891e6c",
+      "step": 2,
+      "tool": "list_rules"
+    },
+    {
+      "argumentsHash": "6470f6191e6d4e9331d534d2be5ab3aeb32f577152ad06b336e6fda98e23ab23",
+      "elapsedMillis": 1290,
+      "resultCode": "OK",
+      "resultHash": "efc37511e67e667244b6484e54b9e03d50f85dd0e19ee36eef3b565aaee7d3a7",
+      "step": 3,
+      "tool": "run_analysis"
+    },
+    {
+      "argumentsHash": "84a451c195cead94db5e70dafb9870908fe646c58bd63f6a537d4b7c74882104",
+      "elapsedMillis": 37,
+      "resultCode": "OK",
+      "resultHash": "daea1d592ef13999e94aaf06049dad33c4b3f01e5315f585894a45e6d671065b",
+      "step": 4,
+      "tool": "read_evidence"
+    },
+    {
+      "argumentsHash": "da46c58460fcc25d8be480795ae2abdd5b318d90c080f5f104aec1abfeaa92d2",
+      "elapsedMillis": 78,
+      "resultCode": "OK",
+      "resultHash": "f5568135308ec0854fb0104689e4f0a520c6764915f2b1675a0c92bae15b38d8",
+      "step": 5,
+      "tool": "finish"
+    }
+  ],
+  "userAnswers": {
+    "sourceProfile.version": "12"
+  }
+}

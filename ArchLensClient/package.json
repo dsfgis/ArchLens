@@ -1,0 +1,7 @@
+{
+  "name": "archlens-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "start": "node server.mjs", "check": "node --check app.js && node --check server.mjs && node --check investigations.mjs && node --check workbench.js && node --check csharp-project.mjs", "test": "node --test tests/http.test.mjs" }
+}

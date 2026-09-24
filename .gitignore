@@ -1,0 +1,4 @@
+.ai-code-tracker.json
+**/.local/
+**/target/
+**/*.local.json

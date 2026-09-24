@@ -1,0 +1,100 @@
+{
+  "verifiedAt": "2026-09-17T09:00:52.8767517Z",
+  "rulePackage": "archlens-rules-1.0",
+  "jarSha256": "2d96088ef9dc75d3e2373ad2ada566838dc5a5ea1eb7c1e22473d2c048955cde",
+  "ruleCount": 22,
+  "cases": [
+    {
+      "scenario": "mysql-postgresql",
+      "report": "mysql-postgresql.json",
+      "status": "PARTIAL",
+      "ruleIds": [
+        "MYSQL_AUTO_INCREMENT",
+        "MYSQL_BACKTICK",
+        "MYSQL_IFNULL",
+        "MYSQL_SIGNED_INT",
+        "MYSQL_UNSIGNED"
+      ],
+      "findingCount": 6,
+      "gapCount": 7,
+      "sha256": "89f7954ae25073862959f959ca7a3560ecf3f6bb908444ac7dd572b35b911b00"
+    },
+    {
+      "scenario": "oracle-postgresql",
+      "report": "oracle-postgresql.json",
+      "status": "PARTIAL",
+      "ruleIds": [
+        "ORACLE_DATE",
+        "ORACLE_EMPTY_STRING",
+        "ORACLE_NEXTVAL",
+        "ORACLE_NVL",
+        "ORACLE_TYPE"
+      ],
+      "findingCount": 7,
+      "gapCount": 7,
+      "sha256": "8062a4e11a4ac559a37510a2da6dc600ab59bdb87bd0714ce9767ecf64c20f80"
+    },
+    {
+      "scenario": "csharp-java",
+      "report": "csharp-java.json",
+      "status": "PARTIAL",
+      "ruleIds": [
+        "CS_AWAIT",
+        "CS_DECIMAL",
+        "CS_SERIALIZATION",
+        "CS_UNSIGNED"
+      ],
+      "findingCount": 4,
+      "gapCount": 5,
+      "sha256": "3be2d04806d3ddac70e7acbf1e95f80336675df4ac82654e429be9e94b399372"
+    },
+    {
+      "scenario": "java-refactor",
+      "report": "java-refactor.json",
+      "status": "PARTIAL",
+      "ruleIds": [
+        "JAVA_API_CHANGE",
+        "JAVA_BODY_CHANGE",
+        "JAVA_STATE_CHANGE"
+      ],
+      "findingCount": 4,
+      "gapCount": 5,
+      "sha256": "f8f85d27934975cd802009c7b1d02d5ac8d3628e62244214b01c564690d4089e"
+    },
+    {
+      "scenario": "spring-boot",
+      "report": "spring-boot.json",
+      "status": "PARTIAL",
+      "ruleIds": [
+        "BOOT_JAKARTA",
+        "BOOT_JAVA17",
+        "BOOT_SERVLET_DEPENDENCY"
+      ],
+      "findingCount": 3,
+      "gapCount": 6,
+      "sha256": "6d8535aa6794bfda66c4905aa2cdfd7e84f22924998d635c90c9d64fb8b75550"
+    },
+    {
+      "scenario": "jdk-upgrade",
+      "report": "jdk-upgrade.json",
+      "status": "PARTIAL",
+      "ruleIds": [
+        "JDK_JAXB"
+      ],
+      "findingCount": 1,
+      "gapCount": 5,
+      "sha256": "2495a3301a3a6733ba33e5a6a76253d7327d663cb1e4210ad4d45c6332b6f381"
+    },
+    {
+      "scenario": "httpclient-upgrade",
+      "report": "httpclient-upgrade.json",
+      "status": "PARTIAL",
+      "ruleIds": [
+        "HTTPCLIENT_NAMESPACE"
+      ],
+      "findingCount": 1,
+      "gapCount": 5,
+      "sha256": "305b1124ca51a75ae2b16ee2cd8a15625453aeb634c8e6f914fd6b55d871dd3b"
+    }
+  ]
+}

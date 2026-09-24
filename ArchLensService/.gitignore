@@ -1,0 +1,10 @@
+**/target/
+.local/
+.idea/
+*.iml
+*.log
+qa/pages/
+qa/*.pdf
+qa/*.png
+qa/*hashes.json
+.ai-code-tracker.json

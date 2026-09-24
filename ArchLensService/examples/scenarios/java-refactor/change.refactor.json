@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "archlens.refactor-plan.v1",
+  "pairs": [
+    {
+      "before": "before/Counter.java",
+      "after": "after/Counter.java"
+    }
+  ]
+}

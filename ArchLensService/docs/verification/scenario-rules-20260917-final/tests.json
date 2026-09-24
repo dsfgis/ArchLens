@@ -1,0 +1,466 @@
+{
+  "verifiedAt": "2026-09-17T09:00:54.01585Z",
+  "tests": 87.0,
+  "failures": 0.0,
+  "errors": 0.0,
+  "skipped": 1.0,
+  "suites": [
+    {
+      "name": "io.archlens.BlastRadiusTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "allBudgetsAndContainsHaveObservableBoundaries",
+          "skipped": false
+        },
+        {
+          "name": "knownRenameAndUnresolvedConsumerExtendRiskUpperBound",
+          "skipped": false
+        },
+        {
+          "name": "candidateChainCannotUpgradeToConfirmed",
+          "skipped": false
+        },
+        {
+          "name": "fix01RenameIsYesAtSqlButUnknownForObjectCaller",
+          "skipped": false
+        },
+        {
+          "name": "riskHalfUpAndUnknownIntervalsDoNotUseConfidence",
+          "skipped": false
+        },
+        {
+          "name": "depthLimitDoesNotMarkLeafAsTruncated",
+          "skipped": false
+        },
+        {
+          "name": "sixHopObjectChainUsesUnroundedComputation",
+          "skipped": false
+        },
+        {
+          "name": "nullabilityTighteningWithoutActualNullWriteEvidenceIsUnknown",
+          "skipped": false
+        },
+        {
+          "name": "beforeMismatchAndSemanticDriftAreRejected",
+          "skipped": false
+        },
+        {
+          "name": "fix09FourthLowerStrengthPathStillMakesYesAndCycleTerminates",
+          "skipped": false
+        },
+        {
+          "name": "fix02ProposedAliasNeverBecomesVerifiedNo",
+          "skipped": false
+        },
+        {
+          "name": "fix08TextToUuidRetainsUnknownRisk",
+          "skipped": false
+        }
+      ]
+    },
+    {
+      "name": "io.archlens.ContractTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "duplicateRelationsMergeEvidenceWithoutChangingFacts",
+          "skipped": false
+        },
+        {
+          "name": "attributesAndGraphCannotBeMutated",
+          "skipped": false
+        },
+        {
+          "name": "endpointTypeAndConfidenceCannotBeSilentlyCorrected",
+          "skipped": false
+        },
+        {
+          "name": "confirmedEdgeMustHaveEvidence",
+          "skipped": false
+        },
+        {
+          "name": "sameIdDifferentContentIsRejected",
+          "skipped": false
+        },
+        {
+          "name": "unknownEnumsFieldsDuplicateJsonAndTypeCoercionAreRejected",
+          "skipped": false
+        },
+        {
+          "name": "canonicalHashIsStableAndUnicodeCodePointSorted",
+          "skipped": false
+        },
+        {
+          "name": "typeSpecificAttributesCannotInventValues",
+          "skipped": false
+        },
+        {
+          "name": "invalidLocationAndSnippetHashAreRejected",
+          "skipped": false
+        },
+        {
+          "name": "referencedEvidenceAndEndpointsMustExist",
+          "skipped": false
+        },
+        {
+          "name": "foreignSnapshotIsRejectedEvenWithValidForeignId",
+          "skipped": false
+        }
+      ]
+    },
+    {
+      "name": "io.archlens.DeepSeekGatewayTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "inventedFactFieldsAndMalformedOrTruncatedOutputAreRejected",
+          "skipped": false
+        },
+        {
+          "name": "credentialsGoOnlyToOfficialEndpointAndTimeoutIsBounded",
+          "skipped": false
+        },
+        {
+          "name": "providerErrorsAreSanitized",
+          "skipped": false
+        },
+        {
+          "name": "validProposalIsNeverVerifiedChangeSpec",
+          "skipped": false
+        },
+        {
+          "name": "missingTargetRequiresQuestions",
+          "skipped": false
+        },
+        {
+          "name": "missingKeyAndInvalidInputFailBeforeCallingProvider",
+          "skipped": false
+        }
+      ]
+    },
+    {
+      "name": "io.archlens.InvestigationTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "cases": [
+        {
+          "name": "budgetsAndMissingSourcesRemainVisible",
+          "skipped": false
+        },
+        {
+          "name": "symlinkOutsideRootIsRejectedWhenSupported",
+          "skipped": true
+        },
+        {
+          "name": "columnAdapterRetainsRealEvidenceAndLegacyResults",
+          "skipped": false
+        },
+        {
+          "name": "missingVersionsKeepCompatibilityUnknownAndInventoryTraceable",
+          "skipped": false
+        },
+        {
+          "name": "credentialsAreSeparateAndConfigurationNeverPrintsSecrets",
+          "skipped": false
+        },
+        {
+          "name": "currentStateHasNoTargetClarificationAndChangedBytesInvalidateFingerprint",
+          "skipped": false
+        },
+        {
+          "name": "sourceDriftIsDetectedAndCancellationPreservesCollectedEvidence",
+          "skipped": false
+        },
+        {
+          "name": "traversalAndUnknownExecutableFieldsAreRejected",
+          "skipped": false
+        },
+        {
+          "name": "elapsedBudgetPreservesPartialInventoryWithoutPublishingColumnAnalysis",
+          "skipped": false
+        },
+        {
+          "name": "cancellationBeforeColumnCollectionDoesNotReadMissingFiles",
+          "skipped": false
+        },
+        {
+          "name": "sourceInstructionsAreNeverExecutedOrSentToModel",
+          "skipped": false
+        },
+        {
+          "name": "newCliDoesNotOverwriteAndDoesNotExposeRawErrors",
+          "skipped": false
+        }
+      ]
+    },
+    {
+      "name": "io.archlens.MapperAnalyzerTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "dynamicIdentifierAndNestedBranchNeverInventEdges",
+          "skipped": false
+        },
+        {
+          "name": "joinAndSubqueryDoNotGuessBindings",
+          "skipped": false
+        },
+        {
+          "name": "staticMapperBindsRealJavaDeclarationAndOriginalBytes",
+          "skipped": false
+        },
+        {
+          "name": "namespaceMismatchAndDuplicateStatementsDoNotBind",
+          "skipped": false
+        },
+        {
+          "name": "xmlEntitiesAreRejectedWithoutReadingExternalFiles",
+          "skipped": false
+        },
+        {
+          "name": "postgresUnquotedCaseAndAliasAreResolvedButQuotedCaseIsPreserved",
+          "skipped": false
+        },
+        {
+          "name": "lineColumnAndByteOffsetsUseOriginalUnicodeAndCrLf",
+          "skipped": false
+        },
+        {
+          "name": "sqlAliasKeepsPhysicalColumnDependency",
+          "skipped": false
+        },
+        {
+          "name": "packagedEntryFlowProducesReportAndNeverOverwritesSourceOrPreviousReport",
+          "skipped": false
+        },
+        {
+          "name": "schemaQualifierAndAnnotationConflictsCannotBeGuessed",
+          "skipped": false
+        },
+        {
+          "name": "unresolvedExpressionAndColumnKeepDiagnostics",
+          "skipped": false
+        },
+        {
+          "name": "sourcePathCannotEscapeAndInvalidUtf8IsRejected",
+          "skipped": false
+        }
+      ]
+    },
+    {
+      "name": "io.archlens.Neo4jProjectionTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "standaloneNeo4jTransactionRoundTripAndConcurrentRetry",
+          "skipped": false
+        }
+      ]
+    },
+    {
+      "name": "io.archlens.ScenarioRulesTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "springBootMatchesOnlyMigratedNamespacesAndDirectPomFacts",
+          "skipped": false
+        },
+        {
+          "name": "csharpPreprocessorAndInterpolatedRawStringsStayUnknown",
+          "skipped": false
+        },
+        {
+          "name": "mysqlChecksNativeSyntaxAndNarrowCompatibleRangeWithOriginalUtf8Evidence",
+          "skipped": false
+        },
+        {
+          "name": "sourceVersionConflictWithholdsEarlierJavaFindings",
+          "skipped": false
+        },
+        {
+          "name": "csharpFeaturesDoNotClaimBusinessEquivalence",
+          "skipped": false
+        },
+        {
+          "name": "jdkAndHttpClientUpgradesRequireClasspathAndCoexistenceVerification",
+          "skipped": false
+        },
+        {
+          "name": "refactorWhitespaceAndCommentsDoNotChangeMethodBehaviorAst",
+          "skipped": false
+        },
+        {
+          "name": "csharpStringsCommentsAndEscapedIdentifiersDoNotTriggerRules",
+          "skipped": false
+        },
+        {
+          "name": "oracleQuotedNamesAndQualifiedUserFunctionsDoNotPretendBuiltinBinding",
+          "skipped": false
+        },
+        {
+          "name": "mysqlCommentsStringsAndColumnNamesAreNotAttributes",
+          "skipped": false
+        },
+        {
+          "name": "refactorDetectsDeletedApiBodyAndStateChangesWithoutInventingCallEdges",
+          "skipped": false
+        },
+        {
+          "name": "excessiveFindingsAreBoundedAndNeverTurnIntoAFalseCleanReport",
+          "skipped": false
+        },
+        {
+          "name": "unknownOrUnsupportedVersionsNeverApplyRules",
+          "skipped": false
+        },
+        {
+          "name": "refactorUnresolvedSignaturesAndUnlistedSourcesAreNotReadOrDeclaredCompatible",
+          "skipped": false
+        },
+        {
+          "name": "sourceAndRuleFingerprintsAreStableAndEveryFindingHasResolvableEvidence",
+          "skipped": false
+        },
+        {
+          "name": "historicalFindingJsonRemainsReadable",
+          "skipped": false
+        },
+        {
+          "name": "oracleTypesDateEmptyStringsAndSequenceCallsHaveScopedOutcomes",
+          "skipped": false
+        },
+        {
+          "name": "driftAndCancellationWithholdScenarioFindings",
+          "skipped": false
+        },
+        {
+          "name": "refactorReturnVisibilityAndStaticChangesBreakCheckedDescriptors",
+          "skipped": false
+        },
+        {
+          "name": "proceduresAndExecutableCommentsRemainUnknown",
+          "skipped": false
+        },
+        {
+          "name": "upgradeJavaCommentsAndMalformedImportsProduceNoFindings",
+          "skipped": false
+        },
+        {
+          "name": "refactorPackageMoveAndInheritanceRemainUnknown",
+          "skipped": false
+        },
+        {
+          "name": "mavenProfilesManagementAndCommentsAreNotDirectDependenciesAndXmlIsSafe",
+          "skipped": false
+        },
+        {
+          "name": "javaAstEvidenceUsesOriginalUnicodeAndCrLfPositions",
+          "skipped": false
+        },
+        {
+          "name": "unsupportedSqlModesAndMalformedInputsDiscardAllFileMatches",
+          "skipped": false
+        }
+      ]
+    },
+    {
+      "name": "io.archlens.StorageIntegrationTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "realRoundTripAndProjectionAreIdempotent",
+          "skipped": false
+        },
+        {
+          "name": "expiredLeaseRejectsLateCompletionAndCanBeRecovered",
+          "skipped": false
+        },
+        {
+          "name": "projectionFailureDoesNotDiscardPgReportAndRetryUsesSameGraph",
+          "skipped": false
+        },
+        {
+          "name": "cancellationFencesLateWritesAndRetainsCheckpoint",
+          "skipped": false
+        },
+        {
+          "name": "differentRunGraphsNeverMixEvenWithIdenticalOfflineScope",
+          "skipped": false
+        },
+        {
+          "name": "nativePostgres16ReadOnlyProbesSupportDialectRules",
+          "skipped": false
+        },
+        {
+          "name": "scenarioReportsRoundTripWithoutInventedGraphProjections",
+          "skipped": false
+        },
+        {
+          "name": "revisionsAreSerializedAndOldReportIsNotCurrent",
+          "skipped": false
+        }
+      ]
+    }
+  ],
+  "storage": [
+    {
+      "scenario": "mysql-postgresql",
+      "runId": "14232a3b-aa58-488f-bb03-e802f35bdd30",
+      "canonicalReportHash": "0f0ea567a7d92ed6cd0026d3661a3cfbbfa2fb0914cb357f92da6c11ff2a215c"
+    },
+    {
+      "scenario": "oracle-postgresql",
+      "runId": "87b1c541-71e3-41fa-af74-5789a0339ecc",
+      "canonicalReportHash": "ff5c1e72502ee1081bf5685240d4fcfe8a9eaa4cb4431e2e8e7c4502d99a98c4"
+    },
+    {
+      "scenario": "csharp-java",
+      "runId": "4a36d401-50eb-48ab-a2db-6646f7363f60",
+      "canonicalReportHash": "c8b47e5afcc29c778dc700f31a11e8deda2362ccb6fe9dde3abb5d284a32cc45"
+    },
+    {
+      "scenario": "java-refactor",
+      "runId": "f20c0ac5-2832-467f-a225-21afa515f900",
+      "canonicalReportHash": "c4e44ed5d786b8ba886242fdbbafe6a31ea47aa2442bcd6709b24bd14bfd5f02"
+    },
+    {
+      "scenario": "spring-boot",
+      "runId": "9c22eb24-d5b5-41f2-83a1-a3b4e81d35bf",
+      "canonicalReportHash": "14bfc0a1e76135b6dcbdf410ccb018ff9b99819590dccef22961d0f07fd80fda"
+    },
+    {
+      "scenario": "jdk-upgrade",
+      "runId": "cab6c3fb-80b3-4907-9286-e88b0533198a",
+      "canonicalReportHash": "cd39b29440acbc6b10a44bdfc554d0eff8555855f157f90baa82413fef2f1d3e"
+    },
+    {
+      "scenario": "httpclient-upgrade",
+      "runId": "49dcb31b-8c09-4d43-b42d-cb6af8cb187f",
+      "canonicalReportHash": "cb8b54873b0189f58a5d1c69c96476ce02162b5f3aabc997d0fe9cfe7b35224c"
+    }
+  ]
+}

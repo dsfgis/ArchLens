@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "archlens.investigation-request.v1",
+  "scenario": "LANGUAGE_MIGRATION",
+  "sourceProfile": {
+    "product": "C#",
+    "version": "12"
+  },
+  "targetProfile": {
+    "product": "Java",
+    "version": "21"
+  },
+  "objective": "调查金额、无符号整数、异步与序列化迁移",
+  "constraints": [
+    "只读调查，不编译或执行样例"
+  ],
+  "invariants": [
+    "保留金额、空值、异常及外部接口约定"
+  ],
+  "files": [
+    "Payment.cs"
+  ],
+  "columnRequest": null,
+  "budget": {
+    "maxFiles": 30,
+    "maxBytes": 1000000,
+    "timeoutMillis": 30000
+  }
+}

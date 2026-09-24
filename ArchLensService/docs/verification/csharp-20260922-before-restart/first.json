@@ -1,0 +1,103 @@
+{
+  "caseId": "100a7e45-0efd-47bc-8ea7-91071291b1bd",
+  "checkpoint": null,
+  "latestRevision": false,
+  "projectionState": "NOT_APPLICABLE",
+  "report": {
+    "diagnostics": [],
+    "engineVersion": "archlens-agent-0.1",
+    "explanationStatus": "NO_MODEL_EXPLANATION",
+    "explanations": [],
+    "finishedAt": "2026-09-22T05:45:31.021426700Z",
+    "interpretedTarget": {
+      "scenario": "LANGUAGE_MIGRATION",
+      "sourceProfile": {
+        "product": "C#",
+        "version": null
+      },
+      "targetProfile": {
+        "product": "Java",
+        "version": "21"
+      }
+    },
+    "investigation": null,
+    "modelCalls": 2,
+    "orchestration": "MODEL_TOOL_LOOP",
+    "parentReportHash": null,
+    "questions": [
+      {
+        "field": "sourceProfile.version",
+        "prompt": "源项目使用的 C# 语言版本是多少（例如 12）？这是 C# 语言版本，不是 .NET/TFM（如 net8.0）。",
+        "questionId": "7a43ef3f819eaca0cc8f7eb53c75050920eaa34eacebc6a5e36afcc2e5ae69ae"
+      }
+    ],
+    "request": {
+      "agentBudget": {
+        "maxModelCalls": 16,
+        "maxToolCalls": 24,
+        "timeoutMillis": 120000
+      },
+      "collectionBudget": {
+        "maxBytes": 50000000,
+        "maxFiles": 1000,
+        "timeoutMillis": 30000
+      },
+      "columnRequest": null,
+      "constraints": [
+        "只读分析，不执行 MSBuild、NuGet restore 或源码"
+      ],
+      "files": [
+        "Core/Core.csproj",
+        "Core/Money.cs",
+        "MigrationSample.csproj",
+        "Payment.cs"
+      ],
+      "invariants": [
+        "保持金额精度、溢出、异步取消和 JSON 字段契约"
+      ],
+      "objective": "调查 C# 项目迁移到 Java 21 的源码特征、框架、包依赖与模块边界，提供证据及验证建议。",
+      "schemaVersion": "archlens.agent.v1",
+      "target": {
+        "scenario": "LANGUAGE_MIGRATION",
+        "sourceProfile": {
+          "product": "C#",
+          "version": null
+        },
+        "targetProfile": {
+          "product": "Java",
+          "version": "21"
+        }
+      }
+    },
+    "requestHash": "0cfb11cdf41475812fa4a8383c8a409feb9fd23ee8bed2ec4f4abd724f1d87c3",
+    "revision": 1,
+    "schemaVersion": "archlens.agent.v1",
+    "selectedRuleIds": [],
+    "startedAt": "2026-09-22T05:45:28.022068Z",
+    "status": "NEEDS_CLARIFICATION",
+    "trace": [
+      {
+        "argumentsHash": "720e61db485fb6a16da2a3c96ce8f7e5f733f757212280c25650debed5edff40",
+        "elapsedMillis": 29,
+        "resultCode": "OK",
+        "resultHash": "4e462a95c3a43d95f08bbfd313f544f02fe7ad0bbe9307c443d44df4c0c3ff60",
+        "step": 1,
+        "tool": "propose_target"
+      },
+      {
+        "argumentsHash": "9ce74e1ea09349bfd37a24cfab75a9e2850ac2d9e1219408d6e75420c4ba424b",
+        "elapsedMillis": 43,
+        "resultCode": "OK",
+        "resultHash": "017d2f902fff5392a223b6c26ee6c9a9b62441ff51917e88b85f889d2e807092",
+        "step": 2,
+        "tool": "ask_clarification"
+      }
+    ],
+    "userAnswers": {}
+  },
+  "reportHash": "6ed653b95001b29cb073dd8581c0fe35c6973d8bb98bd86fa62b3e967abbc0cd",
+  "revision": 1,
+  "runId": "6d65ca3e-dca0-4419-aa23-cc168cef38d4",
+  "state": "PARTIAL",
+  "sourceRoot": "D:\\study\\code\\ArchLens\\ArchLensService\\examples\\scenarios\\csharp-java"
+}

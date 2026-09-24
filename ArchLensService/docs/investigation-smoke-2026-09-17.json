@@ -1,0 +1,9 @@
+{
+  "report": "target/investigation-final-20260917-040606-503.json",
+  "sha256": "ffd89ff7badc2ca7a4d4faea8d4cb40adb1db4a134ef676d49028232eceb0c20",
+  "status": "PARTIAL",
+  "sourceCount": 3,
+  "graphNodes": 3,
+  "graphEdges": 2,
+  "compatibility": "UNKNOWN"
+}

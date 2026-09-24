@@ -1,0 +1,19 @@
+{
+  "verifiedAt": "2026-09-20T02:12:15.679Z",
+  "caseId": "cd176b26-583d-4dc2-984a-949968c47c77",
+  "firstRunId": "694ab3e4-b28a-4917-af5b-99c047aefdc3",
+  "secondRunId": "6353f253-2974-49f1-aed9-b4db72b91a96",
+  "firstReportHash": "0ea4710fd7a39dda46264e58bc61b0c36239cd5acd02586b716a8360582f2846",
+  "secondReportHash": "b29f8bf682ab6768e8f6276437b9db173da90970c97a36ab18737477fc59f69c",
+  "sourceHash": "bbe6df1dbacaf7e44a32f0ea3773c7c6c9aa14781bd38e8e8b44647c3526bdbd",
+  "orchestration": "MODEL_TOOL_LOOP",
+  "modelCalls": 5,
+  "findings": 7,
+  "explanations": 6,
+  "downloadMatches": true,
+  "staleAnswerRejected": true,
+  "historyRevisions": [
+    2,
+    1
+  ]
+}

@@ -1,0 +1,334 @@
+{
+  "status" : "PARTIAL",
+  "request" : {
+    "files" : [ "schema.sql" ],
+    "budget" : {
+      "maxBytes" : 1000000,
+      "maxFiles" : 30,
+      "timeoutMillis" : 30000
+    },
+    "scenario" : "DATABASE_MIGRATION",
+    "objective" : "调查 MySQL 表结构及空值函数迁移差异",
+    "invariants" : [ "保留金额、空值、异常及外部接口约定" ],
+    "constraints" : [ "只读调查，不编译或执行样例" ],
+    "columnRequest" : null,
+    "schemaVersion" : "archlens.investigation-request.v1",
+    "sourceProfile" : {
+      "product" : "MySQL",
+      "version" : "8.0.36"
+    },
+    "targetProfile" : {
+      "product" : "PostgreSQL",
+      "version" : "16"
+    }
+  },
+  "sources" : [ {
+    "path" : "schema.sql",
+    "bytes" : 205,
+    "sha256" : "bbe6df1dbacaf7e44a32f0ea3773c7c6c9aa14781bd38e8e8b44647c3526bdbd",
+    "location" : {
+      "path" : "schema.sql",
+      "endLine" : 8,
+      "endColumn" : 1,
+      "startLine" : 1,
+      "byteLength" : 205,
+      "byteOffset" : 0,
+      "metadataKey" : null,
+      "startColumn" : 1
+    },
+    "sourceId" : "7b8bcea4fdbc45f0af2c48c69058323c0fc516f696ad80f8e3e45d7c78c718e7",
+    "collectedAt" : "2026-09-17T08:58:59.882468700Z",
+    "producerVersion" : "archlens-investigation-0.3"
+  } ],
+  "findings" : [ {
+    "rule" : {
+      "ruleId" : "MYSQL_UNSIGNED",
+      "version" : "archlens-rules-1.0",
+      "reviewedAt" : "2026-09-17",
+      "sourceRange" : "MySQL 8.0.x",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "CREATE TABLE numeric column attribute" ],
+      "officialSources" : [ "https://dev.mysql.com/doc/refman/8.0/en/numeric-type-attributes.html", "https://www.postgresql.org/docs/16/datatype-numeric.html" ]
+    },
+    "impacts" : [ {
+      "reason" : "Limited to the located source feature",
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "YES"
+    } ],
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "MYSQL_UNSIGNED@archlens-rules-1.0",
+    "summary" : "PostgreSQL 原生数值类型没有 UNSIGNED 列属性。",
+    "evidence" : [ {
+      "kind" : "LEXICAL_FEATURE",
+      "location" : {
+        "path" : "schema.sql",
+        "endLine" : 3,
+        "endColumn" : 21,
+        "startLine" : 3,
+        "byteLength" : 8,
+        "byteOffset" : 98,
+        "metadataKey" : null,
+        "startColumn" : 13
+      },
+      "sourceId" : "7b8bcea4fdbc45f0af2c48c69058323c0fc516f696ad80f8e3e45d7c78c718e7",
+      "evidenceId" : "cdb93c1580277dddf4c3566fbaf6cf1022a043997dc7b13c191fde5b3cbb4b2e",
+      "sourceHash" : "bbe6df1dbacaf7e44a32f0ea3773c7c6c9aa14781bd38e8e8b44647c3526bdbd"
+    } ],
+    "findingId" : "bb33226466ac1465832fd8d77ea562c879957ed4a4ce9a1fe77942f10e119242",
+    "subjectId" : "16076c24c9b06379c596e3e14645871b51956a6af1aa4dce83dd0a97d7644bec",
+    "conditions" : [ ],
+    "evidenceIds" : [ "cdb93c1580277dddf4c3566fbaf6cf1022a043997dc7b13c191fde5b3cbb4b2e" ],
+    "unknownReasons" : [ ],
+    "recommendations" : [ "按源类型范围选择更宽有符号类型或 numeric，并评估非负 CHECK；特别验证 BIGINT UNSIGNED 上界。" ]
+  }, {
+    "rule" : {
+      "ruleId" : "MYSQL_AUTO_INCREMENT",
+      "version" : "archlens-rules-1.0",
+      "reviewedAt" : "2026-09-17",
+      "sourceRange" : "MySQL 8.0.x",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "CREATE TABLE column AUTO_INCREMENT" ],
+      "officialSources" : [ "https://dev.mysql.com/doc/refman/8.0/en/example-auto-increment.html", "https://www.postgresql.org/docs/16/sql-createtable.html" ]
+    },
+    "impacts" : [ {
+      "reason" : "Limited to the located source feature",
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "YES"
+    } ],
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "MYSQL_AUTO_INCREMENT@archlens-rules-1.0",
+    "summary" : "AUTO_INCREMENT 列属性不能直接迁移到 PostgreSQL。",
+    "evidence" : [ {
+      "kind" : "LEXICAL_FEATURE",
+      "location" : {
+        "path" : "schema.sql",
+        "endLine" : 3,
+        "endColumn" : 36,
+        "startLine" : 3,
+        "byteLength" : 14,
+        "byteOffset" : 107,
+        "metadataKey" : null,
+        "startColumn" : 22
+      },
+      "sourceId" : "7b8bcea4fdbc45f0af2c48c69058323c0fc516f696ad80f8e3e45d7c78c718e7",
+      "evidenceId" : "a74836627d311f90d0d2b291dbf2887d2fd6f86758da207db71ffbd03dda9c4a",
+      "sourceHash" : "bbe6df1dbacaf7e44a32f0ea3773c7c6c9aa14781bd38e8e8b44647c3526bdbd"
+    } ],
+    "findingId" : "84b8414e2828529122bb799355200779fe647f8e2d1b5fa6da66ec509057a57e",
+    "subjectId" : "d36ce0c798785afe3a8120c3c6af4eb74c30904acc79b92d678b1a35a57d0e4b",
+    "conditions" : [ ],
+    "evidenceIds" : [ "a74836627d311f90d0d2b291dbf2887d2fd6f86758da207db71ffbd03dda9c4a" ],
+    "unknownReasons" : [ ],
+    "recommendations" : [ "评估 identity；验证显式 0/NULL、导入历史 ID、下一序列值和生成键读取行为。" ]
+  }, {
+    "rule" : {
+      "ruleId" : "MYSQL_SIGNED_INT",
+      "version" : "archlens-rules-1.0",
+      "reviewedAt" : "2026-09-17",
+      "sourceRange" : "MySQL 8.0.x",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "Plain signed INT/INTEGER column; value range only" ],
+      "officialSources" : [ "https://dev.mysql.com/doc/refman/8.0/en/integer-types.html", "https://www.postgresql.org/docs/16/datatype-numeric.html" ]
+    },
+    "impacts" : [ {
+      "reason" : "Limited to the located source feature",
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "UNKNOWN"
+    } ],
+    "outcome" : "COMPATIBLE",
+    "ruleRef" : "MYSQL_SIGNED_INT@archlens-rules-1.0",
+    "summary" : "仅已检查的无修饰有符号 INT 值域与 PostgreSQL integer 一致。",
+    "evidence" : [ {
+      "kind" : "LEXICAL_FEATURE",
+      "location" : {
+        "path" : "schema.sql",
+        "endLine" : 4,
+        "endColumn" : 15,
+        "startLine" : 4,
+        "byteLength" : 3,
+        "byteOffset" : 134,
+        "metadataKey" : null,
+        "startColumn" : 12
+      },
+      "sourceId" : "7b8bcea4fdbc45f0af2c48c69058323c0fc516f696ad80f8e3e45d7c78c718e7",
+      "evidenceId" : "22a5da112f1f3529d81da857ea9e0e5b61b0719bb49f2ada0487e57429f5d1bd",
+      "sourceHash" : "bbe6df1dbacaf7e44a32f0ea3773c7c6c9aa14781bd38e8e8b44647c3526bdbd"
+    } ],
+    "findingId" : "2533706ff26ccdafddc29985fc4482fc9dee82ab85983d648255b898e49fc80c",
+    "subjectId" : "40accb69f2b4a0b015e43b2a2a84abbbfd0554366be7ed070bde22fd4b7e1a61",
+    "conditions" : [ "结论仅覆盖该声明的整数值域，不覆盖其他语义" ],
+    "evidenceIds" : [ "22a5da112f1f3529d81da857ea9e0e5b61b0719bb49f2ada0487e57429f5d1bd" ],
+    "unknownReasons" : [ ],
+    "recommendations" : [ "仍需检查默认值、约束、SQL 表达式与调用者，不代表整列/整表可迁移。" ]
+  }, {
+    "rule" : {
+      "ruleId" : "MYSQL_BACKTICK",
+      "version" : "archlens-rules-1.0",
+      "reviewedAt" : "2026-09-17",
+      "sourceRange" : "MySQL 8.0.x",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "Backtick identifier token" ],
+      "officialSources" : [ "https://dev.mysql.com/doc/refman/8.0/en/identifiers.html", "https://www.postgresql.org/docs/16/sql-syntax-lexical.html" ]
+    },
+    "impacts" : [ {
+      "reason" : "Limited to the located source feature",
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "YES"
+    } ],
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "MYSQL_BACKTICK@archlens-rules-1.0",
+    "summary" : "反引号标识符不能直接用于 PostgreSQL 原生 SQL。",
+    "evidence" : [ {
+      "kind" : "LEXICAL_FEATURE",
+      "location" : {
+        "path" : "schema.sql",
+        "endLine" : 2,
+        "endColumn" : 22,
+        "startLine" : 2,
+        "byteLength" : 8,
+        "byteOffset" : 75,
+        "metadataKey" : null,
+        "startColumn" : 14
+      },
+      "sourceId" : "7b8bcea4fdbc45f0af2c48c69058323c0fc516f696ad80f8e3e45d7c78c718e7",
+      "evidenceId" : "076a225e96ebeb0e5bc4a1dfce3dce35b3abe09d0e2492da9e402ab290403f1e",
+      "sourceHash" : "bbe6df1dbacaf7e44a32f0ea3773c7c6c9aa14781bd38e8e8b44647c3526bdbd"
+    } ],
+    "findingId" : "73ccb237a5722130f97d1739f90360e5e1c232e0751403b722995e8aec2e99b3",
+    "subjectId" : "23ee20986cae1f9365abaef811211b1dfd12cc7a7c1a44ee8a9bc2b7d0fcee5e",
+    "conditions" : [ ],
+    "evidenceIds" : [ "076a225e96ebeb0e5bc4a1dfce3dce35b3abe09d0e2492da9e402ab290403f1e" ],
+    "unknownReasons" : [ ],
+    "recommendations" : [ "按实际大小写使用双引号或未引用标识符；核对大小写折叠。" ]
+  }, {
+    "rule" : {
+      "ruleId" : "MYSQL_IFNULL",
+      "version" : "archlens-rules-1.0",
+      "reviewedAt" : "2026-09-17",
+      "sourceRange" : "MySQL 8.0.x",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "Unqualified IFNULL call in SELECT" ],
+      "officialSources" : [ "https://dev.mysql.com/doc/refman/8.0/en/flow-control-functions.html", "https://www.postgresql.org/docs/16/functions-conditional.html" ]
+    },
+    "impacts" : [ {
+      "reason" : "Limited to the located source feature",
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "YES"
+    } ],
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "MYSQL_IFNULL@archlens-rules-1.0",
+    "summary" : "PostgreSQL 16 原生函数集合不提供该同名空值函数。",
+    "evidence" : [ {
+      "kind" : "LEXICAL_FEATURE",
+      "location" : {
+        "path" : "schema.sql",
+        "endLine" : 7,
+        "endColumn" : 14,
+        "startLine" : 7,
+        "byteLength" : 6,
+        "byteOffset" : 172,
+        "metadataKey" : null,
+        "startColumn" : 8
+      },
+      "sourceId" : "7b8bcea4fdbc45f0af2c48c69058323c0fc516f696ad80f8e3e45d7c78c718e7",
+      "evidenceId" : "15e291095bbec6f2b0feced93757cab954932ba8beb1bb031ff664f3abbf4676",
+      "sourceHash" : "bbe6df1dbacaf7e44a32f0ea3773c7c6c9aa14781bd38e8e8b44647c3526bdbd"
+    } ],
+    "findingId" : "31ddd510aa8dbdfd2189d6ef8ee3bb616c88cbc031222a9eb36867f277af1160",
+    "subjectId" : "9fcdf23e2a8233dd239b6896261a947b3d9575897b732d7f20fe8e9640dde056",
+    "conditions" : [ "结论限原生 PostgreSQL；目标是否提供兼容扩展/自定义同名函数未核实" ],
+    "evidenceIds" : [ "15e291095bbec6f2b0feced93757cab954932ba8beb1bb031ff664f3abbf4676" ],
+    "unknownReasons" : [ ],
+    "recommendations" : [ "评估 COALESCE；验证隐式类型转换、求值副作用和 NULL 样例。" ]
+  }, {
+    "rule" : {
+      "ruleId" : "MYSQL_BACKTICK",
+      "version" : "archlens-rules-1.0",
+      "reviewedAt" : "2026-09-17",
+      "sourceRange" : "MySQL 8.0.x",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "Backtick identifier token" ],
+      "officialSources" : [ "https://dev.mysql.com/doc/refman/8.0/en/identifiers.html", "https://www.postgresql.org/docs/16/sql-syntax-lexical.html" ]
+    },
+    "impacts" : [ {
+      "reason" : "Limited to the located source feature",
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "YES"
+    } ],
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "MYSQL_BACKTICK@archlens-rules-1.0",
+    "summary" : "反引号标识符不能直接用于 PostgreSQL 原生 SQL。",
+    "evidence" : [ {
+      "kind" : "LEXICAL_FEATURE",
+      "location" : {
+        "path" : "schema.sql",
+        "endLine" : 7,
+        "endColumn" : 39,
+        "startLine" : 7,
+        "byteLength" : 8,
+        "byteOffset" : 195,
+        "metadataKey" : null,
+        "startColumn" : 31
+      },
+      "sourceId" : "7b8bcea4fdbc45f0af2c48c69058323c0fc516f696ad80f8e3e45d7c78c718e7",
+      "evidenceId" : "88f7f7992223dc0ef82cc45c57184b13dbe6dce9e12706cfffe1fe2d8f3ca654",
+      "sourceHash" : "bbe6df1dbacaf7e44a32f0ea3773c7c6c9aa14781bd38e8e8b44647c3526bdbd"
+    } ],
+    "findingId" : "1bbe995ab0812e2b28248419ef726adb20d7e310267e76bc3d3305329260c32a",
+    "subjectId" : "a316b5f46e03f7f2ff553e0c0eb91bd68635b9213bd5a7f64b81fa89df3ad3e8",
+    "conditions" : [ ],
+    "evidenceIds" : [ "88f7f7992223dc0ef82cc45c57184b13dbe6dce9e12706cfffe1fe2d8f3ca654" ],
+    "unknownReasons" : [ ],
+    "recommendations" : [ "按实际大小写使用双引号或未引用标识符；核对大小写折叠。" ]
+  }, {
+    "rule" : null,
+    "impacts" : [ ],
+    "outcome" : "UNKNOWN",
+    "ruleRef" : "unassessed-scope",
+    "summary" : null,
+    "evidence" : [ ],
+    "findingId" : "295bd825e2707f506ae4a2cb8e686e7ecc3cc4e1be8d2439000766377c7baf29",
+    "subjectId" : null,
+    "conditions" : [ ],
+    "evidenceIds" : [ "7b8bcea4fdbc45f0af2c48c69058323c0fc516f696ad80f8e3e45d7c78c718e7" ],
+    "unknownReasons" : [ "Unchecked scope remains UNKNOWN; individual rules do not establish whole-project compatibility" ],
+    "recommendations" : [ ]
+  } ],
+  "startedAt" : "2026-09-17T08:58:59.873476Z",
+  "finishedAt" : "2026-09-17T08:58:59.888135600Z",
+  "coverageGaps" : [ {
+    "code" : "SQL_COLUMN_NO_COMPLETE_RULE",
+    "source" : "schema.sql:105"
+  }, {
+    "code" : "SQL_SELECT_FEATURE_SCAN_ONLY",
+    "source" : "schema.sql"
+  }, {
+    "code" : "SQL_RUNTIME_NOT_COLLECTED",
+    "source" : "No live catalog, data, collation, SQL modes, transactions, drivers or call graph"
+  }, {
+    "code" : "DECLARED_PROFILES_UNVERIFIED",
+    "source" : "Source/target versions are request declarations, not live runtime observations"
+  }, {
+    "code" : "SCENARIO_COVERAGE_LIMITED",
+    "source" : "Only registered source features; no whole-system compatibility or behavioral equivalence proof"
+  }, {
+    "code" : "EXPLICIT_FILES_ONLY",
+    "source" : "No recursive/full-project or business-database collection"
+  }, {
+    "code" : "NON_ATOMIC_SOURCES",
+    "source" : "Source collection and recheck are not an atomic snapshot"
+  } ],
+  "engineVersion" : "archlens-investigation-0.3",
+  "orchestration" : "DETERMINISTIC_ONLY_NO_MODEL_ORCHESTRATION",
+  "schemaVersion" : "archlens.investigation-report.v2",
+  "columnAnalysis" : null,
+  "inputFingerprint" : "3aa474a71a657e0d2dc833da83a4c7ea553ce131221481d9548629d462e13da8",
+  "clarificationItems" : [ ],
+  "verificationSuggestions" : [ "Review declared coverage and resolve unknown versions before making compatibility decisions", "Validate invariants in a user-controlled isolated environment; no verification commands were executed" ]
+}

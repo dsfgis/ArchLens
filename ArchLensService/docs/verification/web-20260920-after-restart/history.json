@@ -1,0 +1,32 @@
+{
+  "runs": [
+    {
+      "caseId": "cd176b26-583d-4dc2-984a-949968c47c77",
+      "createdAt": "2026-09-20 10:09:07.590991+08",
+      "errorCode": null,
+      "finishedAt": "2026-09-20 10:09:18.858277+08",
+      "latestRevision": true,
+      "leaseExpired": false,
+      "objective": "调查 MySQL 到 PostgreSQL 的迁移兼容性，源数据库具体版本待补充。",
+      "projectionState": "NOT_APPLICABLE",
+      "reportStatus": "PARTIAL",
+      "revision": 2,
+      "runId": "6353f253-2974-49f1-aed9-b4db72b91a96",
+      "state": "PARTIAL"
+    },
+    {
+      "caseId": "cd176b26-583d-4dc2-984a-949968c47c77",
+      "createdAt": "2026-09-20 10:08:29.011927+08",
+      "errorCode": null,
+      "finishedAt": "2026-09-20 10:08:33.48591+08",
+      "latestRevision": false,
+      "leaseExpired": false,
+      "objective": "调查 MySQL 到 PostgreSQL 的迁移兼容性，源数据库具体版本待补充。",
+      "projectionState": "NOT_APPLICABLE",
+      "reportStatus": "NEEDS_CLARIFICATION",
+      "revision": 1,
+      "runId": "694ab3e4-b28a-4917-af5b-99c047aefdc3",
+      "state": "PARTIAL"
+    }
+  ]
+}

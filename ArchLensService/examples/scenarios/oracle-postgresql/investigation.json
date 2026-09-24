@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "archlens.investigation-request.v1",
+  "scenario": "DATABASE_MIGRATION",
+  "sourceProfile": {
+    "product": "Oracle",
+    "version": "19c"
+  },
+  "targetProfile": {
+    "product": "PostgreSQL",
+    "version": "16"
+  },
+  "objective": "调查 Oracle 类型、空值、序列和未覆盖的包",
+  "constraints": [
+    "只读调查，不编译或执行样例"
+  ],
+  "invariants": [
+    "保留金额、空值、异常及外部接口约定"
+  ],
+  "files": [
+    "schema.sql",
+    "package.sql"
+  ],
+  "columnRequest": null,
+  "budget": {
+    "maxFiles": 30,
+    "maxBytes": 1000000,
+    "timeoutMillis": 30000
+  }
+}

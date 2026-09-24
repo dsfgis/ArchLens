@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "archlens.investigation-request.v1",
+  "scenario": "DEPENDENCY_UPGRADE",
+  "sourceProfile": {
+    "product": "org.apache.httpcomponents:httpclient",
+    "version": "4.5.14"
+  },
+  "targetProfile": {
+    "product": "org.apache.httpcomponents.client5:httpclient5",
+    "version": "5.2.3"
+  },
+  "objective": "调查 HttpClient 替换升级的命名空间",
+  "constraints": [
+    "只读调查，不编译或执行样例"
+  ],
+  "invariants": [
+    "保留金额、空值、异常及外部接口约定"
+  ],
+  "files": [
+    "HttpGateway.java"
+  ],
+  "columnRequest": null,
+  "budget": {
+    "maxFiles": 30,
+    "maxBytes": 1000000,
+    "timeoutMillis": 30000
+  }
+}

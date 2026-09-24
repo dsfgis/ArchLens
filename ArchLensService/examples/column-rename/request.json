@@ -1,0 +1,20 @@
+{
+  "projectId": "10000000-0000-0000-0000-000000000001",
+  "snapshotId": "20000000-0000-0000-0000-000000000001",
+  "repositorySourceId": "30000000-0000-0000-0000-000000000001",
+  "databaseSourceId": "40000000-0000-0000-0000-000000000001",
+  "module": "example-service",
+  "javaFile": "DeviceMapper.java",
+  "mapperFile": "DeviceMapper.xml",
+  "namespace": "demo.DeviceMapper",
+  "databaseKey": "example-db",
+  "defaultSchema": "public",
+  "catalog": [
+    {"schema":"public", "table":"device", "name":"event_id", "type":"text", "nullable":false, "identityMeaning":"device-key"},
+    {"schema":"public", "table":"device", "name":"name", "type":"text", "nullable":true, "identityMeaning":"display-name"}
+  ],
+  "change": {
+    "schema":"public", "table":"device", "column":"event_id", "kind":"COLUMN_RENAME",
+    "after":{"name":"global_id", "type":"text", "nullable":false, "identityMeaning":"device-key"}
+  }
+}

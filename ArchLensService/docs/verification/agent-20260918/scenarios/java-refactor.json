@@ -1,0 +1,500 @@
+{
+  "schemaVersion" : "archlens.investigation-report.v2",
+  "engineVersion" : "archlens-investigation-0.3",
+  "inputFingerprint" : "a0b6fd4589f2f66d84d2084fd2369e443c74da5ec8514f23b0211e04f5c7e0f6",
+  "request" : {
+    "schemaVersion" : "archlens.investigation-request.v1",
+    "scenario" : "REFACTORING",
+    "sourceProfile" : {
+      "product" : "Java",
+      "version" : "21"
+    },
+    "targetProfile" : {
+      "product" : "Java",
+      "version" : "21"
+    },
+    "objective" : "调查方法改名、实现和状态变化",
+    "constraints" : [ "只读调查，不编译或执行样例" ],
+    "invariants" : [ "保留金额、空值、异常及外部接口约定" ],
+    "files" : [ "before/Counter.java", "after/Counter.java", "change.refactor.json" ],
+    "columnRequest" : null,
+    "budget" : {
+      "maxFiles" : 30,
+      "maxBytes" : 1000000,
+      "timeoutMillis" : 30000
+    }
+  },
+  "status" : "PARTIAL",
+  "startedAt" : "2026-09-18T01:18:02.433931500Z",
+  "finishedAt" : "2026-09-18T01:18:02.754029300Z",
+  "sources" : [ {
+    "sourceId" : "06493017467763737c90ee96e9e078afe9210cbf78babc0f57653c8c5269db94",
+    "path" : "after/Counter.java",
+    "sha256" : "5885d9acdd4a4649516158f6fb342321ffb34026beefeec0df6b81eec66620b5",
+    "bytes" : 242,
+    "collectedAt" : "2026-09-18T01:18:02.469428300Z",
+    "location" : {
+      "path" : "after/Counter.java",
+      "startLine" : 1,
+      "startColumn" : 1,
+      "endLine" : 8,
+      "endColumn" : 1,
+      "byteOffset" : 0,
+      "byteLength" : 242,
+      "metadataKey" : null
+    },
+    "producerVersion" : "archlens-investigation-0.3"
+  }, {
+    "sourceId" : "d682bd35e3c4fdcbcddd675e6c4baeb6e7852a705f58e1b1ee93c921dd08834a",
+    "path" : "before/Counter.java",
+    "sha256" : "c47396a7a5188a0d6a554f58382b0b679886e2f659037e052a4707568581819f",
+    "bytes" : 216,
+    "collectedAt" : "2026-09-18T01:18:02.478120500Z",
+    "location" : {
+      "path" : "before/Counter.java",
+      "startLine" : 1,
+      "startColumn" : 1,
+      "endLine" : 8,
+      "endColumn" : 1,
+      "byteOffset" : 0,
+      "byteLength" : 216,
+      "metadataKey" : null
+    },
+    "producerVersion" : "archlens-investigation-0.3"
+  }, {
+    "sourceId" : "6bd7752ae12abed7584a17c768554dfaf64c7441dfd32e9f51c514bad036fc28",
+    "path" : "change.refactor.json",
+    "sha256" : "6f84f62db8e2f984628c6f64cb58066cac1913f136ec6ec1f29d0ce38d06fb53",
+    "bytes" : 156,
+    "collectedAt" : "2026-09-18T01:18:02.486975300Z",
+    "location" : {
+      "path" : "change.refactor.json",
+      "startLine" : 1,
+      "startColumn" : 1,
+      "endLine" : 10,
+      "endColumn" : 1,
+      "byteOffset" : 0,
+      "byteLength" : 156,
+      "metadataKey" : null
+    },
+    "producerVersion" : "archlens-investigation-0.3"
+  } ],
+  "coverageGaps" : [ {
+    "code" : "REFACTOR_BINDING_LIMITED",
+    "source" : "Explicit pairs only; no symbol resolver, hierarchy, constructors, module graph, reflection or external consumers"
+  }, {
+    "code" : "DECLARED_PROFILES_UNVERIFIED",
+    "source" : "Source/target versions are request declarations, not live runtime observations"
+  }, {
+    "code" : "SCENARIO_COVERAGE_LIMITED",
+    "source" : "Only registered source features; no whole-system compatibility or behavioral equivalence proof"
+  }, {
+    "code" : "EXPLICIT_FILES_ONLY",
+    "source" : "No recursive/full-project or business-database collection"
+  }, {
+    "code" : "NON_ATOMIC_SOURCES",
+    "source" : "Source collection and recheck are not an atomic snapshot"
+  } ],
+  "clarificationItems" : [ ],
+  "findings" : [ {
+    "findingId" : "61bec5ec5ce2d52ad307ca1de389030955879cd3142e5f6363c9e1d79eb9344e",
+    "outcome" : "COMPATIBLE",
+    "ruleRef" : "JAVA_API_CHANGE@archlens-rules-1.0",
+    "evidenceIds" : [ "cdea3d6001b9581e109e9234475995757b34d32621234eac287f51878a8ab1b1", "0c3ac7c040a14529a82373109072c3712674c45aaccab02e95a5d5b7a8ce082c", "a576deb4c6b8b47564f86c6c701de9d913ee9afeb895110f66535b5008970d56", "8d5c33ef7e0da5a1fdfe5790c804fac29fb34eed57a92e702b4fe1466675f173", "9e00ac483cda615a39fcfbef759dc00ad86a088d436b5c356a6ef062a66ffcc9", "39d5b9f3c6b553447a0c658d9ec47b1b5e488203e8f756cab17130ef2b4e6901" ],
+    "conditions" : [ "仅单个平坦类中的 primitive/primitive-array 方法；公共契约检查不证明业务行为等价" ],
+    "unknownReasons" : [ ],
+    "subjectId" : "175623ecafd8b45b68cb335b59b4f0698a0d9546f32c2f90d46e3f18cb0f04b8",
+    "summary" : "仅该方法的原始类型描述符、可见性及已检查修饰符保持不变：value(int)",
+    "evidence" : [ {
+      "evidenceId" : "cdea3d6001b9581e109e9234475995757b34d32621234eac287f51878a8ab1b1",
+      "sourceId" : "d682bd35e3c4fdcbcddd675e6c4baeb6e7852a705f58e1b1ee93c921dd08834a",
+      "sourceHash" : "c47396a7a5188a0d6a554f58382b0b679886e2f659037e052a4707568581819f",
+      "location" : {
+        "path" : "before/Counter.java",
+        "startLine" : 3,
+        "startColumn" : 14,
+        "endLine" : 3,
+        "endColumn" : 21,
+        "byteOffset" : 84,
+        "byteLength" : 7,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_TYPE_AST"
+    }, {
+      "evidenceId" : "0c3ac7c040a14529a82373109072c3712674c45aaccab02e95a5d5b7a8ce082c",
+      "sourceId" : "06493017467763737c90ee96e9e078afe9210cbf78babc0f57653c8c5269db94",
+      "sourceHash" : "5885d9acdd4a4649516158f6fb342321ffb34026beefeec0df6b81eec66620b5",
+      "location" : {
+        "path" : "after/Counter.java",
+        "startLine" : 3,
+        "startColumn" : 14,
+        "endLine" : 3,
+        "endColumn" : 21,
+        "byteOffset" : 107,
+        "byteLength" : 7,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_TYPE_AST"
+    }, {
+      "evidenceId" : "a576deb4c6b8b47564f86c6c701de9d913ee9afeb895110f66535b5008970d56",
+      "sourceId" : "6bd7752ae12abed7584a17c768554dfaf64c7441dfd32e9f51c514bad036fc28",
+      "sourceHash" : "6f84f62db8e2f984628c6f64cb58066cac1913f136ec6ec1f29d0ce38d06fb53",
+      "location" : {
+        "path" : "change.refactor.json",
+        "startLine" : 1,
+        "startColumn" : 1,
+        "endLine" : 10,
+        "endColumn" : 1,
+        "byteOffset" : 0,
+        "byteLength" : 156,
+        "metadataKey" : null
+      },
+      "kind" : "EXPLICIT_COMPARISON_PLAN"
+    }, {
+      "evidenceId" : "8d5c33ef7e0da5a1fdfe5790c804fac29fb34eed57a92e702b4fe1466675f173",
+      "sourceId" : "d682bd35e3c4fdcbcddd675e6c4baeb6e7852a705f58e1b1ee93c921dd08834a",
+      "sourceHash" : "c47396a7a5188a0d6a554f58382b0b679886e2f659037e052a4707568581819f",
+      "location" : {
+        "path" : "before/Counter.java",
+        "startLine" : 5,
+        "startColumn" : 16,
+        "endLine" : 5,
+        "endColumn" : 21,
+        "byteOffset" : 136,
+        "byteLength" : 5,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_METHOD_AST"
+    }, {
+      "evidenceId" : "9e00ac483cda615a39fcfbef759dc00ad86a088d436b5c356a6ef062a66ffcc9",
+      "sourceId" : "06493017467763737c90ee96e9e078afe9210cbf78babc0f57653c8c5269db94",
+      "sourceHash" : "5885d9acdd4a4649516158f6fb342321ffb34026beefeec0df6b81eec66620b5",
+      "location" : {
+        "path" : "after/Counter.java",
+        "startLine" : 5,
+        "startColumn" : 16,
+        "endLine" : 5,
+        "endColumn" : 21,
+        "byteOffset" : 159,
+        "byteLength" : 5,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_METHOD_AST"
+    }, {
+      "evidenceId" : "39d5b9f3c6b553447a0c658d9ec47b1b5e488203e8f756cab17130ef2b4e6901",
+      "sourceId" : "d682bd35e3c4fdcbcddd675e6c4baeb6e7852a705f58e1b1ee93c921dd08834a",
+      "sourceHash" : "c47396a7a5188a0d6a554f58382b0b679886e2f659037e052a4707568581819f",
+      "location" : {
+        "path" : "before/Counter.java",
+        "startLine" : 6,
+        "startColumn" : 32,
+        "endLine" : 6,
+        "endColumn" : 40,
+        "byteOffset" : 202,
+        "byteLength" : 8,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_CALL_CANDIDATE_AST"
+    } ],
+    "rule" : {
+      "ruleId" : "JAVA_API_CHANGE",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Java 21.x",
+      "targetRange" : "Java 21.x",
+      "requiredFacts" : [ "Explicit before/after pair; flat public class; primitive method descriptors" ],
+      "officialSources" : [ "https://docs.oracle.com/javase/specs/jls/se21/html/jls-13.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "核对直接及外部调用者；保持兼容入口或安排调用适配；由用户执行 API/二进制及业务回归验证。" ],
+    "impacts" : [ {
+      "subject" : "sample.Counter#value(int)",
+      "certainty" : "CONFIRMED_DECLARATION",
+      "changeRequired" : "UNKNOWN",
+      "reason" : "只覆盖指定前后类的已检查方法契约"
+    }, {
+      "subject" : "before/Counter.java:6",
+      "certainty" : "CANDIDATE",
+      "changeRequired" : "UNKNOWN",
+      "reason" : "同名同实参数量调用；接收者/重载尚未绑定"
+    } ]
+  }, {
+    "findingId" : "46ac9dfa097176afdc87f5bf6ba1279f13227382e3c72f43bf3b8fe07543f156",
+    "outcome" : "UNKNOWN",
+    "ruleRef" : "JAVA_BODY_CHANGE@archlens-rules-1.0",
+    "evidenceIds" : [ "cdea3d6001b9581e109e9234475995757b34d32621234eac287f51878a8ab1b1", "0c3ac7c040a14529a82373109072c3712674c45aaccab02e95a5d5b7a8ce082c", "a576deb4c6b8b47564f86c6c701de9d913ee9afeb895110f66535b5008970d56", "8d5c33ef7e0da5a1fdfe5790c804fac29fb34eed57a92e702b4fe1466675f173", "9e00ac483cda615a39fcfbef759dc00ad86a088d436b5c356a6ef062a66ffcc9", "39d5b9f3c6b553447a0c658d9ec47b1b5e488203e8f756cab17130ef2b4e6901" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ "Behavior, side effects and invariants not verified" ],
+    "subjectId" : "175623ecafd8b45b68cb335b59b4f0698a0d9546f32c2f90d46e3f18cb0f04b8",
+    "summary" : "方法体 AST 发生变化，声明相同不能证明行为等价。",
+    "evidence" : [ {
+      "evidenceId" : "cdea3d6001b9581e109e9234475995757b34d32621234eac287f51878a8ab1b1",
+      "sourceId" : "d682bd35e3c4fdcbcddd675e6c4baeb6e7852a705f58e1b1ee93c921dd08834a",
+      "sourceHash" : "c47396a7a5188a0d6a554f58382b0b679886e2f659037e052a4707568581819f",
+      "location" : {
+        "path" : "before/Counter.java",
+        "startLine" : 3,
+        "startColumn" : 14,
+        "endLine" : 3,
+        "endColumn" : 21,
+        "byteOffset" : 84,
+        "byteLength" : 7,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_TYPE_AST"
+    }, {
+      "evidenceId" : "0c3ac7c040a14529a82373109072c3712674c45aaccab02e95a5d5b7a8ce082c",
+      "sourceId" : "06493017467763737c90ee96e9e078afe9210cbf78babc0f57653c8c5269db94",
+      "sourceHash" : "5885d9acdd4a4649516158f6fb342321ffb34026beefeec0df6b81eec66620b5",
+      "location" : {
+        "path" : "after/Counter.java",
+        "startLine" : 3,
+        "startColumn" : 14,
+        "endLine" : 3,
+        "endColumn" : 21,
+        "byteOffset" : 107,
+        "byteLength" : 7,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_TYPE_AST"
+    }, {
+      "evidenceId" : "a576deb4c6b8b47564f86c6c701de9d913ee9afeb895110f66535b5008970d56",
+      "sourceId" : "6bd7752ae12abed7584a17c768554dfaf64c7441dfd32e9f51c514bad036fc28",
+      "sourceHash" : "6f84f62db8e2f984628c6f64cb58066cac1913f136ec6ec1f29d0ce38d06fb53",
+      "location" : {
+        "path" : "change.refactor.json",
+        "startLine" : 1,
+        "startColumn" : 1,
+        "endLine" : 10,
+        "endColumn" : 1,
+        "byteOffset" : 0,
+        "byteLength" : 156,
+        "metadataKey" : null
+      },
+      "kind" : "EXPLICIT_COMPARISON_PLAN"
+    }, {
+      "evidenceId" : "8d5c33ef7e0da5a1fdfe5790c804fac29fb34eed57a92e702b4fe1466675f173",
+      "sourceId" : "d682bd35e3c4fdcbcddd675e6c4baeb6e7852a705f58e1b1ee93c921dd08834a",
+      "sourceHash" : "c47396a7a5188a0d6a554f58382b0b679886e2f659037e052a4707568581819f",
+      "location" : {
+        "path" : "before/Counter.java",
+        "startLine" : 5,
+        "startColumn" : 16,
+        "endLine" : 5,
+        "endColumn" : 21,
+        "byteOffset" : 136,
+        "byteLength" : 5,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_METHOD_AST"
+    }, {
+      "evidenceId" : "9e00ac483cda615a39fcfbef759dc00ad86a088d436b5c356a6ef062a66ffcc9",
+      "sourceId" : "06493017467763737c90ee96e9e078afe9210cbf78babc0f57653c8c5269db94",
+      "sourceHash" : "5885d9acdd4a4649516158f6fb342321ffb34026beefeec0df6b81eec66620b5",
+      "location" : {
+        "path" : "after/Counter.java",
+        "startLine" : 5,
+        "startColumn" : 16,
+        "endLine" : 5,
+        "endColumn" : 21,
+        "byteOffset" : 159,
+        "byteLength" : 5,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_METHOD_AST"
+    }, {
+      "evidenceId" : "39d5b9f3c6b553447a0c658d9ec47b1b5e488203e8f756cab17130ef2b4e6901",
+      "sourceId" : "d682bd35e3c4fdcbcddd675e6c4baeb6e7852a705f58e1b1ee93c921dd08834a",
+      "sourceHash" : "c47396a7a5188a0d6a554f58382b0b679886e2f659037e052a4707568581819f",
+      "location" : {
+        "path" : "before/Counter.java",
+        "startLine" : 6,
+        "startColumn" : 32,
+        "endLine" : 6,
+        "endColumn" : 40,
+        "byteOffset" : 202,
+        "byteLength" : 8,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_CALL_CANDIDATE_AST"
+    } ],
+    "rule" : {
+      "ruleId" : "JAVA_BODY_CHANGE",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Java 21.x",
+      "targetRange" : "Java 21.x",
+      "requiredFacts" : [ "Explicit before/after method AST bodies" ],
+      "officialSources" : [ "https://docs.oracle.com/javase/specs/jls/se21/html/jls-13.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "验证请求中的业务不变量、边界值、异常、状态变化和副作用顺序。" ],
+    "impacts" : [ ]
+  }, {
+    "findingId" : "09c534ae047110efafd18f1193addce599c7cc187dc3194e1e2c1980d78d87e8",
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "JAVA_API_CHANGE@archlens-rules-1.0",
+    "evidenceIds" : [ "cdea3d6001b9581e109e9234475995757b34d32621234eac287f51878a8ab1b1", "0c3ac7c040a14529a82373109072c3712674c45aaccab02e95a5d5b7a8ce082c", "a576deb4c6b8b47564f86c6c701de9d913ee9afeb895110f66535b5008970d56", "745692586a7cf7e6c71ff81787bc40ddffbcec07947077cf4846e44f1097c0b9" ],
+    "conditions" : [ "仅单个平坦类中的 primitive/primitive-array 方法；公共契约检查不证明业务行为等价" ],
+    "unknownReasons" : [ ],
+    "subjectId" : "32e1e9729955bff552ed59e54b0c1771c0f3203dc0836e05fd55824a43aaded0",
+    "summary" : "原公共/受保护方法描述符被删除或其返回类型、可见性、static 性质发生破坏性变化：read()",
+    "evidence" : [ {
+      "evidenceId" : "cdea3d6001b9581e109e9234475995757b34d32621234eac287f51878a8ab1b1",
+      "sourceId" : "d682bd35e3c4fdcbcddd675e6c4baeb6e7852a705f58e1b1ee93c921dd08834a",
+      "sourceHash" : "c47396a7a5188a0d6a554f58382b0b679886e2f659037e052a4707568581819f",
+      "location" : {
+        "path" : "before/Counter.java",
+        "startLine" : 3,
+        "startColumn" : 14,
+        "endLine" : 3,
+        "endColumn" : 21,
+        "byteOffset" : 84,
+        "byteLength" : 7,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_TYPE_AST"
+    }, {
+      "evidenceId" : "0c3ac7c040a14529a82373109072c3712674c45aaccab02e95a5d5b7a8ce082c",
+      "sourceId" : "06493017467763737c90ee96e9e078afe9210cbf78babc0f57653c8c5269db94",
+      "sourceHash" : "5885d9acdd4a4649516158f6fb342321ffb34026beefeec0df6b81eec66620b5",
+      "location" : {
+        "path" : "after/Counter.java",
+        "startLine" : 3,
+        "startColumn" : 14,
+        "endLine" : 3,
+        "endColumn" : 21,
+        "byteOffset" : 107,
+        "byteLength" : 7,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_TYPE_AST"
+    }, {
+      "evidenceId" : "a576deb4c6b8b47564f86c6c701de9d913ee9afeb895110f66535b5008970d56",
+      "sourceId" : "6bd7752ae12abed7584a17c768554dfaf64c7441dfd32e9f51c514bad036fc28",
+      "sourceHash" : "6f84f62db8e2f984628c6f64cb58066cac1913f136ec6ec1f29d0ce38d06fb53",
+      "location" : {
+        "path" : "change.refactor.json",
+        "startLine" : 1,
+        "startColumn" : 1,
+        "endLine" : 10,
+        "endColumn" : 1,
+        "byteOffset" : 0,
+        "byteLength" : 156,
+        "metadataKey" : null
+      },
+      "kind" : "EXPLICIT_COMPARISON_PLAN"
+    }, {
+      "evidenceId" : "745692586a7cf7e6c71ff81787bc40ddffbcec07947077cf4846e44f1097c0b9",
+      "sourceId" : "d682bd35e3c4fdcbcddd675e6c4baeb6e7852a705f58e1b1ee93c921dd08834a",
+      "sourceHash" : "c47396a7a5188a0d6a554f58382b0b679886e2f659037e052a4707568581819f",
+      "location" : {
+        "path" : "before/Counter.java",
+        "startLine" : 6,
+        "startColumn" : 16,
+        "endLine" : 6,
+        "endColumn" : 20,
+        "byteOffset" : 186,
+        "byteLength" : 4,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_METHOD_AST"
+    } ],
+    "rule" : {
+      "ruleId" : "JAVA_API_CHANGE",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Java 21.x",
+      "targetRange" : "Java 21.x",
+      "requiredFacts" : [ "Explicit before/after pair; flat public class; primitive method descriptors" ],
+      "officialSources" : [ "https://docs.oracle.com/javase/specs/jls/se21/html/jls-13.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "核对直接及外部调用者；保持兼容入口或安排调用适配；由用户执行 API/二进制及业务回归验证。" ],
+    "impacts" : [ {
+      "subject" : "sample.Counter#read()",
+      "certainty" : "CONFIRMED_DECLARATION",
+      "changeRequired" : "YES",
+      "reason" : "只覆盖指定前后类的已检查方法契约"
+    } ]
+  }, {
+    "findingId" : "ab984e19371f3fc4f68854cf898746af4373446c61066da5e91601657705cba8",
+    "outcome" : "UNKNOWN",
+    "ruleRef" : "JAVA_STATE_CHANGE@archlens-rules-1.0",
+    "evidenceIds" : [ "cdea3d6001b9581e109e9234475995757b34d32621234eac287f51878a8ab1b1", "0c3ac7c040a14529a82373109072c3712674c45aaccab02e95a5d5b7a8ce082c", "a576deb4c6b8b47564f86c6c701de9d913ee9afeb895110f66535b5008970d56" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ "State initialization, persistence and concurrency effects not verified" ],
+    "subjectId" : "a4d404b46695cbb07a25fe4ead1a2ff3bfcb1e0792d35d7ae079f5d907006df9",
+    "summary" : "字段或初始化块 AST 发生变化。",
+    "evidence" : [ {
+      "evidenceId" : "cdea3d6001b9581e109e9234475995757b34d32621234eac287f51878a8ab1b1",
+      "sourceId" : "d682bd35e3c4fdcbcddd675e6c4baeb6e7852a705f58e1b1ee93c921dd08834a",
+      "sourceHash" : "c47396a7a5188a0d6a554f58382b0b679886e2f659037e052a4707568581819f",
+      "location" : {
+        "path" : "before/Counter.java",
+        "startLine" : 3,
+        "startColumn" : 14,
+        "endLine" : 3,
+        "endColumn" : 21,
+        "byteOffset" : 84,
+        "byteLength" : 7,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_TYPE_AST"
+    }, {
+      "evidenceId" : "0c3ac7c040a14529a82373109072c3712674c45aaccab02e95a5d5b7a8ce082c",
+      "sourceId" : "06493017467763737c90ee96e9e078afe9210cbf78babc0f57653c8c5269db94",
+      "sourceHash" : "5885d9acdd4a4649516158f6fb342321ffb34026beefeec0df6b81eec66620b5",
+      "location" : {
+        "path" : "after/Counter.java",
+        "startLine" : 3,
+        "startColumn" : 14,
+        "endLine" : 3,
+        "endColumn" : 21,
+        "byteOffset" : 107,
+        "byteLength" : 7,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_TYPE_AST"
+    }, {
+      "evidenceId" : "a576deb4c6b8b47564f86c6c701de9d913ee9afeb895110f66535b5008970d56",
+      "sourceId" : "6bd7752ae12abed7584a17c768554dfaf64c7441dfd32e9f51c514bad036fc28",
+      "sourceHash" : "6f84f62db8e2f984628c6f64cb58066cac1913f136ec6ec1f29d0ce38d06fb53",
+      "location" : {
+        "path" : "change.refactor.json",
+        "startLine" : 1,
+        "startColumn" : 1,
+        "endLine" : 10,
+        "endColumn" : 1,
+        "byteOffset" : 0,
+        "byteLength" : 156,
+        "metadataKey" : null
+      },
+      "kind" : "EXPLICIT_COMPARISON_PLAN"
+    } ],
+    "rule" : {
+      "ruleId" : "JAVA_STATE_CHANGE",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Java 21.x",
+      "targetRange" : "Java 21.x",
+      "requiredFacts" : [ "Explicit before/after fields/initializers" ],
+      "officialSources" : [ "https://docs.oracle.com/javase/specs/jls/se21/html/jls-13.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "验证初值、构造流程、序列化、共享状态与并发不变量；不把字段变化自动传播为所有方法必改。" ],
+    "impacts" : [ ]
+  }, {
+    "findingId" : "c5606a1bacfcaaaf4cb7e83d6fc163cdf3c7421977ad194c9102920b62c7c59a",
+    "outcome" : "UNKNOWN",
+    "ruleRef" : "unassessed-scope",
+    "evidenceIds" : [ "06493017467763737c90ee96e9e078afe9210cbf78babc0f57653c8c5269db94", "d682bd35e3c4fdcbcddd675e6c4baeb6e7852a705f58e1b1ee93c921dd08834a", "6bd7752ae12abed7584a17c768554dfaf64c7441dfd32e9f51c514bad036fc28" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ "Unchecked scope remains UNKNOWN; individual rules do not establish whole-project compatibility" ],
+    "subjectId" : null,
+    "summary" : null,
+    "evidence" : [ ],
+    "rule" : null,
+    "recommendations" : [ ],
+    "impacts" : [ ]
+  } ],
+  "verificationSuggestions" : [ "Review declared coverage and resolve unknown versions before making compatibility decisions", "Validate invariants in a user-controlled isolated environment; no verification commands were executed" ],
+  "orchestration" : "DETERMINISTIC_ONLY_NO_MODEL_ORCHESTRATION",
+  "columnAnalysis" : null
+}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>调查工作台 · ArchLens</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="workbench.css"><script src="workbench.js" defer></script></head>
+<body class="workbench">
+<header class="workbench-header"><a class="logo" href="/">ArchLens<span>.</span></a><span>调查工作台</span><a href="/draft.html">旧版请求草稿</a></header>
+<main>
+  <div class="page-heading"><div><p class="eyebrow">READ-ONLY INVESTIGATION</p><h1>从目标到证据<span>。</span></h1><p class="page-description">提交授权文件，澄清缺失信息，追踪调查结果和每次修订。</p></div><button id="csharp-example" class="button secondary" type="button">填入 C# 项目示例</button><button id="example" class="button secondary" type="button">填入 MySQL 示例</button></div>
+  <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
+  <div class="workbench-grid">
+    <section class="form-card"><div class="card-heading"><div><h2>新建调查</h2><p>文件来自运行 ArchLens 的这台机器</p></div></div>
+      <form id="investigation-form" class="card-body">
+        <label for="source-root">授权根目录</label><input id="source-root" required placeholder="D:\work\my-project" autocomplete="off"><p class="field-help">只读取下方清单；C# 项目可先发现候选文件，检查清单后提交。不构建或运行项目。</p>
+        <button id="discover-csharp" class="button secondary" type="button">发现 C# 项目文件</button><div id="discovery-summary" role="status"></div>
+        <label for="source-files">文件清单（相对根目录，每行一个）</label><textarea id="source-files" required rows="3" placeholder="src/main/resources/schema.sql"></textarea>
+        <label for="objective">调查目标</label><textarea id="objective" required minlength="5" maxlength="4000" rows="3" placeholder="例如：调查 MySQL 到 PostgreSQL 的迁移兼容性，保持数值范围和空值语义。"></textarea>
+        <label for="scenario">调查场景</label><select id="scenario"><option value="DATABASE_MIGRATION">数据库兼容性</option><option value="LANGUAGE_MIGRATION">语言迁移</option><option value="REFACTORING">Java 重构对比</option><option value="DEPENDENCY_UPGRADE">框架 / 依赖升级</option><option value="CURRENT_STATE">现状调查</option><option value="">由模型解析目标</option></select>
+        <div class="field-grid"><div><label for="source-product">源技术</label><input id="source-product" placeholder="MySQL"></div><div><label for="source-version">源版本（未知可留空）</label><input id="source-version" placeholder="8.0.36"></div><div><label for="target-product">目标技术</label><input id="target-product" placeholder="PostgreSQL"></div><div><label for="target-version">目标版本（未知可留空）</label><input id="target-version" placeholder="16"></div></div>
+        <details class="constraints"><summary>约束与业务不变量</summary><label for="constraints">约束（每行一条）</label><textarea id="constraints" rows="2" placeholder="只读调查，不执行 SQL"></textarea><label for="invariants">不变量（每行一条）</label><textarea id="invariants" rows="2" placeholder="保持数值范围和空值语义"></textarea></details>
+        <p class="field-help">目标、技术字段和回答会发送给已配置的模型；请勿填写凭据。源码、路径及业务对象名不会自动加入模型请求。无模型时保留确定性降级结果。</p>
+        <button id="submit" class="button primary" type="submit">提交调查</button>
+      </form>
+    </section>
+    <div class="results-column">
+      <section class="form-card"><div class="card-heading"><div><h2>运行与历史修订</h2><p id="history-label">最近的 Agent 调查</p></div><button id="refresh" class="button secondary" type="button">刷新</button></div><div class="card-body">
+        <div class="history-actions"><button id="all-runs" class="button secondary" type="button" hidden>查看全部调查</button><span id="history-status" role="status"></span></div>
+        <div id="history"></div><div class="pager"><button id="prev-page" class="button secondary" type="button" disabled>上一页</button><button id="next-page" class="button secondary" type="button" disabled>下一页</button></div>
+      </div></section>
+      <section id="run-panel" class="form-card" aria-labelledby="run-heading"><div class="card-heading"><div><h2 id="run-heading">调查详情</h2><p id="run-status" role="status" aria-live="polite">提交调查或选择一条历史记录。</p></div></div><div class="card-body">
+        <div id="run-meta"></div><div class="run-actions"><button id="case-history" class="button secondary" type="button" hidden>本调查的修订</button><button id="cancel" class="button secondary" type="button" hidden>取消运行</button><button id="export-report" class="button secondary" type="button" hidden>下载报告 JSON</button></div>
+        <form id="answers-form" hidden><h3>补充信息以继续调查</h3><p>回答会生成新修订，旧报告保持不变。</p><div id="questions"></div><label for="resume-root">授权根目录</label><input id="resume-root" required autocomplete="off"><p class="field-help">历史 CLI 运行需重新指定根目录；网页运行沿用提交时的目录。</p><button id="answer-submit" class="button primary" type="submit">提交回答并继续</button></form>
+        <div id="report"></div>
+      </div></section>
+    </div>
+  </div>
+  <footer class="page-footer">ArchLens · 只读调查 · PARTIAL 表示仍有未覆盖范围，模型解释需独立核实。</footer>
+</main></body></html>

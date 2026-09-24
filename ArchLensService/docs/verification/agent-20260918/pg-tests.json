@@ -1,0 +1,16 @@
+{
+  "name": "io.archlens.StorageIntegrationTest",
+  "tests": 6,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "execution": "Maven -DforkCount=0, explicit six PG tests",
+  "cases": [
+    "expiredLeaseRejectsLateCompletionAndCanBeRecovered",
+    "cancellationFencesLateWritesAndRetainsCheckpoint",
+    "nativePostgres16ReadOnlyProbesSupportDialectRules",
+    "scenarioReportsRoundTripWithoutInventedGraphProjections",
+    "agentClarificationPersistsAndOnlyOneResumeWins",
+    "revisionsAreSerializedAndOldReportIsNotCurrent"
+  ]
+}

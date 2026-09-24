@@ -1,0 +1,24 @@
+{
+  "verifiedAt": "2026-09-22T05:48:26.459Z",
+  "caseId": "100a7e45-0efd-47bc-8ea7-91071291b1bd",
+  "firstRunId": "6d65ca3e-dca0-4419-aa23-cc168cef38d4",
+  "secondRunId": "6c6d48ec-fcaa-41ca-bd68-eb60e6d0cdc8",
+  "firstReportHash": "6ed653b95001b29cb073dd8581c0fe35c6973d8bb98bd86fa62b3e967abbc0cd",
+  "secondReportHash": "8fa51069db475c5cba4a4b9d8ad8b81a32a6b149add67a6425ea03cff8bad580",
+  "sourceHashes": {
+    "Core/Core.csproj": "2660d69f97ff51118858c9326db6040f515e85ec65d92749e2bc9f07d1aa0dd4",
+    "Core/Money.cs": "5866ce63d31945047369fd075ac4fcf9e1517f4e67438e6482b39f4cbce1a0a7",
+    "MigrationSample.csproj": "0b0d03a04dd5f643e9763ade5a7eb98534908bc05b4599d8d6652f0fbe511b45",
+    "Payment.cs": "85c1de21bdf176fd77a1271c425900a7fc29c727a53aa9ff9155ece1c7221eb8"
+  },
+  "orchestration": "MODEL_TOOL_LOOP",
+  "modelCalls": 5,
+  "findings": 10,
+  "explanations": 6,
+  "downloadMatches": true,
+  "staleAnswerRejected": true,
+  "historyRevisions": [
+    2,
+    1
+  ]
+}

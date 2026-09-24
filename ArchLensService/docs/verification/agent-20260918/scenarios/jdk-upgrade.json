@@ -1,0 +1,123 @@
+{
+  "schemaVersion" : "archlens.investigation-report.v2",
+  "engineVersion" : "archlens-investigation-0.3",
+  "inputFingerprint" : "b0146e519cebcce562b81c1a42964827e2eef6abc477ea4df849d96a8e253cbe",
+  "request" : {
+    "schemaVersion" : "archlens.investigation-request.v1",
+    "scenario" : "DEPENDENCY_UPGRADE",
+    "sourceProfile" : {
+      "product" : "Java",
+      "version" : "8"
+    },
+    "targetProfile" : {
+      "product" : "Java",
+      "version" : "21"
+    },
+    "objective" : "调查 JDK 升级后 JAXB 依赖缺口",
+    "constraints" : [ "只读调查，不编译或执行样例" ],
+    "invariants" : [ "保留金额、空值、异常及外部接口约定" ],
+    "files" : [ "XmlCodec.java" ],
+    "columnRequest" : null,
+    "budget" : {
+      "maxFiles" : 30,
+      "maxBytes" : 1000000,
+      "timeoutMillis" : 30000
+    }
+  },
+  "status" : "PARTIAL",
+  "startedAt" : "2026-09-18T01:18:03.980918Z",
+  "finishedAt" : "2026-09-18T01:18:04.227676500Z",
+  "sources" : [ {
+    "sourceId" : "4c9a177af8da5747fcd7dacd61df58cbfb0db2e549046ea392553400555c92a5",
+    "path" : "XmlCodec.java",
+    "sha256" : "bc00fb45859ee70df8125b6d9fd255ca8c5533749a7dafcc61fda4d24a9d9412",
+    "bytes" : 165,
+    "collectedAt" : "2026-09-18T01:18:04.013562600Z",
+    "location" : {
+      "path" : "XmlCodec.java",
+      "startLine" : 1,
+      "startColumn" : 1,
+      "endLine" : 5,
+      "endColumn" : 1,
+      "byteOffset" : 0,
+      "byteLength" : 165,
+      "metadataKey" : null
+    },
+    "producerVersion" : "archlens-investigation-0.3"
+  } ],
+  "coverageGaps" : [ {
+    "code" : "JAVA_UPGRADE_IMPORTS_ONLY",
+    "source" : "XmlCodec.java: fully qualified uses, API overloads, reflection, config and transitive dependencies unchecked"
+  }, {
+    "code" : "DECLARED_PROFILES_UNVERIFIED",
+    "source" : "Source/target versions are request declarations, not live runtime observations"
+  }, {
+    "code" : "SCENARIO_COVERAGE_LIMITED",
+    "source" : "Only registered source features; no whole-system compatibility or behavioral equivalence proof"
+  }, {
+    "code" : "EXPLICIT_FILES_ONLY",
+    "source" : "No recursive/full-project or business-database collection"
+  }, {
+    "code" : "NON_ATOMIC_SOURCES",
+    "source" : "Source collection and recheck are not an atomic snapshot"
+  } ],
+  "clarificationItems" : [ ],
+  "findings" : [ {
+    "findingId" : "f90ef1efa3c5c64f276cbcca67342effd3c0f69607c5a773eef81216cccd3946",
+    "outcome" : "CONDITIONAL",
+    "ruleRef" : "JDK_JAXB@archlens-rules-1.0",
+    "evidenceIds" : [ "4029f866a4dab0ec437cb2f224eca9a4d4f8bd075bfc37a02a790ead4cfea904" ],
+    "conditions" : [ "按请求声明的升级目标评估；有效依赖图、类路径及旧新依赖并存情况未解析" ],
+    "unknownReasons" : [ ],
+    "subjectId" : "a147600ccafd45dc316862d46e92bb71f029ae3582afce0044033c0bfd7da433",
+    "summary" : "目标 JDK 不再内置 JAXB；发现 JAXB 导入。",
+    "evidence" : [ {
+      "evidenceId" : "4029f866a4dab0ec437cb2f224eca9a4d4f8bd075bfc37a02a790ead4cfea904",
+      "sourceId" : "4c9a177af8da5747fcd7dacd61df58cbfb0db2e549046ea392553400555c92a5",
+      "sourceHash" : "bc00fb45859ee70df8125b6d9fd255ca8c5533749a7dafcc61fda4d24a9d9412",
+      "location" : {
+        "path" : "XmlCodec.java",
+        "startLine" : 2,
+        "startColumn" : 1,
+        "endLine" : 2,
+        "endColumn" : 35,
+        "byteOffset" : 16,
+        "byteLength" : 34,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_IMPORT_AST"
+    } ],
+    "rule" : {
+      "ruleId" : "JDK_JAXB",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Java 8.x",
+      "targetRange" : "Java 17.x/21.x",
+      "requiredFacts" : [ "Java import javax.xml.bind; classpath unresolved" ],
+      "officialSources" : [ "https://docs.oracle.com/en/java/javase/21/migrate/removed-tools-and-components.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "核对显式 JAXB API/实现依赖及模块设置，再验证 XML 往返；依赖可能已提供，不能仅凭导入判定编译失败。" ],
+    "impacts" : [ {
+      "subject" : "javax.xml.bind.JAXBContext",
+      "certainty" : "CONFIRMED_IMPORT",
+      "changeRequired" : "UNKNOWN",
+      "reason" : "声明处直接影响；下游调用与运行行为未推断"
+    } ]
+  }, {
+    "findingId" : "83220f3934e15c44337b06712c8d653dc72f19cc1e539ae47cf91ed042b695fb",
+    "outcome" : "UNKNOWN",
+    "ruleRef" : "unassessed-scope",
+    "evidenceIds" : [ "4c9a177af8da5747fcd7dacd61df58cbfb0db2e549046ea392553400555c92a5" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ "Unchecked scope remains UNKNOWN; individual rules do not establish whole-project compatibility" ],
+    "subjectId" : null,
+    "summary" : null,
+    "evidence" : [ ],
+    "rule" : null,
+    "recommendations" : [ ],
+    "impacts" : [ ]
+  } ],
+  "verificationSuggestions" : [ "Review declared coverage and resolve unknown versions before making compatibility decisions", "Validate invariants in a user-controlled isolated environment; no verification commands were executed" ],
+  "orchestration" : "DETERMINISTIC_ONLY_NO_MODEL_ORCHESTRATION",
+  "columnAnalysis" : null
+}

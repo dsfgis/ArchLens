@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper namespace="demo.DeviceMapper">
+    <!-- 离线样例：旧列的真实静态引用。 -->
+    <select id="listDevices" resultType="map">
+        SELECT event_id, name FROM public.device
+    </select>
+</mapper>

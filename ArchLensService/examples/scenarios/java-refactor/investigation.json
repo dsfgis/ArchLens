@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "archlens.investigation-request.v1",
+  "scenario": "REFACTORING",
+  "sourceProfile": {
+    "product": "Java",
+    "version": "21"
+  },
+  "targetProfile": {
+    "product": "Java",
+    "version": "21"
+  },
+  "objective": "调查方法改名、实现和状态变化",
+  "constraints": [
+    "只读调查，不编译或执行样例"
+  ],
+  "invariants": [
+    "保留金额、空值、异常及外部接口约定"
+  ],
+  "files": [
+    "before/Counter.java",
+    "after/Counter.java",
+    "change.refactor.json"
+  ],
+  "columnRequest": null,
+  "budget": {
+    "maxFiles": 30,
+    "maxBytes": 1000000,
+    "timeoutMillis": 30000
+  }
+}

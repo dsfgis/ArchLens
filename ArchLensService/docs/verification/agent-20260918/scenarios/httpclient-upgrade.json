@@ -1,0 +1,123 @@
+{
+  "schemaVersion" : "archlens.investigation-report.v2",
+  "engineVersion" : "archlens-investigation-0.3",
+  "inputFingerprint" : "56a1387f8e634203b03d7a5fd0addffe91425dbc72311ddcca16ba19c27eaf1f",
+  "request" : {
+    "schemaVersion" : "archlens.investigation-request.v1",
+    "scenario" : "DEPENDENCY_UPGRADE",
+    "sourceProfile" : {
+      "product" : "org.apache.httpcomponents:httpclient",
+      "version" : "4.5.14"
+    },
+    "targetProfile" : {
+      "product" : "org.apache.httpcomponents.client5:httpclient5",
+      "version" : "5.2.3"
+    },
+    "objective" : "调查 HttpClient 替换升级的命名空间",
+    "constraints" : [ "只读调查，不编译或执行样例" ],
+    "invariants" : [ "保留金额、空值、异常及外部接口约定" ],
+    "files" : [ "HttpGateway.java" ],
+    "columnRequest" : null,
+    "budget" : {
+      "maxFiles" : 30,
+      "maxBytes" : 1000000,
+      "timeoutMillis" : 30000
+    }
+  },
+  "status" : "PARTIAL",
+  "startedAt" : "2026-09-18T01:18:04.711209100Z",
+  "finishedAt" : "2026-09-18T01:18:04.941113600Z",
+  "sources" : [ {
+    "sourceId" : "82525660d4954e30baeaab8f9667981f436283ea90fab3df36c188b46a0beae3",
+    "path" : "HttpGateway.java",
+    "sha256" : "4b7e4432eee90079dce9f6c4ab3e9f5fc36b629552b7e46912657f5580211714",
+    "bytes" : 182,
+    "collectedAt" : "2026-09-18T01:18:04.741027400Z",
+    "location" : {
+      "path" : "HttpGateway.java",
+      "startLine" : 1,
+      "startColumn" : 1,
+      "endLine" : 5,
+      "endColumn" : 1,
+      "byteOffset" : 0,
+      "byteLength" : 182,
+      "metadataKey" : null
+    },
+    "producerVersion" : "archlens-investigation-0.3"
+  } ],
+  "coverageGaps" : [ {
+    "code" : "JAVA_UPGRADE_IMPORTS_ONLY",
+    "source" : "HttpGateway.java: fully qualified uses, API overloads, reflection, config and transitive dependencies unchecked"
+  }, {
+    "code" : "DECLARED_PROFILES_UNVERIFIED",
+    "source" : "Source/target versions are request declarations, not live runtime observations"
+  }, {
+    "code" : "SCENARIO_COVERAGE_LIMITED",
+    "source" : "Only registered source features; no whole-system compatibility or behavioral equivalence proof"
+  }, {
+    "code" : "EXPLICIT_FILES_ONLY",
+    "source" : "No recursive/full-project or business-database collection"
+  }, {
+    "code" : "NON_ATOMIC_SOURCES",
+    "source" : "Source collection and recheck are not an atomic snapshot"
+  } ],
+  "clarificationItems" : [ ],
+  "findings" : [ {
+    "findingId" : "44b10e302d8292782c7278aa97469b3e1b792af3f78613283b9d627c31764986",
+    "outcome" : "CONDITIONAL",
+    "ruleRef" : "HTTPCLIENT_NAMESPACE@archlens-rules-1.0",
+    "evidenceIds" : [ "6063614e068d22920ead3e098d836f08991883c571690ec7774993f9ed8dbe7d" ],
+    "conditions" : [ "按请求声明的升级目标评估；有效依赖图、类路径及旧新依赖并存情况未解析" ],
+    "unknownReasons" : [ ],
+    "subjectId" : "0b5b5f491c1c9c3790754cec37434f112a6993567847e1e8a9df0beaa403162b",
+    "summary" : "发现 HttpComponents 4 命名空间，HttpClient 5 使用独立命名空间。",
+    "evidence" : [ {
+      "evidenceId" : "6063614e068d22920ead3e098d836f08991883c571690ec7774993f9ed8dbe7d",
+      "sourceId" : "82525660d4954e30baeaab8f9667981f436283ea90fab3df36c188b46a0beae3",
+      "sourceHash" : "4b7e4432eee90079dce9f6c4ab3e9f5fc36b629552b7e46912657f5580211714",
+      "location" : {
+        "path" : "HttpGateway.java",
+        "startLine" : 2,
+        "startColumn" : 1,
+        "endLine" : 2,
+        "endColumn" : 42,
+        "byteOffset" : 16,
+        "byteLength" : 41,
+        "metadataKey" : null
+      },
+      "kind" : "JAVA_IMPORT_AST"
+    } ],
+    "rule" : {
+      "ruleId" : "HTTPCLIENT_NAMESPACE",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "org.apache.httpcomponents:httpclient 4.5.x",
+      "targetRange" : "org.apache.httpcomponents.client5:httpclient5 5.2.x",
+      "requiredFacts" : [ "Java import org.apache.http; replacement assumed, coexistence unverified" ],
+      "officialSources" : [ "https://hc.apache.org/httpcomponents-client-5.6.x/migration-guide/migration-to-classic.html", "https://hc.apache.org/components/httpcomponents-client-5.2.x/5.2.3/httpclient5/dependency-info.html", "https://hc.apache.org/httpcomponents-client-4.5.x/current/httpclient/apidocs/org/apache/http/client/HttpClient.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "若替换而非并存，逐 API 迁移到 org.apache.hc，并验证超时、连接池、TLS 和响应资源关闭。" ],
+    "impacts" : [ {
+      "subject" : "org.apache.http.client.HttpClient",
+      "certainty" : "CONFIRMED_IMPORT",
+      "changeRequired" : "UNKNOWN",
+      "reason" : "声明处直接影响；下游调用与运行行为未推断"
+    } ]
+  }, {
+    "findingId" : "8748dc3fcc9b4d7a4f884441aa7a446f5838c814c265d2de47febc66bd0bfd98",
+    "outcome" : "UNKNOWN",
+    "ruleRef" : "unassessed-scope",
+    "evidenceIds" : [ "82525660d4954e30baeaab8f9667981f436283ea90fab3df36c188b46a0beae3" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ "Unchecked scope remains UNKNOWN; individual rules do not establish whole-project compatibility" ],
+    "subjectId" : null,
+    "summary" : null,
+    "evidence" : [ ],
+    "rule" : null,
+    "recommendations" : [ ],
+    "impacts" : [ ]
+  } ],
+  "verificationSuggestions" : [ "Review declared coverage and resolve unknown versions before making compatibility decisions", "Validate invariants in a user-controlled isolated environment; no verification commands were executed" ],
+  "orchestration" : "DETERMINISTIC_ONLY_NO_MODEL_ORCHESTRATION",
+  "columnAnalysis" : null
+}

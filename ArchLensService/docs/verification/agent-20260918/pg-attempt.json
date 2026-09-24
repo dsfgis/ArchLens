@@ -1,0 +1,6 @@
+{
+  "name": "io.archlens.StorageIntegrationTest",
+  "tests": 6,
+  "errors": 6,
+  "reason": "Connection reset/timeout during PG initialization; CLI PG calls succeeded separately"
+}

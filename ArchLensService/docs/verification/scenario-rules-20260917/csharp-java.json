@@ -1,0 +1,246 @@
+{
+  "schemaVersion" : "archlens.investigation-report.v2",
+  "engineVersion" : "archlens-investigation-0.3",
+  "inputFingerprint" : "c9ba6be6afc36121db3967d7f0c653a6a2bae6648e1bcc6128ab9eef37e2da7e",
+  "request" : {
+    "schemaVersion" : "archlens.investigation-request.v1",
+    "scenario" : "LANGUAGE_MIGRATION",
+    "sourceProfile" : {
+      "product" : "C#",
+      "version" : "12"
+    },
+    "targetProfile" : {
+      "product" : "Java",
+      "version" : "21"
+    },
+    "objective" : "调查金额、无符号整数、异步与序列化迁移",
+    "constraints" : [ "只读调查，不编译或执行样例" ],
+    "invariants" : [ "保留金额、空值、异常及外部接口约定" ],
+    "files" : [ "Payment.cs" ],
+    "columnRequest" : null,
+    "budget" : {
+      "maxFiles" : 30,
+      "maxBytes" : 1000000,
+      "timeoutMillis" : 30000
+    }
+  },
+  "status" : "PARTIAL",
+  "startedAt" : "2026-09-17T08:54:25.893669900Z",
+  "finishedAt" : "2026-09-17T08:54:26.010307500Z",
+  "sources" : [ {
+    "sourceId" : "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff",
+    "path" : "Payment.cs",
+    "sha256" : "85c1de21bdf176fd77a1271c425900a7fc29c727a53aa9ff9155ece1c7221eb8",
+    "bytes" : 314,
+    "collectedAt" : "2026-09-17T08:54:25.932355700Z",
+    "location" : {
+      "path" : "Payment.cs",
+      "startLine" : 1,
+      "startColumn" : 1,
+      "endLine" : 10,
+      "endColumn" : 1,
+      "byteOffset" : 0,
+      "byteLength" : 314,
+      "metadataKey" : null
+    },
+    "producerVersion" : "archlens-investigation-0.3"
+  } ],
+  "coverageGaps" : [ {
+    "code" : "CSHARP_LEXICAL_ONLY",
+    "source" : "Payment.cs: no Roslyn binding, preprocessor evaluation, .NET package or behavioral analysis"
+  }, {
+    "code" : "DECLARED_PROFILES_UNVERIFIED",
+    "source" : "Source/target versions are request declarations, not live runtime observations"
+  }, {
+    "code" : "SCENARIO_COVERAGE_LIMITED",
+    "source" : "Only registered source features; no whole-system compatibility or behavioral equivalence proof"
+  }, {
+    "code" : "EXPLICIT_FILES_ONLY",
+    "source" : "No recursive/full-project or business-database collection"
+  }, {
+    "code" : "NON_ATOMIC_SOURCES",
+    "source" : "Source collection and recheck are not an atomic snapshot"
+  } ],
+  "clarificationItems" : [ ],
+  "findings" : [ {
+    "findingId" : "fabd89f30eea457d077372f80e3efa889bff51660d87a7be5834d4ce7e050ce1",
+    "outcome" : "UNKNOWN",
+    "ruleRef" : "CS_SERIALIZATION@archlens-rules-1.0",
+    "evidenceIds" : [ "9e18b347cd285f61c2877b095f207514a7383869673091908daae9d2e63c855b" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ "Unresolved semantic binding or behavior" ],
+    "subjectId" : "5f03f0f8844d71a6cb4a4f053751b8c392296ee39c187ba7340f353d11cc3eb5",
+    "summary" : "发现 JsonPropertyName 属性候选；未解析其命名空间绑定。",
+    "evidence" : [ {
+      "evidenceId" : "9e18b347cd285f61c2877b095f207514a7383869673091908daae9d2e63c855b",
+      "sourceId" : "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff",
+      "sourceHash" : "85c1de21bdf176fd77a1271c425900a7fc29c727a53aa9ff9155ece1c7221eb8",
+      "location" : {
+        "path" : "Payment.cs",
+        "startLine" : 5,
+        "startColumn" : 6,
+        "endLine" : 5,
+        "endColumn" : 22,
+        "byteOffset" : 148,
+        "byteLength" : 16,
+        "metadataKey" : null
+      },
+      "kind" : "LEXICAL_FEATURE"
+    } ],
+    "rule" : {
+      "ruleId" : "CS_SERIALIZATION",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "C# 12.x",
+      "targetRange" : "Java 21.x",
+      "requiredFacts" : [ "JsonPropertyName attribute candidate; namespace binding unknown" ],
+      "officialSources" : [ "https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/customize-properties" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "确认 System.Text.Json 属性后，核对 Java 序列化配置、字段名、null、枚举、日期和往返样例。" ],
+    "impacts" : [ {
+      "subject" : "Payment.cs",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "UNKNOWN",
+      "reason" : "Limited to the located source feature"
+    } ]
+  }, {
+    "findingId" : "05e4bfff205b4a81828240c01081e96e328a36b714589b8b6bfec8871dea8ffd",
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "CS_DECIMAL@archlens-rules-1.0",
+    "evidenceIds" : [ "9ce934afa08be419fcaf9e63ce2cd2c4da1c3779ada6954fc15b6053684cbea0" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ ],
+    "subjectId" : "3c7a8d39c633e2b6247d664a47bddda21d5a46f5f47144383b51c2c3a4a8a230",
+    "summary" : "C# decimal 原生类型/运算不能原样编译为 Java 21。",
+    "evidence" : [ {
+      "evidenceId" : "9ce934afa08be419fcaf9e63ce2cd2c4da1c3779ada6954fc15b6053684cbea0",
+      "sourceId" : "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff",
+      "sourceHash" : "85c1de21bdf176fd77a1271c425900a7fc29c727a53aa9ff9155ece1c7221eb8",
+      "location" : {
+        "path" : "Payment.cs",
+        "startLine" : 6,
+        "startColumn" : 12,
+        "endLine" : 6,
+        "endColumn" : 19,
+        "byteOffset" : 193,
+        "byteLength" : 7,
+        "metadataKey" : null
+      },
+      "kind" : "LEXICAL_FEATURE"
+    } ],
+    "rule" : {
+      "ruleId" : "CS_DECIMAL",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "C# 12.x",
+      "targetRange" : "Java 21.x",
+      "requiredFacts" : [ "C# decimal keyword token; lexical occurrence only" ],
+      "officialSources" : [ "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/floating-point-numeric-types", "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/BigDecimal.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "评估 BigDecimal；显式确定精度、舍入、除法、相等和 JSON 数字契约；不要直接替换为 double。" ],
+    "impacts" : [ {
+      "subject" : "Payment.cs",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "YES",
+      "reason" : "Limited to the located source feature"
+    } ]
+  }, {
+    "findingId" : "3a13cfd3c40d7398d725e51476c88111ab92d5d5d8c3e856a08492ad87cebde5",
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "CS_UNSIGNED@archlens-rules-1.0",
+    "evidenceIds" : [ "61133513f690054704461b29b068804473809341d9d975f76a9777ea769a4a90" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ ],
+    "subjectId" : "335f0c851d726f0975f2530e95f66afb9f35d126cdcd11df8853c68e84e89c81",
+    "summary" : "Java 21 没有同名的 uint/ulong 基础类型。",
+    "evidence" : [ {
+      "evidenceId" : "61133513f690054704461b29b068804473809341d9d975f76a9777ea769a4a90",
+      "sourceId" : "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff",
+      "sourceHash" : "85c1de21bdf176fd77a1271c425900a7fc29c727a53aa9ff9155ece1c7221eb8",
+      "location" : {
+        "path" : "Payment.cs",
+        "startLine" : 7,
+        "startColumn" : 12,
+        "endLine" : 7,
+        "endColumn" : 17,
+        "byteOffset" : 233,
+        "byteLength" : 5,
+        "metadataKey" : null
+      },
+      "kind" : "LEXICAL_FEATURE"
+    } ],
+    "rule" : {
+      "ruleId" : "CS_UNSIGNED",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "C# 12.x",
+      "targetRange" : "Java 21.x",
+      "requiredFacts" : [ "C# uint/ulong keyword token; lexical occurrence only" ],
+      "officialSources" : [ "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/integral-numeric-types", "https://docs.oracle.com/javase/specs/jls/se21/html/jls-4.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "验证上界与溢出语义；评估更宽整数、无符号运算 API 或 BigInteger。" ],
+    "impacts" : [ {
+      "subject" : "Payment.cs",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "YES",
+      "reason" : "Limited to the located source feature"
+    } ]
+  }, {
+    "findingId" : "310dec240b2166ffc2cca0a868eafd8832924c4c54d4042222ba41a5aa9d1f77",
+    "outcome" : "UNKNOWN",
+    "ruleRef" : "CS_AWAIT@archlens-rules-1.0",
+    "evidenceIds" : [ "83b6a5637c037279e4adb5012b0a8a461ae10ebc31199dedb3c942e47a37ba7a" ],
+    "conditions" : [ "词法扫描无法排除上下文标识符，也不能证明异步行为等价" ],
+    "unknownReasons" : [ "Unresolved semantic binding or behavior" ],
+    "subjectId" : "0617c4b4260818901cbe76895d5659ccd68169f2d1bb23147469e1f4f11abd55",
+    "summary" : "发现 await 词法候选，尚未绑定异步调用或状态机。",
+    "evidence" : [ {
+      "evidenceId" : "83b6a5637c037279e4adb5012b0a8a461ae10ebc31199dedb3c942e47a37ba7a",
+      "sourceId" : "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff",
+      "sourceHash" : "85c1de21bdf176fd77a1271c425900a7fc29c727a53aa9ff9155ece1c7221eb8",
+      "location" : {
+        "path" : "Payment.cs",
+        "startLine" : 8,
+        "startColumn" : 34,
+        "endLine" : 8,
+        "endColumn" : 39,
+        "byteOffset" : 289,
+        "byteLength" : 5,
+        "metadataKey" : null
+      },
+      "kind" : "LEXICAL_FEATURE"
+    } ],
+    "rule" : {
+      "ruleId" : "CS_AWAIT",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "C# 12.x",
+      "targetRange" : "Java 21.x",
+      "requiredFacts" : [ "await token; binding and async state machine not resolved" ],
+      "officialSources" : [ "https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/", "https://docs.oracle.com/javase/specs/jls/se21/html/jls-3.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "确认其为异步表达式后设计 CompletableFuture/执行器等方案；验证取消、异常、上下文和调用次序。" ],
+    "impacts" : [ {
+      "subject" : "Payment.cs",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "UNKNOWN",
+      "reason" : "Limited to the located source feature"
+    } ]
+  }, {
+    "findingId" : "b8ed8002ed2c4820404a84a5a8032c9ff0c24c932ce83c1441d1ad870d2ac631",
+    "outcome" : "UNKNOWN",
+    "ruleRef" : "no-supported-compatibility-rule",
+    "evidenceIds" : [ "376f0aaded652feea245a04489ab6f3c29712b224bf648888f5ae79c616489ff" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ "Unchecked scope remains UNKNOWN; individual rules do not establish whole-project compatibility" ],
+    "subjectId" : null,
+    "summary" : null,
+    "evidence" : [ ],
+    "rule" : null,
+    "recommendations" : [ ],
+    "impacts" : [ ]
+  } ],
+  "verificationSuggestions" : [ "Review declared coverage and resolve unknown versions before making compatibility decisions", "Validate invariants in a user-controlled isolated environment; no verification commands were executed" ],
+  "orchestration" : "DETERMINISTIC_ONLY_NO_MODEL_ORCHESTRATION",
+  "columnAnalysis" : null
+}

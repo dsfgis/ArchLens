@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "archlens.investigation-request.v1",
+  "scenario": "COLUMN_CHANGE",
+  "sourceProfile": {"product": "Java/MyBatis", "version": "21"},
+  "targetProfile": null,
+  "objective": "调查 event_id 物理改名的已证实引用及未知影响；仅分析，不执行修改。",
+  "constraints": ["不得执行源码或修改业务数据库"],
+  "invariants": ["设备标识的业务含义保持不变"],
+  "files": ["DeviceMapper.java", "DeviceMapper.xml"],
+  "columnRequest": "request.json",
+  "budget": {"maxFiles": 100, "maxBytes": 10000000, "timeoutMillis": 30000}
+}

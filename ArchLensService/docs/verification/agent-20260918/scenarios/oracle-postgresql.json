@@ -1,0 +1,392 @@
+{
+  "schemaVersion" : "archlens.investigation-report.v2",
+  "engineVersion" : "archlens-investigation-0.3",
+  "inputFingerprint" : "906260eab0abb8ee34a813856ae9efaba5f9852f19f46ce3fb2c744a892d6c7d",
+  "request" : {
+    "schemaVersion" : "archlens.investigation-request.v1",
+    "scenario" : "DATABASE_MIGRATION",
+    "sourceProfile" : {
+      "product" : "Oracle",
+      "version" : "19c"
+    },
+    "targetProfile" : {
+      "product" : "PostgreSQL",
+      "version" : "16"
+    },
+    "objective" : "调查 Oracle 类型、空值、序列和未覆盖的包",
+    "constraints" : [ "只读调查，不编译或执行样例" ],
+    "invariants" : [ "保留金额、空值、异常及外部接口约定" ],
+    "files" : [ "schema.sql", "package.sql" ],
+    "columnRequest" : null,
+    "budget" : {
+      "maxFiles" : 30,
+      "maxBytes" : 1000000,
+      "timeoutMillis" : 30000
+    }
+  },
+  "status" : "PARTIAL",
+  "startedAt" : "2026-09-18T01:18:01.180868Z",
+  "finishedAt" : "2026-09-18T01:18:01.301822800Z",
+  "sources" : [ {
+    "sourceId" : "4f6caf87cf5c2ec09469000a5297dcd1ad0137bfc89ec75e6b3a7a1abb62af15",
+    "path" : "package.sql",
+    "sha256" : "cd56b96be98b289f478553651f957d3efda067901664506874c9950cea303af8",
+    "bytes" : 144,
+    "collectedAt" : "2026-09-18T01:18:01.213407Z",
+    "location" : {
+      "path" : "package.sql",
+      "startLine" : 1,
+      "startColumn" : 1,
+      "endLine" : 5,
+      "endColumn" : 1,
+      "byteOffset" : 0,
+      "byteLength" : 144,
+      "metadataKey" : null
+    },
+    "producerVersion" : "archlens-investigation-0.3"
+  }, {
+    "sourceId" : "97566959b24c311575991d77074f8b1e5ed71a6414387b90d40d0e90775150f6",
+    "path" : "schema.sql",
+    "sha256" : "4a151f30968dd55401f19026bff19ba90e88fab0afed3d3e43fda893845b6a1d",
+    "bytes" : 229,
+    "collectedAt" : "2026-09-18T01:18:01.221622400Z",
+    "location" : {
+      "path" : "schema.sql",
+      "startLine" : 1,
+      "startColumn" : 1,
+      "endLine" : 4,
+      "endColumn" : 1,
+      "byteOffset" : 0,
+      "byteLength" : 229,
+      "metadataKey" : null
+    },
+    "producerVersion" : "archlens-investigation-0.3"
+  } ],
+  "coverageGaps" : [ {
+    "code" : "PROCEDURAL_SQL_UNSUPPORTED",
+    "source" : "package.sql"
+  }, {
+    "code" : "SQL_SELECT_FEATURE_SCAN_ONLY",
+    "source" : "schema.sql"
+  }, {
+    "code" : "SQL_RUNTIME_NOT_COLLECTED",
+    "source" : "No live catalog, data, collation, SQL modes, transactions, drivers or call graph"
+  }, {
+    "code" : "DECLARED_PROFILES_UNVERIFIED",
+    "source" : "Source/target versions are request declarations, not live runtime observations"
+  }, {
+    "code" : "SCENARIO_COVERAGE_LIMITED",
+    "source" : "Only registered source features; no whole-system compatibility or behavioral equivalence proof"
+  }, {
+    "code" : "EXPLICIT_FILES_ONLY",
+    "source" : "No recursive/full-project or business-database collection"
+  }, {
+    "code" : "NON_ATOMIC_SOURCES",
+    "source" : "Source collection and recheck are not an atomic snapshot"
+  } ],
+  "clarificationItems" : [ ],
+  "findings" : [ {
+    "findingId" : "503e4dc607dd53ad321c06a052fa0e2d0a1ff0db1461cc7fa91238906aac9a49",
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "ORACLE_TYPE@archlens-rules-1.0",
+    "evidenceIds" : [ "9aa0c819a74c23b50d04b088519762ba6ba3d43759806c7c2e54d78c2a3fd694" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ ],
+    "subjectId" : "71eb9d2470e8841f0c7729843744407d2cd67cd0f39dedc720222cdd6bab5f49",
+    "summary" : "该 Oracle 类型名不属于 PostgreSQL 16 原生类型。",
+    "evidence" : [ {
+      "evidenceId" : "9aa0c819a74c23b50d04b088519762ba6ba3d43759806c7c2e54d78c2a3fd694",
+      "sourceId" : "97566959b24c311575991d77074f8b1e5ed71a6414387b90d40d0e90775150f6",
+      "sourceHash" : "4a151f30968dd55401f19026bff19ba90e88fab0afed3d3e43fda893845b6a1d",
+      "location" : {
+        "path" : "schema.sql",
+        "startLine" : 2,
+        "startColumn" : 25,
+        "endLine" : 2,
+        "endColumn" : 31,
+        "byteOffset" : 108,
+        "byteLength" : 6,
+        "metadataKey" : null
+      },
+      "kind" : "LEXICAL_FEATURE"
+    } ],
+    "rule" : {
+      "ruleId" : "ORACLE_TYPE",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Oracle 19c (19.x)",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "CREATE TABLE NUMBER/VARCHAR2 column" ],
+      "officialSources" : [ "https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html", "https://www.postgresql.org/docs/16/datatype.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "NUMBER 评估 numeric 并保留精度/标度；VARCHAR2 需验证 BYTE/CHAR 长度、字符集和空值语义。" ],
+    "impacts" : [ {
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "YES",
+      "reason" : "Limited to the located source feature"
+    } ]
+  }, {
+    "findingId" : "058974067f7816bcfedc8a90c4edacb08c2490575803cfb7b7686ef8509fcee3",
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "ORACLE_TYPE@archlens-rules-1.0",
+    "evidenceIds" : [ "be22295f97e395df152df830a7c4a67b7e81ea45e23cde0a71ac4be25d17c54f" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ ],
+    "subjectId" : "66110dcd143b08ee0069862e4955c600d56d4465241cc4fdc102fbb81bfbfc5c",
+    "summary" : "该 Oracle 类型名不属于 PostgreSQL 16 原生类型。",
+    "evidence" : [ {
+      "evidenceId" : "be22295f97e395df152df830a7c4a67b7e81ea45e23cde0a71ac4be25d17c54f",
+      "sourceId" : "97566959b24c311575991d77074f8b1e5ed71a6414387b90d40d0e90775150f6",
+      "sourceHash" : "4a151f30968dd55401f19026bff19ba90e88fab0afed3d3e43fda893845b6a1d",
+      "location" : {
+        "path" : "schema.sql",
+        "startLine" : 2,
+        "startColumn" : 43,
+        "endLine" : 2,
+        "endColumn" : 51,
+        "byteOffset" : 126,
+        "byteLength" : 8,
+        "metadataKey" : null
+      },
+      "kind" : "LEXICAL_FEATURE"
+    } ],
+    "rule" : {
+      "ruleId" : "ORACLE_TYPE",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Oracle 19c (19.x)",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "CREATE TABLE NUMBER/VARCHAR2 column" ],
+      "officialSources" : [ "https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html", "https://www.postgresql.org/docs/16/datatype.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "NUMBER 评估 numeric 并保留精度/标度；VARCHAR2 需验证 BYTE/CHAR 长度、字符集和空值语义。" ],
+    "impacts" : [ {
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "YES",
+      "reason" : "Limited to the located source feature"
+    } ]
+  }, {
+    "findingId" : "7ddb4bbc696631426bd12ef0a855e1dc866b15d6a3e866b7ec370864929f0edb",
+    "outcome" : "CONDITIONAL",
+    "ruleRef" : "ORACLE_DATE@archlens-rules-1.0",
+    "evidenceIds" : [ "85b9372c681351e3ebfc5647249b50096a0252129eaead24ffae879e090c50c0" ],
+    "conditions" : [ "实际数据是否含非零时间、业务是否允许截断尚未核实" ],
+    "unknownReasons" : [ ],
+    "subjectId" : "15cb664aebc8907d82d27ba28f22df0411fa3d1a474f46430f8f33bcea23e7ea",
+    "summary" : "Oracle DATE 包含时分秒，直接映射 PostgreSQL date 会丢失时间语义。",
+    "evidence" : [ {
+      "evidenceId" : "85b9372c681351e3ebfc5647249b50096a0252129eaead24ffae879e090c50c0",
+      "sourceId" : "97566959b24c311575991d77074f8b1e5ed71a6414387b90d40d0e90775150f6",
+      "sourceHash" : "4a151f30968dd55401f19026bff19ba90e88fab0afed3d3e43fda893845b6a1d",
+      "location" : {
+        "path" : "schema.sql",
+        "startLine" : 2,
+        "startColumn" : 84,
+        "endLine" : 2,
+        "endColumn" : 88,
+        "byteOffset" : 167,
+        "byteLength" : 4,
+        "metadataKey" : null
+      },
+      "kind" : "LEXICAL_FEATURE"
+    } ],
+    "rule" : {
+      "ruleId" : "ORACLE_DATE",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Oracle 19c (19.x)",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "CREATE TABLE DATE column" ],
+      "officialSources" : [ "https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html", "https://www.postgresql.org/docs/16/datatype-datetime.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "保留时间时评估 timestamp without time zone；验证时间、时区及夏令时边界。" ],
+    "impacts" : [ {
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "UNKNOWN",
+      "reason" : "Limited to the located source feature"
+    } ]
+  }, {
+    "findingId" : "d7aa07d5436aa67a8823608d8e0456517a87269898574287fa6eab211f561ae4",
+    "outcome" : "CONDITIONAL",
+    "ruleRef" : "ORACLE_EMPTY_STRING@archlens-rules-1.0",
+    "evidenceIds" : [ "f111c1ddd6496a2408cd1eedb3bd3ec1cc07757e38f50d38258eceab144a073f" ],
+    "conditions" : [ "尚未核实数据分布及应用是否依赖空字符串等于 NULL 的行为" ],
+    "unknownReasons" : [ ],
+    "subjectId" : "ebdb90dc09be65ff61402a167eaf071412c3809849782a02142c85651f7df2a8",
+    "summary" : "空字符串在 Oracle 字符语义中视为 NULL，迁移后须保留业务约定。",
+    "evidence" : [ {
+      "evidenceId" : "f111c1ddd6496a2408cd1eedb3bd3ec1cc07757e38f50d38258eceab144a073f",
+      "sourceId" : "97566959b24c311575991d77074f8b1e5ed71a6414387b90d40d0e90775150f6",
+      "sourceHash" : "4a151f30968dd55401f19026bff19ba90e88fab0afed3d3e43fda893845b6a1d",
+      "location" : {
+        "path" : "schema.sql",
+        "startLine" : 2,
+        "startColumn" : 69,
+        "endLine" : 2,
+        "endColumn" : 71,
+        "byteOffset" : 152,
+        "byteLength" : 2,
+        "metadataKey" : null
+      },
+      "kind" : "LEXICAL_FEATURE"
+    } ],
+    "rule" : {
+      "ruleId" : "ORACLE_EMPTY_STRING",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Oracle 19c (19.x)",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "Empty string literal in DDL/SELECT" ],
+      "officialSources" : [ "https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html", "https://www.postgresql.org/docs/16/sql-syntax-lexical.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "检查默认值、比较、拼接和唯一约束中的空字符串/NULL 样例。" ],
+    "impacts" : [ {
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "UNKNOWN",
+      "reason" : "Limited to the located source feature"
+    } ]
+  }, {
+    "findingId" : "bc2ea0bbadb587949edf71bc513036b8cf14905c86e2e5967c9b60b3fee05de0",
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "ORACLE_NVL@archlens-rules-1.0",
+    "evidenceIds" : [ "3e056143d6bf24d89653381002318334551ff400610c5b6289494bbcdff30875" ],
+    "conditions" : [ "结论限原生 PostgreSQL；目标是否提供兼容扩展/自定义同名函数未核实" ],
+    "unknownReasons" : [ ],
+    "subjectId" : "7c8c92e50d4e7ec952820cd42573e6e484d1364e395470939aec7d0d6bf0b7a1",
+    "summary" : "PostgreSQL 16 原生函数集合不提供该同名空值函数。",
+    "evidence" : [ {
+      "evidenceId" : "3e056143d6bf24d89653381002318334551ff400610c5b6289494bbcdff30875",
+      "sourceId" : "97566959b24c311575991d77074f8b1e5ed71a6414387b90d40d0e90775150f6",
+      "sourceHash" : "4a151f30968dd55401f19026bff19ba90e88fab0afed3d3e43fda893845b6a1d",
+      "location" : {
+        "path" : "schema.sql",
+        "startLine" : 3,
+        "startColumn" : 8,
+        "endLine" : 3,
+        "endColumn" : 11,
+        "byteOffset" : 181,
+        "byteLength" : 3,
+        "metadataKey" : null
+      },
+      "kind" : "LEXICAL_FEATURE"
+    } ],
+    "rule" : {
+      "ruleId" : "ORACLE_NVL",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Oracle 19c (19.x)",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "Unqualified NVL call in SELECT" ],
+      "officialSources" : [ "https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/NVL.html", "https://www.postgresql.org/docs/16/functions-conditional.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "评估 COALESCE；验证隐式类型转换、求值副作用和 NULL 样例。" ],
+    "impacts" : [ {
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "YES",
+      "reason" : "Limited to the located source feature"
+    } ]
+  }, {
+    "findingId" : "6f368d2e5f5ddaed3d6b510d708ac7060681f923f2246c9e5a939a2e45b0dc1f",
+    "outcome" : "CONDITIONAL",
+    "ruleRef" : "ORACLE_EMPTY_STRING@archlens-rules-1.0",
+    "evidenceIds" : [ "686734c4cbf2fdb4511073f5c221c4f23c42705fb4b7b5cf296fa07f556f7373" ],
+    "conditions" : [ "尚未核实数据分布及应用是否依赖空字符串等于 NULL 的行为" ],
+    "unknownReasons" : [ ],
+    "subjectId" : "5463f635aa13bef7f1c157e7cce7a3d89054cb0bee6cd45ddfca8fcdab6a1265",
+    "summary" : "空字符串在 Oracle 字符语义中视为 NULL，迁移后须保留业务约定。",
+    "evidence" : [ {
+      "evidenceId" : "686734c4cbf2fdb4511073f5c221c4f23c42705fb4b7b5cf296fa07f556f7373",
+      "sourceId" : "97566959b24c311575991d77074f8b1e5ed71a6414387b90d40d0e90775150f6",
+      "sourceHash" : "4a151f30968dd55401f19026bff19ba90e88fab0afed3d3e43fda893845b6a1d",
+      "location" : {
+        "path" : "schema.sql",
+        "startLine" : 3,
+        "startColumn" : 19,
+        "endLine" : 3,
+        "endColumn" : 21,
+        "byteOffset" : 192,
+        "byteLength" : 2,
+        "metadataKey" : null
+      },
+      "kind" : "LEXICAL_FEATURE"
+    } ],
+    "rule" : {
+      "ruleId" : "ORACLE_EMPTY_STRING",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Oracle 19c (19.x)",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "Empty string literal in DDL/SELECT" ],
+      "officialSources" : [ "https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html", "https://www.postgresql.org/docs/16/sql-syntax-lexical.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "检查默认值、比较、拼接和唯一约束中的空字符串/NULL 样例。" ],
+    "impacts" : [ {
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "UNKNOWN",
+      "reason" : "Limited to the located source feature"
+    } ]
+  }, {
+    "findingId" : "dbf4ec553d25a397a74c5e9d1a1a969776c5994007ebaa0311ca6eaccfbb0b09",
+    "outcome" : "INCOMPATIBLE",
+    "ruleRef" : "ORACLE_NEXTVAL@archlens-rules-1.0",
+    "evidenceIds" : [ "e4fc37e79cd96045979ed01ec2ba4d31884c8b98c175ba594f71c9c34c5c9c58" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ ],
+    "subjectId" : "0cad0284e6c05e0c02e372e5f337b5da989cd8d00c8bf3d9afd9942b862dd823",
+    "summary" : "sequence.NEXTVAL 不是 PostgreSQL 的序列取值语法。",
+    "evidence" : [ {
+      "evidenceId" : "e4fc37e79cd96045979ed01ec2ba4d31884c8b98c175ba594f71c9c34c5c9c58",
+      "sourceId" : "97566959b24c311575991d77074f8b1e5ed71a6414387b90d40d0e90775150f6",
+      "sourceHash" : "4a151f30968dd55401f19026bff19ba90e88fab0afed3d3e43fda893845b6a1d",
+      "location" : {
+        "path" : "schema.sql",
+        "startLine" : 3,
+        "startColumn" : 35,
+        "endLine" : 3,
+        "endColumn" : 42,
+        "byteOffset" : 208,
+        "byteLength" : 7,
+        "metadataKey" : null
+      },
+      "kind" : "LEXICAL_FEATURE"
+    } ],
+    "rule" : {
+      "ruleId" : "ORACLE_NEXTVAL",
+      "version" : "archlens-rules-1.0",
+      "sourceRange" : "Oracle 19c (19.x)",
+      "targetRange" : "PostgreSQL 16.x",
+      "requiredFacts" : [ "Qualified sequence NEXTVAL in SELECT" ],
+      "officialSources" : [ "https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Sequence-Pseudocolumns.html", "https://www.postgresql.org/docs/16/functions-sequence.html" ],
+      "reviewedAt" : "2026-09-17"
+    },
+    "recommendations" : [ "改造方案可使用 nextval(regclass)；核对 schema、标识符、权限和序列状态，不假设序列无间隙。" ],
+    "impacts" : [ {
+      "subject" : "schema.sql",
+      "certainty" : "CONFIRMED_TOKEN",
+      "changeRequired" : "YES",
+      "reason" : "Limited to the located source feature"
+    } ]
+  }, {
+    "findingId" : "b883c8f17504691adbe9f44fd436c89c5a0407cb7e8eafaacf37014419ab890e",
+    "outcome" : "UNKNOWN",
+    "ruleRef" : "unassessed-scope",
+    "evidenceIds" : [ "4f6caf87cf5c2ec09469000a5297dcd1ad0137bfc89ec75e6b3a7a1abb62af15", "97566959b24c311575991d77074f8b1e5ed71a6414387b90d40d0e90775150f6" ],
+    "conditions" : [ ],
+    "unknownReasons" : [ "Unchecked scope remains UNKNOWN; individual rules do not establish whole-project compatibility" ],
+    "subjectId" : null,
+    "summary" : null,
+    "evidence" : [ ],
+    "rule" : null,
+    "recommendations" : [ ],
+    "impacts" : [ ]
+  } ],
+  "verificationSuggestions" : [ "Review declared coverage and resolve unknown versions before making compatibility decisions", "Validate invariants in a user-controlled isolated environment; no verification commands were executed" ],
+  "orchestration" : "DETERMINISTIC_ONLY_NO_MODEL_ORCHESTRATION",
+  "columnAnalysis" : null
+}

@@ -1,0 +1,108 @@
+{
+  "verifiedAt": "2026-09-18T01:20:51.8493077Z",
+  "jarSha256": "edb0d481186d418cc8506dde68649e7afd6dda2fe55dc16d8ae21a6be3708fe3",
+  "reports": [
+    {
+      "path": "column-smoke.json",
+      "sha256": "35004050e559735134f94cafdbe1f1c9806df69e004db7075075598447ed2478"
+    },
+    {
+      "path": "final-tests.json",
+      "sha256": "38dc5415b2c0fa5ef86d14bb442050d396d9fc193cf599888f90b735ba4e5851"
+    },
+    {
+      "path": "live-model.json",
+      "sha256": "a15edf8fdf379a51124f90db258fd4f0e76f54a260fc4070db8bf056a5671fcd"
+    },
+    {
+      "path": "offline-resumed.json",
+      "sha256": "7102a0918c9d42035bc05c73a71d3a4cea1df07392aebd994460c2042de925b0"
+    },
+    {
+      "path": "offline-tests.json",
+      "sha256": "0a2714d17598f7f581dcdd397b4eaacd7e0d7275f57312d7b88859427091a174"
+    },
+    {
+      "path": "pg-attempt.json",
+      "sha256": "b9dfc0081416f23675d643e58b39590006d9fd83172fac8786d562a5779afd27"
+    },
+    {
+      "path": "pg-clarification.json",
+      "sha256": "e0b22f0535048121937391c79502dec2cf96ae817f6e7899b0acdc43dcda36db"
+    },
+    {
+      "path": "pg-resumed.json",
+      "sha256": "9d6d71dd28d43ac0a4946ddfb8d0fe5e8550fb4bb54b68b5523809022b997d4e"
+    },
+    {
+      "path": "pg-tests.json",
+      "sha256": "1a6fbc994a68c57b3d47d3fd0d672f0bfd620dc035b8b8e8672d73303d3dbd23"
+    },
+    {
+      "path": "storage-attempt.json",
+      "sha256": "5bd7b858e30a0a1ef08d6ae459ae3197ad0c936367f5dcb7106a61b8c0eb5f70"
+    }
+  ],
+  "sources": [
+    {
+      "path": "src/main/java/io/archlens/agent\\DeepSeekAgentModel.java",
+      "sha256": "e0e1b6a5c261ff00c19b41397f9eaaceadfc495d2881b76fe54df41bf206d81b"
+    },
+    {
+      "path": "src/main/java/io/archlens/agent\\AgentTools.java",
+      "sha256": "1cbd7d1ce3fe9307e1e9262614888f6da2d08aa6521ac9160cb19cb36fa61b6c"
+    },
+    {
+      "path": "src/main/java/io/archlens/agent\\AgentOrchestrator.java",
+      "sha256": "f733f73f4dac74401cc2e224daa185026c3ca2a6fbf89350ee05501def9e0f11"
+    },
+    {
+      "path": "src/main/java/io/archlens/agent\\AgentModel.java",
+      "sha256": "6d1757e7b147e73cdd9cdfd4494fe87d9c0ea4578ea2f2fa34189e69597875df"
+    },
+    {
+      "path": "src/main/java/io/archlens/agent\\AgentContracts.java",
+      "sha256": "2fb04eec5512c5e16befd53998cdb41603551f518f9cfcbf08fda273a570d9c2"
+    },
+    {
+      "path": "src/main/java/io/archlens/cli/AgentCli.java",
+      "sha256": "e5bfd8059dddf8e963d61e0bf85136a950b3b87a3eb769c281188d72fb02ad9f"
+    },
+    {
+      "path": "src/main/java/io/archlens/cli/InvestigationCli.java",
+      "sha256": "bc534dff162f7793403d4eb1d899a2b81cafe76ad8be2c7bb66007311a976335"
+    },
+    {
+      "path": "src/main/java/io/archlens/storage/PgInvestigationStore.java",
+      "sha256": "1440a69e781b3e61f2e74c777d17efbad822943f9546c2c40de192e635ce75c6"
+    },
+    {
+      "path": "src/main/java/io/archlens/investigation/InvestigationEngine.java",
+      "sha256": "c97f76648842741cd8bd3f54cb1bc166c4bf2fd122c0ddf09c430826ce17c48e"
+    },
+    {
+      "path": "src/main/java/io/archlens/investigation/rules/ScenarioRules.java",
+      "sha256": "52ff60dfd53572042d4729998251f8f8b54f661ffbfd5f62498c9eb3248145b2"
+    },
+    {
+      "path": "src/test/java/io/archlens/AgentTest.java",
+      "sha256": "6e9fbb82ef2c605544b42107b483c193dd33ff7c2fccc73fc3a2cae19f435bcd"
+    },
+    {
+      "path": "src/test/java/io/archlens/DeepSeekAgentModelTest.java",
+      "sha256": "ae5ecd48b7c7bfb089790d8bed3dee4536449e2096f351e8aa04e49f6a879e64"
+    },
+    {
+      "path": "src/test/java/io/archlens/StorageIntegrationTest.java",
+      "sha256": "54d86cf54b5510fd7892748a40fc35b2e749e04f224fd91d27c6cc9b0ff1ef56"
+    },
+    {
+      "path": "scripts/agent.ps1",
+      "sha256": "6845f38f4bb105135942906cdd9cefdb7211be867ecf15eaa71349097db82095"
+    },
+    {
+      "path": "scripts/storage.ps1",
+      "sha256": "c7f92bef7490ec4dd98e86d77d3422a2c227a938a3de3dd14d8d0cbc6197eae0"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "checkedAtUtc": "2026-09-17T08:15:37.7285807Z",
+  "artifact": "target/archlens-0.1.0-SNAPSHOT-cli.jar",
+  "artifactSha256": "2c16ceff2ac5173ccaaee9e3cc6e2829d7467c22ecafc721aa94ed4fb5abf3a1",
+  "report": "target/final-report-20260917-081536-642.json",
+  "reportSha256": "346e334166bb4034252f3393791e29f59174ef4a717d8183028c1dfe94c15008",
+  "status": "PASS",
+  "analysisStatus": "PARTIAL",
+  "nodes": 3,
+  "edges": 2,
+  "diagnostics": 3,
+  "mapperChangeRequired": "YES",
+  "mapperRiskInterval": [
+    32,
+    92
+  ],
+  "preservedNoticeChecks": 14
+}

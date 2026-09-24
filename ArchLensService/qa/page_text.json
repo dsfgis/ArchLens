@@ -1,0 +1,218 @@
+[
+  {
+    "page": 1,
+    "chars": 217,
+    "start": "ArchLens\r\n企业系统架构取证智能体设计文档\r\nSTATUS\r\n实施设计评审版\r\nOWNER\r\nArchLens 项目组\r\nLAST UPDATED\r\n2026 年 9 月 ",
+    "end": "0\r\n评审对象 架构负责人 开发负责人 安全与测试负责人\r\n用途 公司 AI Agent 比赛立项 技术评审 开发实施\r\n范围 Spring Boot PostgreSQL MyBatis Vue 3"
+  },
+  {
+    "page": 2,
+    "chars": 367,
+    "start": "ArchLens | 系统设计 | 2\r\n文档导览\r\n立项阅读 第 1 至 3 章与第 15 至 17 章\r\n技术评审 第 4 至 14 章与第 19 章\r\n开发验收 第 16 章",
+    "end": "模型\r\n12 API 设计建议\r\n13 存储方案\r\n14 安全与权限\r\n15 MVP 范围\r\n16 分阶段实施计划\r\n17 比赛 Demo 流程\r\n18 后续演进\r\n19 风险与限制\r\n20 验收标准"
+  },
+  {
+    "page": 3,
+    "chars": 1173,
+    "start": "ArchLens | 系统设计 | 3\r\n1 项目背景与目标\r\nArchLens 面向 Spring Boot、PostgreSQL、MyBatis 与 Vue 企业系统，建设以证",
+    "end": "ure Forensics Agent：使用工具自主调查企业系统结构，并把变更假设转化为有来源、可质疑、\r\n可追踪的调查案例。主要用户是架构师、开发负责人和测试负责人；评审人通过证据判断建议是否成立。"
+  },
+  {
+    "page": 4,
+    "chars": 1021,
+    "start": "ArchLens | 系统设计 | 4\r\n场景 输入 主要输出\r\n字段替换 public.device.event_id 改用 global_id SQL 与映射影响、接口兼容边界",
+    "end": "版本化算法产生 LLM 不改写图事实与分数\r\n显式不完整 解析失败、预算截断、不可见资产均记录 返回 PARTIAL 及缺失原因\r\n最小权限 只读来源、按项目授权、工具参数校验 权限不足即拒绝，不补猜"
+  },
+  {
+    "page": 5,
+    "chars": 1252,
+    "start": "ArchLens | 系统设计 | 5\r\n原则 工程约束 失败时行为\r\n渐进扩展 插件产生统一中间表示与证据 新插件通过一致性基准再启用\r\n关键架构决策\r\nADR 01：采用 Ja",
+    "end": "ate |\r\n | |\r\n v v\r\n PostgreSQL facts and cases and outbox\r\n | immutable projection\r\n v\r\n Neo4j graph"
+  },
+  {
+    "page": 6,
+    "chars": 1081,
+    "start": "ArchLens | 系统设计 | 6\r\n控制面接受项目注册、扫描与调查请求；数据面在隔离 Worker 读取固定来源生成 IR，再合并符号、验证证据和写入\r\n事实。Agent 只",
+    "end": "响集合、路径、未知项；结果确定性\r\nAgent 意图与工具结果；补证、推理、复核 结构化假设、风险与计划；预算耗尽保留成果\r\nCase 调查状态和版本；审批、任务、报告 不可变修订与审计；乐观锁防覆盖"
+  },
+  {
+    "page": 7,
+    "chars": 2064,
+    "start": "ArchLens | 系统设计 | 7\r\n模块接口与代码组织\r\narchlens-server project / scan / case / auth / report\r\narc",
+    "end": "；\r\nREPO 需 commitSha，DATABASE 需 databaseKey \r\n/ schemaHash / collectedAt；记录 alignment 和\r\ncapabilities"
+  },
+  {
+    "page": 8,
+    "chars": 2023,
+    "start": "ArchLens | 系统设计 | 8\r\n契约 字段与类型 校验及语义\r\nNodeIR\r\nR schemaVersion / projectId / snapshotId / \r\n",
+    "end": "THOD 到 METHOD；\r\nVUE_PAGE 或 FUNCTION\r\n到 FUNCTION\r\nCALLS\r\n调用者依赖被调用者，影响反向；接口声明与唯一可解析\r\n实现用实现绑定证据连接，歧义仅候选"
+  },
+  {
+    "page": 9,
+    "chars": 1526,
+    "start": "ArchLens | 系统设计 | 9\r\nfrom 到 to kind 事实含义与传播方向\r\nMETHOD 到 COLUMN READS 或 WRITES\r\nSQL 绑定的方法访问",
+    "end": "CH；type=PAGE 返回\r\nUNSUPPORTED_NODE_TYPE；同 ID 异内容返回 IDENTITY_CONFLICT。以上四种非法样例必须进入契约测试，\r\n不能被自动修复成有效事实。"
+  },
+  {
+    "page": 10,
+    "chars": 1901,
+    "start": "ArchLens | 系统设计 | 10\r\n7 技术栈解析方案\r\nJAVA 与 SPRING\r\nJavaParser 与 Symbol Solver 负责 AST 和符号绑定。[R",
+    "end": "定义可采集，但字符串动态 SQL 与函数体内部依赖不保证由目录完整登记。MVP 不执行函数验证，不\r\n读取业务记录；复杂视图列血缘列为扩展项。生产账号不可见对象作为 scope gap，而不是不存在。"
+  },
+  {
+    "page": 11,
+    "chars": 1478,
+    "start": "ArchLens | 系统设计 | 11\r\nVue 使用 @vue/compiler-sfc 切分 template、script、script setup，再以 Babel pa",
+    "end": "定运行时解析。Lombok 源声明可建立字段，但未实际存在的生\r\n成方法不假装已解析；可接收已授权且与提交绑定的生成源码或字节码，否则降级。依赖缺失不能阻止本文件语法树\r\n提取，但相关符号边不得确认。"
+  },
+  {
+    "page": 12,
+    "chars": 1471,
+    "start": "ArchLens | 系统设计 | 12\r\nSQL 规范化先保留条件树，再形成可解析的完整语句骨架；值占位符转解析器接受的参数节点，foreach 使用一个符\r\n号元素表示集合语法",
+    "end": "ind(String)\r\n --CALLS [ev05]--> DeviceMapper.find(String)\r\n --READS [ev06]--> public.device.event_id"
+  },
+  {
+    "page": 13,
+    "chars": 1907,
+    "start": "ArchLens | 系统设计 | 13\r\n验证与展示\r\n读证据时检查项目权限、snapshotId、文件哈希、行列范围和内容摘要，默认显示固定快照。不存在、越权和跨快照\r\n引用由",
+    "end": "evidenceIds\":[],\r\n \"conditions\":[\"retain JSON eventId and value semantics\"]}],\r\n \"assumptions\":[]\r\n}"
+  },
+  {
+    "page": 14,
+    "chars": 1481,
+    "start": "ArchLens | 系统设计 | 14\r\ndependencyPresent 表示在本调查视图发现依赖；changeRequired 为 YES、NO 或 UNKNOWN。YES",
+    "end": "量不收紧。其他类型变化，包括 text 到 uuid 和\r\n时区语义变化，默认 UNKNOWN。METHOD_SIGNATURE 仅对已绑定实参和 Java 允许的转换判断，不自行重现完\r\n整编译器。"
+  },
+  {
+    "page": 15,
+    "chars": 1826,
+    "start": "ArchLens | 系统设计 | 15\r\n多路径合并与有界算法\r\n每个消费点独立判定：任何 CONFIRMED 路径给出 YES 则节点为 YES；没有 YES 但有 UNKNO",
+    "end": "费点证据；同一节点取最高已证实程度，未知可\r\n能性扩展上界\r\nK 业务关键性\r\n核心生产或关键对外服务 1.0；重要\r\n内部流程 0.7；一般辅助 0.3\r\n项目或资产配置，由责任人确认；无配置则区间"
+  },
+  {
+    "page": 16,
+    "chars": 1607,
+    "start": "ArchLens | 系统设计 | 16\r\n因子 首版赋值 必要依据\r\nD 数据与恢复\r\n已证实不可逆 1.0；需映射回填或恢\r\n复演练 0.8；有验证可逆步骤 0.3；\r\n无数据",
+    "end": "读工具\r\n提示词四个模板分别版本化。共同约束为仅引用输入或工具返回 ID、把推测标为假设、不得变更快照/租户/评分、遇\r\n到未知不得输出无影响、输出必须符合 schema。每条 PlanTask 必填"
+  },
+  {
+    "page": 17,
+    "chars": 1782,
+    "start": "ArchLens | 系统设计 | 17\r\nid/title/reasonRefs/dependsOn/ownerRole/preconditions/deliverable/va",
+    "end": "dius 只传 changeSpec，不再使用旧\r\ntargetId/change/policyVersion 形状。服务端将第 9 章完整 ChangeSpec 和 Run 规则版本组装到引擎请求。"
+  },
+  {
+    "page": 18,
+    "chars": 2075,
+    "start": "ArchLens | 系统设计 | 18\r\n调用循环和预算\r\nvalidateIntentOrWaitForClarification()\r\npersistRunContextAn",
+    "end": "d/baseRevision/recordVersion/state/stage/attemptEpoch/checkpoint/budgetUsed/draftVersion/error/start"
+  },
+  {
+    "page": 19,
+    "chars": 1374,
+    "start": "ArchLens | 系统设计 | 19\r\nedAt/completedAt。RunDraft 内容与工具日志可递增，但不是正式 CaseRevision。每 Case 最多一个活",
+    "end": "Case 三工作区。图按模块聚合并提供列表；影响列表显示\r\nYES/NO/UNKNOWN、条件性结论、风险区间和截断边界。字段级覆盖不完整必须可见。证据抽屉显示原始位置、\r\n固定版本、脱敏与权限状态。"
+  },
+  {
+    "page": 20,
+    "chars": 1309,
+    "start": "ArchLens | 系统设计 | 20\r\nCase 页提供目标消歧、提交澄清、取消运行、查看历史修订、比较调查结果、人工标注、送审和导出。模型解释与\r\n算法事实分别标识来源。Vi",
+    "end": "on/revision；未消歧\r\n可保存 DRAFT\r\nPOST /cases/{id}/investigations R baseRevision 202 runId；已有活跃 Run 返回 409"
+  },
+  {
+    "page": 21,
+    "chars": 1556,
+    "start": "ArchLens | 系统设计 | 21\r\n方法和资源 请求 响应及关键行为\r\nGET /runs/{id}；POST /runs/{id}/cancel 查询；取消 reason",
+    "end": "operation 隔离，保留 24 小时；同键同规范化请求\r\n返回原状态码和结果，同键异内容 409。运行资源本身仍有活跃唯一约束，防止幂等记录过期后重复执行。写事务同\r\n时保存幂等结果和资源变更。"
+  },
+  {
+    "page": 22,
+    "chars": 1896,
+    "start": "ArchLens | 系统设计 | 22\r\n分页 limit 默认 50 最大 200。节点顺序 logicalKey/nodeId，历史顺序 revision 倒序；cursor",
+    "end": "ceHash / snippetHash / \r\nlocation / validation；relationId / evidenceId\r\nscope 复合 FK；来源位置索引；禁止孤立确定\r\n边"
+  },
+  {
+    "page": 23,
+    "chars": 1874,
+    "start": "ArchLens | 系统设计 | 23\r\n表组 主键及关键字段 外键和索引\r\nunresolved_reference / \r\ndiagnostic\r\nid / sourceId",
+    "end": "法错误无重试，模型请求使用第 10 章独立策略。\r\n封存与发布\r\n1 每个 source 生成固定文件清单；文件变动产生 SOURCE_CHANGED 并重启该来源扫描，禁止读工作树最新版本\r\n补齐。"
+  },
+  {
+    "page": 24,
+    "chars": 1374,
+    "start": "ArchLens | 系统设计 | 24\r\n2 全部预定批次达到终态后，验证必需来源可用、端点绑定、确定边证据及同 scope 约束。可接受诊断保留并计算\r\nquality=PAR",
+    "end": " 源码视为不可信数据；仅白名单工具 注释中的伪指令不能触发动作\r\n敏感数据 密钥引用托管、片段脱敏、日志最小化 日志与报告不出现凭据\r\n导出与分享 重新鉴权、审计、短期下载地址 撤权后下载不可继续使用"
+  },
+  {
+    "page": 25,
+    "chars": 1303,
+    "start": "ArchLens | 系统设计 | 25\r\n角色建议为 ProjectAdmin、Analyst、Reviewer、Viewer。Admin 管理来源与成员；Analyst 发起调",
+    "end": "7 天；企业合规策略可以收紧，删除审计和证据不可用标志同步更新。\r\n15 MVP 范围\r\n能力 首版承诺 明确边界\r\n来源 一个后端与一个 Vue 仓库、一个 PG schema 跨仓部署映射人工配置"
+  },
+  {
+    "page": 26,
+    "chars": 1227,
+    "start": "ArchLens | 系统设计 | 26\r\n能力 首版承诺 明确边界\r\nJava 类型与直接方法调用、常规 Spring 注入 反射、复杂代理不保证解析\r\nMyBatis XML ",
+    "end": "验收的追踪方式。建议 2 名开发和 1 名兼任架构测试人员；原 6 周仅保留为估算，\r\nM0 完成样例与兼容性试验后重新排期。以下任务是文档化交付计划，所有状态均为待实施，未执行的验证不能填通\r\n过。"
+  },
+  {
+    "page": 27,
+    "chars": 1278,
+    "start": "ArchLens | 系统设计 | 27\r\n开发工作包\r\n任务与需求 交付物及设计位置 前置依赖与完成证据\r\nTASK01 REQ01 到\r\nREQ07\r\n样例仓库、来源配置、依赖",
+    "end": "容器 digest、许可证和模型工具能力由 TASK01 兼容试验锁\r\n定，禁止使用浮动 latest。选择版本前不建立虚假的“已兼容”清单。源码语言级别与 ArchLens 自身 JDK 分别配置。"
+  },
+  {
+    "page": 28,
+    "chars": 1412,
+    "start": "ArchLens | 系统设计 | 28\r\n开工前必须具备可授权的后端与 Vue 提交、PG schema 快照、classpath 制品、路由与 Profile 配置；缺模型配置",
+    "end": "验证映射唯一性与历史关联，再设计扩展字段、回填、兼容读写、消费者切换、观察与旧\r\n字段收缩。MVP 无业务数据访问权限时，只提出验证查询草案和验证责任人，不能声称回填安全或直接产出可执行\r\n上线脚本。"
+  },
+  {
+    "page": 29,
+    "chars": 1238,
+    "start": "ArchLens | 系统设计 | 29\r\n回滚需说明切换期间的新写入如何保留，不能仅写“把字段改回”。若删除旧标识后无法逆推，新写入会使回滚不可\r\n逆，应阻止进入收缩阶段，或要求",
+    "end": "部署清单校正静态候选。运行时观察证明某路径曾经执行，不证明未观察路\r\n径不存在。融合时保留 STATIC、RUNTIME、HISTORY 的来源与时间范围，避免把多种不完整证据合成为虚假的完\r\n整性。"
+  },
+  {
+    "page": 30,
+    "chars": 934,
+    "start": "ArchLens | 系统设计 | 30\r\n扩展顺序建议由真实漏报决定：先部署路由与测试索引，再外部任务和消息，最后专项 GIS。每增加一种资产，都要\r\n同步新增 Collecto",
+    "end": "真实工程依赖解析；应优\r\n先在授权真实样例上检验，而不是先开发复杂图形界面。运行版本、制品可用性、企业登录、模型数据范围和业务关\r\n键性仍由部署环境决定，TASK01 及相关接入任务必须留下确认记录。"
+  },
+  {
+    "page": 31,
+    "chars": 973,
+    "start": "ArchLens | 系统设计 | 31\r\n20 验收标准\r\n验收分为设计契约、确定性分析、Agent 行为、业务操作和运维恢复。所有检查初始状态为待实施。建立至少 40 个\r\n黄",
+    "end": "澄清、取消、历史、送审、列表视图、导出均可完成；\r\nTASK07/09\r\nAC13 REQ05 幂等和事件\r\n重复命令不重复 Run；过期 ETag 失败；SSE 重连去重、过期恢\r\n复；TASK07"
+  },
+  {
+    "page": 32,
+    "chars": 1215,
+    "start": "ArchLens | 系统设计 | 32\r\n编号与需求 验证内容 通过条件及任务\r\nAC14 REQ06 权限和保留\r\n无证据权不经模型/日志/导出泄漏；撤权下载拒绝；删除后标不可",
+    "end": " 同路径不同服务或不同 produces 保留不同 API 节点；请求不足以区分时为候选\r\nFIX08\r\n列类型 text 到 uuid，无历史映射验\r\n证\r\n不宣称等价或回填安全，D 未知则风险区间"
+  },
+  {
+    "page": 33,
+    "chars": 1136,
+    "start": "ArchLens | 系统设计 | 33\r\n示例 ID 输入情形 必须得到的结果\r\nFIX09\r\n图含环和 4 条不同语义路径，仅展\r\n示 3 条\r\n环终止；第 4 条已访问不兼容",
+    "end": " 10 万条边以内测量。冷扫描目标≤10 分钟；预热节\r\n点搜索 p95≤1 秒、有界 Blast p95≤5 秒、含模型活跃调查目标≤120 秒。至少 20 次固定查询报告 p50/p95/最大值和"
+  },
+  {
+    "page": 34,
+    "chars": 242,
+    "start": "ArchLens | 系统设计 | 34\r\n截断率，p95 使用排序后 ceil(0.95n)位置；不能通过全部超时返回来满足延迟指标。模型等待、纯算法和数据库耗时\r\n分开记录。\r",
+    "end": "志、故障注入、备份\r\n恢复记录、权限反例、版本与许可证清单、操作手册和 Demo 记录。AC01 到 AC14 全部满足且真实接入参数完成配\r\n置后才标 MVP 完成；文档排版检查不替代这些实施验收。"
+  },
+  {
+    "page": 35,
+    "chars": 1325,
+    "start": "ArchLens | 系统设计 | 35\r\n附录 A 技术依据与术语\r\n下列官方资料用于核对解析器和平台能力。具体版本须在实施时完成兼容性验证并锁定；本设计的评分、预算、工期\r\n与",
+    "end": "和 R10 于 2026 年 9 月 12 日复核，用于确认映射条件、事务快照和结果映射机制。其余引用保留原查阅日\r\n期。规则权重、超时、范围和预算为本项目设计值，实际兼容版本由 TASK01 锁定。"
+  },
+  {
+    "page": 36,
+    "chars": 412,
+    "start": "ArchLens | 系统设计 | 36\r\n审查意见落实索引\r\n审查项 落实位置 对应验收\r\n事实与假设分离 第 2、9、17 章 AC05 及 FIX02/03\r\n字段映射边界 ",
+    "end": "C08 及 FIX15\r\nAPI 及权限闭环 第 12、14 章 AC07/11/12/13/14\r\n工作包和可重复验收 第 16、20 章 TASK01 到 TASK10 及 AC01 到 AC14"
+  }
+]

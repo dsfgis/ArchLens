@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "archlens.investigation-request.v1",
+  "scenario": "DATABASE_MIGRATION",
+  "sourceProfile": {
+    "product": "MySQL",
+    "version": "8.0.36"
+  },
+  "targetProfile": {
+    "product": "PostgreSQL",
+    "version": "16"
+  },
+  "objective": "调查 MySQL 表结构及空值函数迁移差异",
+  "constraints": [
+    "只读调查，不编译或执行样例"
+  ],
+  "invariants": [
+    "保留金额、空值、异常及外部接口约定"
+  ],
+  "files": [
+    "schema.sql"
+  ],
+  "columnRequest": null,
+  "budget": {
+    "maxFiles": 30,
+    "maxBytes": 1000000,
+    "timeoutMillis": 30000
+  }
+}

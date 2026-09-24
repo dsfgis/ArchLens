@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "archlens.investigation-request.v1",
+  "scenario": "DEPENDENCY_UPGRADE",
+  "sourceProfile": {
+    "product": "Spring Boot",
+    "version": "2.7.18"
+  },
+  "targetProfile": {
+    "product": "Spring Boot",
+    "version": "3.0.13"
+  },
+  "objective": "调查 Spring Boot 升级的命名空间、Java 基线和 Servlet 依赖",
+  "constraints": [
+    "只读调查，不编译或执行样例"
+  ],
+  "invariants": [
+    "保留金额、空值、异常及外部接口约定"
+  ],
+  "files": [
+    "LegacyFilter.java",
+    "pom.xml"
+  ],
+  "columnRequest": null,
+  "budget": {
+    "maxFiles": 30,
+    "maxBytes": 1000000,
+    "timeoutMillis": 30000
+  }
+}

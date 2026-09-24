@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "archlens.agent.v1",
+  "objective": "调查 MySQL 8.0.36 到 PostgreSQL 16 的迁移兼容性，解释规则证据并提出验证建议。",
+  "target": null,
+  "constraints": ["只读分析，不执行样例 SQL"],
+  "invariants": ["保持数值范围和空值语义"],
+  "files": ["schema.sql"],
+  "columnRequest": null,
+  "collectionBudget": {"maxFiles": 10, "maxBytes": 100000, "timeoutMillis": 10000},
+  "agentBudget": {"maxModelCalls": 10, "maxToolCalls": 12, "timeoutMillis": 120000}
+}

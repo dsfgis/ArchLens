@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "archlens.agent.v1",
+  "objective": "调查 C# 项目迁移到 Java 21 的源码特征、框架、包依赖与模块边界，提供证据及验证建议。",
+  "target": {
+    "scenario": "LANGUAGE_MIGRATION",
+    "sourceProfile": {
+      "product": "C#",
+      "version": null
+    },
+    "targetProfile": {
+      "product": "Java",
+      "version": "21"
+    }
+  },
+  "constraints": [
+    "只读分析，不执行 MSBuild、NuGet restore 或源码"
+  ],
+  "invariants": [
+    "保持金额精度、溢出、异步取消和 JSON 字段契约"
+  ],
+  "files": [
+    "MigrationSample.csproj",
+    "Payment.cs",
+    "Core/Core.csproj",
+    "Core/Money.cs"
+  ],
+  "columnRequest": null,
+  "collectionBudget": {
+    "maxFiles": 10,
+    "maxBytes": 100000,
+    "timeoutMillis": 10000
+  },
+  "agentBudget": {
+    "maxModelCalls": 10,
+    "maxToolCalls": 12,
+    "timeoutMillis": 120000
+  }
+}

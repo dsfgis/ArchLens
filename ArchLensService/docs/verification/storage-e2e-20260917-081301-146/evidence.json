@@ -1,0 +1,31 @@
+{
+  "checkedAtUtc": "2026-09-17T08:13:13.7418910Z",
+  "caseId": "0b6bff8a-6ff2-46f1-a13e-d521daa68be2",
+  "firstRun": {
+    "caseId": "0b6bff8a-6ff2-46f1-a13e-d521daa68be2",
+    "latestRevision": false,
+    "projectionState": "READY",
+    "revision": 1,
+    "runId": "1a47eca2-f7be-4ff6-9e47-0509a6efd19d",
+    "state": "PARTIAL"
+  },
+  "secondRun": {
+    "caseId": "0b6bff8a-6ff2-46f1-a13e-d521daa68be2",
+    "latestRevision": true,
+    "projectionState": "READY",
+    "revision": 2,
+    "runId": "baacd6d5-37da-4a59-be80-8da73b8f53f4",
+    "state": "PARTIAL"
+  },
+  "firstReport": "docs\\verification\\storage-e2e-20260917-081301-146\\revision-1-report.json",
+  "secondReport": "docs\\verification\\storage-e2e-20260917-081301-146\\revision-2-report.json",
+  "firstReportFileSha256": "dfecd7a5f863d1ee9a5b6182b7d4fdb32e30a6ce9f8a62da94edaf265b4b01aa",
+  "secondReportFileSha256": "276322c40cec0446df9f9456d7ee9a5d384028a7e24ec51c5108ee25de5aa6c4",
+  "oldReportImmutable": true,
+  "inputFingerprintChanged": true,
+  "projectionRetry": "PASS",
+  "graphNodes": 3,
+  "graphEdges": 2,
+  "analysisStatus": "PARTIAL",
+  "compatibility": "UNKNOWN"
+}

@@ -1,0 +1,118 @@
+{
+  "caseId": "cd176b26-583d-4dc2-984a-949968c47c77",
+  "checkpoint": null,
+  "latestRevision": false,
+  "projectionState": "NOT_APPLICABLE",
+  "report": {
+    "diagnostics": [
+      "TARGET_NEEDS_CLARIFICATION"
+    ],
+    "engineVersion": "archlens-agent-0.1",
+    "explanationStatus": "NO_MODEL_EXPLANATION",
+    "explanations": [],
+    "finishedAt": "2026-09-20T02:08:35.293705300Z",
+    "interpretedTarget": {
+      "scenario": "DATABASE_MIGRATION",
+      "sourceProfile": {
+        "product": "MySQL",
+        "version": null
+      },
+      "targetProfile": {
+        "product": "PostgreSQL",
+        "version": "16"
+      }
+    },
+    "investigation": null,
+    "modelCalls": 4,
+    "orchestration": "MODEL_TOOL_LOOP",
+    "parentReportHash": null,
+    "questions": [
+      {
+        "field": "sourceProfile.version",
+        "prompt": "请提供源数据库 MySQL 的具体版本号（例如 5.7.x 或 8.0.x），当前声明中版本为空，无法据此确定适用的迁移规则。",
+        "questionId": "771bc851e6a7866050db068eb6048ea5f8c470a73353962358c32f9bf23e0ed4"
+      }
+    ],
+    "request": {
+      "agentBudget": {
+        "maxModelCalls": 16,
+        "maxToolCalls": 24,
+        "timeoutMillis": 120000
+      },
+      "collectionBudget": {
+        "maxBytes": 10000000,
+        "maxFiles": 100,
+        "timeoutMillis": 30000
+      },
+      "columnRequest": null,
+      "constraints": [
+        "只读调查，不执行 SQL"
+      ],
+      "files": [
+        "schema.sql"
+      ],
+      "invariants": [
+        "保持数值范围和空值语义"
+      ],
+      "objective": "调查 MySQL 到 PostgreSQL 的迁移兼容性，源数据库具体版本待补充。",
+      "schemaVersion": "archlens.agent.v1",
+      "target": {
+        "scenario": "DATABASE_MIGRATION",
+        "sourceProfile": {
+          "product": "MySQL",
+          "version": null
+        },
+        "targetProfile": {
+          "product": "PostgreSQL",
+          "version": "16"
+        }
+      }
+    },
+    "requestHash": "97c7dbcd9bd34032b5cefd558494936682b59491d5b6781b7dc248a945f1f371",
+    "revision": 1,
+    "schemaVersion": "archlens.agent.v1",
+    "selectedRuleIds": [],
+    "startedAt": "2026-09-20T02:08:30.879451700Z",
+    "status": "NEEDS_CLARIFICATION",
+    "trace": [
+      {
+        "argumentsHash": "c40731f9d58d6b3e00779ce8352c5803ed3c23ad5f0abdc7d5a98d5d0e49261a",
+        "elapsedMillis": 29,
+        "resultCode": "OK",
+        "resultHash": "4e462a95c3a43d95f08bbfd313f544f02fe7ad0bbe9307c443d44df4c0c3ff60",
+        "step": 1,
+        "tool": "propose_target"
+      },
+      {
+        "argumentsHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "elapsedMillis": 24,
+        "resultCode": "OK",
+        "resultHash": "4f4cb3c5f3f1e47f2e2a4d32b2685192c99448b4000e35b7a5f0abe8132a4f69",
+        "step": 2,
+        "tool": "list_rules"
+      },
+      {
+        "argumentsHash": "17623aaa36fbe8bc4c344f88abb026b13d9e2860ab617794df828251bfaade02",
+        "elapsedMillis": 23,
+        "resultCode": "TARGET_NEEDS_CLARIFICATION",
+        "resultHash": "f7acc7e22e0a19406d31f5ea57a227d871ccdc3ab4ec7fba4d2897afee665ccc",
+        "step": 3,
+        "tool": "run_analysis"
+      },
+      {
+        "argumentsHash": "4a1f4866d7a0ddb11a38c0eeb04104d98821620e4c69a7792d86f6502a199931",
+        "elapsedMillis": 24,
+        "resultCode": "OK",
+        "resultHash": "d7fb9eb159e93ff6b8ffb6630f959afee55170d5379d5412eb768c8075e5a803",
+        "step": 4,
+        "tool": "ask_clarification"
+      }
+    ],
+    "userAnswers": {}
+  },
+  "reportHash": "0ea4710fd7a39dda46264e58bc61b0c36239cd5acd02586b716a8360582f2846",
+  "revision": 1,
+  "runId": "694ab3e4-b28a-4917-af5b-99c047aefdc3",
+  "state": "PARTIAL",
+  "sourceRoot": "D:\\study\\code\\ArchLens\\ArchLensService\\examples\\scenarios\\mysql-postgresql"
+}
