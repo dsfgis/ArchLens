@@ -1,0 +1,154 @@
+{
+  "date": "2026-09-30",
+  "command": "mvn --batch-mode --no-transfer-progress -Dmaven.repo.local=.local/m2 verify",
+  "workingDirectory": "ArchLensService",
+  "build": "SUCCESS",
+  "logSha256": "421d3db6265887d0ae9e3c5f346ff33abad750d6cddc12980d914ace191eba1e",
+  "totals": {
+    "tests": 152,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 18
+  },
+  "passed": 134,
+  "suites": [
+    {
+      "name": "io.archlens.AgentTest",
+      "tests": "18",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "b9ab20bb8f6e32737a9723bbd44e9378e8b203892ac26a5963edfe1589e98644"
+    },
+    {
+      "name": "io.archlens.BlastRadiusTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "828b73feca64dfdb60c1d6e9332c317e24d22fecd59cca5efe279694b2761465"
+    },
+    {
+      "name": "io.archlens.BusinessContextTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "2463776b7374b992a80c7326d4a9ef5688da9386e10dcf2941b0e24f4dc75bfb"
+    },
+    {
+      "name": "io.archlens.ContractTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "fe3599c78697734e931a61325af3483c7d793a4b314d9ea8575e142282b5190e"
+    },
+    {
+      "name": "io.archlens.DatabaseAssociationTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "60c4ae80b119eebea715ba9c7826b495ccabbbe9a3f3d9735ccd8ae1665f7ce6"
+    },
+    {
+      "name": "io.archlens.DeepSeekAgentModelTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "2053f65a69cd9caecd5d3c51bf21ec6fa6c1a7133e164bd7c943299e75908685"
+    },
+    {
+      "name": "io.archlens.DeepSeekGatewayTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "3b37f30328bc704a442fc1e905d608123de7affbd8bc933a70c9d58ea74e9ec1"
+    },
+    {
+      "name": "io.archlens.DotnetInventoryTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "a1a410346517cc4d1b405e81b51d730363758218140c0aab950320b5aae78fe4"
+    },
+    {
+      "name": "io.archlens.DotnetPreviewTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "59088aeb5b58d5cfb6d152e2da3c06415cd44637e07eb8f82f7dac7d3d9dcb29"
+    },
+    {
+      "name": "io.archlens.InvestigationTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "e954ffd4fefed0bdeb70075b1dd6f2b2c07f875f750d3ec5a429984cd49eb4db"
+    },
+    {
+      "name": "io.archlens.MapperAnalyzerTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "eea7038848a82427a09c1c922676b24cc6cb6865a802550985fcb73c0077f5bf"
+    },
+    {
+      "name": "io.archlens.MysqlCollectionIntegrationTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "6",
+      "reportSha256": "8b0f3a0fe6346dd7220b2693bb79731ac9125e4320df36e47c638e613bc61300"
+    },
+    {
+      "name": "io.archlens.Neo4jProjectionTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "1",
+      "reportSha256": "88b45637cfdf47ed4b6c87b3475a12521a7bdeb6d6d495a73b10ff5b75085a77"
+    },
+    {
+      "name": "io.archlens.ScenarioRulesTest",
+      "tests": "30",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "785b25cddbab264586a42e470e03544e9db5f3c5f4e71c70ce927af2f3b3b4cc"
+    },
+    {
+      "name": "io.archlens.StorageIntegrationTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "9",
+      "reportSha256": "fbbea231d6c3af5d4cdb11e65903173620f42eebd80e3dc9d4bb13c2bd3cb70b"
+    },
+    {
+      "name": "io.archlens.WebAgentCliTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "2",
+      "reportSha256": "7aee1d8d7a06c38ebc16337a375ebf1653e0bba3f1959a2c580a7b582905c31c"
+    },
+    {
+      "name": "io.archlens.WebContractTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "reportSha256": "855eb5f55e3722d3e5753b86d67fe07e504ff8f9c98b64c820caf5aeedaa0feb"
+    }
+  ],
+  "externalIntegrationsExecuted": false,
+  "note": "包括历史报告 classpath 迁移回归；不构成新 MD-AC 验收。"
+}

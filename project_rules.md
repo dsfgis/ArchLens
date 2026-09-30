@@ -1,10 +1,14 @@
 # ArchLens 项目规则
 
-维护日期：2026-09-22。本文定义项目工程约束，同时记录当前源码实现边界。版本、接口和能力变化时应同步维护，不把当前限制永久固化为产品目标；实时存储验收结果以 check_list 为准。
+2026-09-27 增量：联合报告增加 C#/Java 方法及 MyBatis 语句的静态访问证据路径，区分直接 SQL 实参、同方法候选和未知；详见 [业务数据库与访问路径](docs/archive/2026-09-29/ArchLensService/docs/business-database.md)。
+2026-09-26 更新：[业务数据库与目标环境](docs/archive/2026-09-29/ArchLensService/docs/business-database.md)。已接入 MySQL、Oracle、人大金仓和达梦的结构采集；后三种产品尚待实库验证。
+维护日期：2026-09-29。本文定义项目工程约束，同时记录当前源码实现边界。当前需求与任务以重建后的 [specs](ArchLensService/specs/implementation/requirements.md) 为准；[历史归档](docs/archive/2026-09-29/README.md) 中的旧 INV 编号、旧说明和旧验证仅供追溯。历史验证不自动构成本次验收。
 
 ## 1. 产品定位与术语
 
 ArchLens 用于理解源码与数据库结构之间的依赖，基于证据分析变更影响，为修改范围与回归测试提供依据。
+
+下一阶段目标为：代码来源、按需业务数据库连接、目标环境及自然语言目的驱动的自主迁移设计。.NET 平台包括 .NET Framework、.NET Core、现代 .NET；语言、SDK、目标框架与应用类型分别识别。平台到 Java、数据库迁移与信创适配可以组合，信创不自动要求迁移 Java。现有 .NET 声明盘点、三种分析模式、四产品结构采集代码及静态候选关联作为复用基线；新语义、迁移方案、恢复协议和隔离验证按新 specs 分阶段实施。
 
 | 术语 | 约定 |
 | --- | --- |
@@ -20,12 +24,12 @@ ArchLens 用于理解源码与数据库结构之间的依赖，基于证据分�
 
 | 层次 | 已存在的实现 | 尚未完成的能力 |
 | --- | --- | --- |
-| 前端 | 原生调查工作台：提交、澄清、状态、证据/下载、历史修订；旧草稿页保留 | Vue 应用、生产工作台；本机 SQL 闭环已实测，见 [验证](ArchLensService/docs/verification-web-2026-09-20.md) |
+| 前端 | 原生调查工作台：提交、澄清、状态、证据/下载、历史修订；旧草稿页保留 | Vue 应用、生产工作台；本机 SQL 闭环已实测，见 [验证](docs/archive/2026-09-29/ArchLensService/docs/verification-web-2026-09-20.md) |
 | 本地适配器 | Node 同源调查接口与旧 `/api/parse-target`；Java 子进程复用 Agent/PG 修订 | 生产鉴权、持久任务调度、完整分析 API |
-| 确定性后端 | Java 21/Maven，版本化 IR、不可变图、有限 Java/MyBatis 解析、列变更传播与风险区间、离线 CLI | 全项目扫描、在线数据库采集、跨语言完整字段链 |
+| 确定性后端 | Java 21/Maven，版本化 IR、不可变图、有限 Java/MyBatis 解析、列变更传播与风险区间、离线 CLI；MySQL/Oracle/KingbaseES/DM 只读结构采集代码 | 全项目语义、跨语言完整字段链；后三种业务库的真实产品联调 |
 | 模型 | 旧描述解析；新增原生工具循环，目标/规则选择、工具调用、可恢复澄清和匿名证据解释 | 联网规则研究、完整自主采集与人工审阅工作台 |
-| 调查与存储 | 统一调查及 Agent CLI、显式来源清单、PG Case/Run/澄清修订及报告封存、Neo4j 幂等投影代码 | 生产 Spring Boot API、业务元数据快照、完整兼容规则；OIDC 鉴权经 2026-09-21 用户决策本版本不实施，仅限本机单用户场景使用 |
-| 场景规则 | 25 条版本限定规则、SQL/C# 特征及 C# 项目声明、Java AST 重构/升级、带依据与原文证据的 v2 报告 | 在线 MySQL/Oracle 采集、完整语义绑定、跨语言行为等价、新场景依赖图及风险评分 |
+| 调查与存储 | 统一调查及 Agent CLI、显式来源清单、PG Case/Run/澄清修订及报告封存、Neo4j 幂等投影代码 | 生产 Spring Boot API、跨查询一致业务元数据快照、完整兼容规则；OIDC 鉴权经 2026-09-21 用户决策本版本不实施，仅限本机单用户场景使用 |
+| 场景规则 | 25 条版本限定规则、SQL/C# 特征、Java AST 重构/升级；报告 v2–v5 逐步加入 .NET 声明、业务结构与静态候选访问路径 | 完整 .NET 语义、目标能力与有方向迁移规则、信创组合、结构化迁移方案及行为验证 |
 
 “已实现”只对应上述有限范围，不代表总体设计验收完成。实现以源码和验证证据判断；预期行为以已确认需求和设计判断。二者冲突时明确记录差异，不静默选择有利表述。
 
@@ -35,6 +39,7 @@ ArchLens 用于理解源码与数据库结构之间的依赖，基于证据分�
 ArchLens/
 ├── AGENTS.md                     开发代理入口
 ├── project_rules.md              项目工程约束
+├── docs/                        当前导航、两份设计基线、历史归档与新验证记录
 ├── ArchLensClient/
 │   ├── index.html / styles.css   页面结构与样式
 │   ├── app.js                   表单、校验、提议状态与请求预览
@@ -55,7 +60,7 @@ ArchLens/
     ├── examples/               可复现离线样例
     ├── scripts/                构建和烟测脚本
     ├── specs/implementation/    实施追踪
-    └── docs/                   技术、运行和验证说明
+    └── runtime/                运行依赖清单；测试夹具位于 src/test/resources/
 ```
 
 `target/` 是构建与报告输出，`.local/` 是机器本地依赖缓存。`qa/` 现有资料主要用于设计文档排版，不是产品界面验收证明。禁止修改构建产物来代替源码修复。
@@ -66,12 +71,12 @@ ArchLens/
 
 ### 4.1 面向用户的输入
 
-当前首页收集授权根目录、显式文件清单、调查目标、技术版本与约束，通过 Agent v1 契约提交；ArchLens 自身存储凭据仅由后端读取。以下三组输入约束属于保留的旧草稿页面 `draft.html`：代码库绝对路径、PostgreSQL 连接信息、修改目标描述。
+当前首页支持仅代码、仅数据库、联合三种分析模式；无业务上下文使用 Agent v1，带业务上下文使用 Agent v2。业务连接单独通过本机 Node→Java 通道传递，密码只在表单内存及本次请求中使用，不进入持久化请求、报告、模型或日志。仅数据库模式可无代码目录。ArchLens 自身 PG/Neo4j 凭据由后端读取，不能与被分析业务库混用。以下三组输入约束仅属于保留的旧草稿页面 `draft.html`：代码库绝对路径、PostgreSQL 连接信息、修改目标描述。
 
 - 路径指向分析服务所在机器可访问的目录；浏览器格式校验不证明路径存在或可读。
 - 数据库地址、用户名和密码分开输入。当前表单接受 PostgreSQL/JDBC PostgreSQL URL，不支持连接查询参数和 SSL 配置，也不实际验证连接。
 - 修改描述应包含对象、修改方式和约束；有歧义或缺少 schema 等信息时澄清，不自行猜测。
-- 数据库密码不得进入请求下载、浏览器持久化或模型请求；当前页面不传输数据库密码。后续真实数据库接入需单独实现后端凭据管理与传输机制。
+- 数据库密码不得进入请求下载、浏览器持久化或模型请求；旧草稿页不传输数据库密码，现有工作台的独立连接通道按上文约束处理。
 
 ### 4.2 三种数据不能混用
 
@@ -118,7 +123,7 @@ ArchLens/
 - 失败时保留原始描述并允许不带模型提议的请求预览；已有离线分析命令不依赖模型成功。
 - 联调使用不含敏感信息的合成描述，控制调用次数。错误仅返回稳定错误码或脱敏信息，不回显供应商原始响应、认证头和内部堆栈。
 
-新增调查编排已支持六个固定只读工具、循环预算、澄清修订、匿名证据解释及确定性降级。模型解释保留 MODEL_EXPLANATION_UNVERIFIED，结构/引用校验不等于自然语言语义正确性证明。详细发送范围、能力限制和运行方式见 [Agent 说明](ArchLensService/docs/agent-orchestration.md)。
+新增调查编排已支持六个固定只读工具、循环预算、澄清修订、匿名证据解释及确定性降级。模型解释保留 MODEL_EXPLANATION_UNVERIFIED，结构/引用校验不等于自然语言语义正确性证明。详细发送范围、能力限制和运行方式见 [Agent 说明](docs/archive/2026-09-29/ArchLensService/docs/agent-orchestration.md)。
 
 ## 7. 工程实现约定
 
@@ -147,7 +152,7 @@ try {
 }
 ```
 
-脚本运行 `mvn verify` 并打包；`-Demo` 执行离线样例并生成新报告。涉及打包或 CLI 交付时，在同一目录运行 `scripts/smoke.ps1 -JdkHome $env:ARCHLENS_JAVA_HOME`，该脚本会生成报告并更新 `docs/final-smoke.json`，应检查产生的文件。
+脚本运行 `mvn verify` 并打包；`-Demo` 执行离线样例并生成新报告。涉及打包或 CLI 交付时，先在同一目录运行 `scripts/record-runtime.ps1` 更新 `runtime/runtime-dependencies.json`，再运行 `scripts/smoke.ps1 -JdkHome $env:ARCHLENS_JAVA_HOME`。烟测写入 `target/verification/` 下的新文件，检查实际输出，不覆盖历史归档。这些 PowerShell 脚本使用 Windows 的 `java.exe` / `mvn.cmd`；Linux 构建命令见后端 README。
 
 ### 前端语法检查
 
@@ -186,13 +191,15 @@ node --check .\ArchLensClient\server.mjs
 
 - [后端当前范围](ArchLensService/README.md)
 - [前端使用方式](ArchLensClient/README.md)
-- [DeepSeek 接入与验证](ArchLensService/docs/deepseek.md)
+- [文档导航](docs/README.md)
+- [现有项目总结](docs/design/ArchLens-现有项目总结-2026-09-29.md)
+- [自主迁移设计](docs/design/ArchLens-自主迁移设计Agent-详细设计-v2.0.md)
 - [实施需求](ArchLensService/specs/implementation/requirements.md)
 - [实施设计](ArchLensService/specs/implementation/design.md)
 - [任务跟踪](ArchLensService/specs/implementation/tasks.md)
 - [验收记录](ArchLensService/specs/implementation/check_list.md)
-- [总体设计文档](ArchLensService/ArchLens_设计文档_v1.0.docx)
+- [历史总体设计文档](ArchLensService/ArchLens_设计文档_v1.0.docx)
 
-维护规则时核对相应源码。总体设计中的 Spring Boot、Vue 和完整 Agent 能力尚未实现；PG/Neo4j、Case/Run 的 CLI 子集及具体联调范围见 [调查存储说明](ArchLensService/docs/investigation-storage.md)，不能由子集交付推导总体“已完成”。
+维护规则时核对相应源码。总体设计中的 Spring Boot、Vue 和完整 Agent 能力尚未实现；PG/Neo4j、Case/Run 的 CLI 子集及具体联调范围见 [调查存储说明](docs/archive/2026-09-29/ArchLensService/docs/investigation-storage.md)，不能由子集交付推导总体“已完成”。
 
-C# 项目分析入口、声明范围及边界见 [C# → Java 分析](ArchLensService/docs/csharp-java.md)。
+C# 项目分析入口、声明范围及边界见 [C# → Java 分析](docs/archive/2026-09-29/ArchLensService/docs/csharp-java.md)。

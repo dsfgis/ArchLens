@@ -12,6 +12,10 @@
     <junit.version>5.12.2</junit.version>
   </properties>
   <dependencies>
+    <!-- MySQL 业务源只读采集；不使用 X DevAPI，排除 protobuf。许可证及清单维护见 runtime/README.md。 -->
+    <dependency><groupId>com.mysql</groupId><artifactId>mysql-connector-j</artifactId><version>9.7.0</version>
+      <exclusions><exclusion><groupId>com.google.protobuf</groupId><artifactId>protobuf-java</artifactId></exclusion></exclusions>
+    </dependency>
     <dependency><groupId>org.postgresql</groupId><artifactId>postgresql</artifactId><version>42.7.13</version></dependency>
     <dependency><groupId>org.neo4j.driver</groupId><artifactId>neo4j-java-driver</artifactId><version>5.28.9</version></dependency>
     <dependency><groupId>com.github.javaparser</groupId><artifactId>javaparser-core</artifactId><version>3.27.1</version></dependency>

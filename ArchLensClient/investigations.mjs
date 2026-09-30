@@ -1,4 +1,16 @@
+// 空根目录只用于无代码文件的数据库调查；恢复请求由 Java 按封存请求再次校验。
+async function authorizedRoot(value, request, resume=false) {
+  if(!resume && (!request || (!request.files?.length && !request.businessContext?.source))) throw new Error('INVALID_REQUEST');
+  if(value==null||value==='') {
+    if(resume || (Array.isArray(request?.files)&&request.files.length===0&&request.columnRequest==null&&request.businessContext?.source)) return null;
+    throw new Error('SOURCE_ROOT_INVALID');
+  }
+  if(typeof value!=='string'||!path.isAbsolute(value))throw new Error('SOURCE_ROOT_INVALID');
+  const root=await realpath(value).catch(()=>{throw new Error('SOURCE_ROOT_INVALID');});
+  if(!(await stat(root)).isDirectory())throw new Error('SOURCE_ROOT_INVALID');return root;
+}
 import { discoverCSharpProject } from './csharp-project.mjs';
+import { discoverDotnetProject } from './dotnet-project.mjs';
 import { spawn } from 'node:child_process';
 import { mkdir, readFile, writeFile, realpath, stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -12,8 +24,11 @@ export function bridge(input, onStarted) {
   return new Promise((resolve, reject) => {
     const home = process.env.ARCHLENS_JAVA_HOME || process.env.JAVA_HOME;
     const java = home ? path.join(home, 'bin', process.platform === 'win32' ? 'java.exe' : 'java') : 'java';
+    const extra=(process.env.ARCHLENS_BUSINESS_JDBC_JARS||'').split(path.delimiter).filter(Boolean);
+    if(extra.some(file=>!path.isAbsolute(file)||!file.toLowerCase().endsWith('.jar'))) {reject(new Error('DB_DRIVER_CONFIG_INVALID'));return;}
+    const classpath=[path.join(service,'target/archlens-0.1.0-SNAPSHOT-cli.jar'),...extra].join(path.delimiter);
     let child;
-    try { child = spawn(java, ['-Dfile.encoding=UTF-8', '-Dstdout.encoding=UTF-8', '-cp', path.join(service, 'target/archlens-0.1.0-SNAPSHOT-cli.jar'), 'io.archlens.cli.WebAgentCli'], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] }); }
+    try { child = spawn(java, ['-Dfile.encoding=UTF-8', '-Dstdout.encoding=UTF-8', '-cp', classpath, 'io.archlens.cli.WebAgentCli'], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] }); }
     catch { reject(new Error('BACKEND_UNAVAILABLE')); return; }
     let buffer = '', bytes = 0, value, failure, started;
     const timer = setTimeout(() => { failure = 'BACKEND_TIMEOUT'; child.kill(); }, onStarted ? 155000 : 30000);
@@ -69,17 +84,52 @@ return async function handleInvestigations(req, res, json) {
     if (url.pathname === '/api/investigations/example' && req.method === 'GET') {
       // 只发布仓库自带的合成样例路径，不枚举用户工作区或读取业务文件。
       const scenario = url.searchParams.get('scenario') || 'mysql-postgresql';
-      if (!['mysql-postgresql', 'csharp-java'].includes(scenario)) throw new Error('INVALID_REQUEST');
+      if (!['mysql-postgresql', 'csharp-java', 'dotnet-platform'].includes(scenario)) throw new Error('INVALID_REQUEST');
       const sourceRoot = path.join(service, 'examples', 'scenarios', scenario);
       const request = JSON.parse(await readFile(path.join(sourceRoot, 'agent-clarify.json'), 'utf8'));
       json(res, 200, { sourceRoot, request });
       return true;
     }
-    if (url.pathname === '/api/investigations/discover-csharp' && req.method === 'POST') {
+    if (['/api/investigations/discover-csharp', '/api/investigations/discover-dotnet'].includes(url.pathname) && req.method === 'POST') {
       if (queries >= 6) throw new Error('SERVER_BUSY');
       queries++;
-      try { const body = await readBody(req); exact(body, ['sourceRoot']); json(res, 200, await discoverCSharpProject(body.sourceRoot)); }
+      try { const body = await readBody(req); exact(body, ['sourceRoot']); json(res, 200, await (url.pathname.endsWith('discover-dotnet') ? discoverDotnetProject : discoverCSharpProject)(body.sourceRoot)); }
       finally { queries--; }
+      return true;
+    }
+    if (['/api/investigations/preview-joint','/api/investigations/test-database'].includes(url.pathname) && req.method === 'POST') {
+      if (active >= 2) throw new Error('SERVER_BUSY');
+      active++;
+      try {
+        const body=await readBody(req);exact(body,['sourceRoot','request','connection']);
+        if (!body.request || !body.request.businessContext || body.request.columnRequest != null) throw new Error('INVALID_REQUEST');
+        const testing=url.pathname.endsWith('test-database');
+        let sourceRoot=null;
+        if (!testing) {
+          sourceRoot=await authorizedRoot(body.sourceRoot,body.request);
+        }
+        // 凭据只传本次 Java 子进程；不写磁盘、历史上下文或日志。
+        json(res,200,await backend({action:testing?'test-database':'preview-joint',sourceRoot,request:body.request,connection:body.connection||null}));
+      } finally {active--;}
+      return true;
+    }
+    if (url.pathname === '/api/investigations/preview-dotnet' && req.method === 'POST') {
+      // 预览与正式调查共用重任务槽位；不写 web-contexts，不分配假 Run ID。
+      if (active >= 2) throw new Error('SERVER_BUSY');
+      active++;
+      try {
+        const body = await readBody(req); exact(body, ['sourceRoot', 'files']);
+        if (typeof body.sourceRoot !== 'string' || !path.isAbsolute(body.sourceRoot)) throw new Error('SOURCE_ROOT_INVALID');
+        const sourceRoot = await realpath(body.sourceRoot).catch(() => { throw new Error('SOURCE_ROOT_INVALID'); });
+        if (!(await stat(sourceRoot)).isDirectory()) throw new Error('SOURCE_ROOT_INVALID');
+        if (!Array.isArray(body.files) || !body.files.length || body.files.length > 1000 || body.files.some(f => typeof f !== 'string' || !f.trim())) throw new Error('INVALID_REQUEST');
+        const request = {schemaVersion:'archlens.agent.v1', objective:'本地 .NET 平台现状预览',
+          target:{scenario:'CURRENT_STATE',sourceProfile:{product:'.NET',version:null},targetProfile:null},
+          constraints:[],invariants:[],files:body.files,columnRequest:null,
+          collectionBudget:{maxFiles:1000,maxBytes:50000000,timeoutMillis:25000},
+          agentBudget:{maxModelCalls:1,maxToolCalls:1,timeoutMillis:30000}};
+        json(res, 200, await backend({action:'preview-dotnet',sourceRoot,request}));
+      } finally { active--; }
       return true;
     }
     const match = /^\/api\/investigations(?:\/([0-9a-f-]+)(?:\/(resume|cancel|report))?)?$/.exec(url.pathname);
@@ -117,17 +167,15 @@ return async function handleInvestigations(req, res, json) {
       active++;
       try {
         const body = await readBody(req);
-        exact(body, id ? ['sourceRoot', 'answers'] : ['sourceRoot', 'request']);
-        if (typeof body.sourceRoot !== 'string' || !path.isAbsolute(body.sourceRoot)) throw new Error('SOURCE_ROOT_INVALID');
-        const sourceRoot = await realpath(body.sourceRoot).catch(() => { throw new Error('SOURCE_ROOT_INVALID'); });
-        if (!(await stat(sourceRoot)).isDirectory()) throw new Error('SOURCE_ROOT_INVALID');
+        exact(body, id ? ['sourceRoot', 'answers', 'connection'] : ['sourceRoot', 'request', 'connection']);
+        const sourceRoot = await authorizedRoot(body.sourceRoot,body.request,Boolean(id));
         if (!id && (!body.request || body.request.columnRequest != null || body.request.target?.scenario === 'COLUMN_CHANGE')) throw new Error('COLUMN_WEB_UNSUPPORTED');
         if (id) {
           let context;
           try { context = JSON.parse(await readFile(path.join(contextDirectory, `${id}.json`), 'utf8')); } catch (e) { if (e.code !== 'ENOENT') throw e; }
           if (context && context.sourceRoot !== sourceRoot) throw new Error('SOURCE_ROOT_CHANGED');
         }
-        const input = { action: id ? 'resume' : 'start', sourceRoot, ...(id ? { runId: id, answers: body.answers } : { request: body.request }) };
+        const input = { action: id ? 'resume' : 'start', sourceRoot, ...(body.connection ? {connection:body.connection} : {}), ...(id ? { runId: id, answers: body.answers } : { request: body.request }) };
         await backend(input, async ticket => {
           validId(ticket.runId);
           await mkdir(contextDirectory, { recursive: true });

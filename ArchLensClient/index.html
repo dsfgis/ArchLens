@@ -4,30 +4,57 @@
 <body class="workbench">
 <header class="workbench-header"><a class="logo" href="/">ArchLens<span>.</span></a><span>调查工作台</span><a href="/draft.html">旧版请求草稿</a></header>
 <main>
-  <div class="page-heading"><div><p class="eyebrow">READ-ONLY INVESTIGATION</p><h1>从目标到证据<span>。</span></h1><p class="page-description">提交授权文件，澄清缺失信息，追踪调查结果和每次修订。</p></div><button id="csharp-example" class="button secondary" type="button">填入 C# 项目示例</button><button id="example" class="button secondary" type="button">填入 MySQL 示例</button></div>
+  <div class="page-heading"><div><p class="eyebrow">READ-ONLY INVESTIGATION</p><h1>从目标到证据<span>。</span></h1><p class="page-description">提交授权文件，澄清缺失信息，追踪调查结果和每次修订。</p></div><button id="dotnet-example" class="button secondary" type="button">填入混合 .NET 示例</button><button id="csharp-example" class="button secondary" type="button">填入 C# 项目示例</button><button id="example" class="button secondary" type="button">填入 MySQL 示例</button></div>
   <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
   <div class="workbench-grid">
     <section class="form-card"><div class="card-heading"><div><h2>新建调查</h2><p>文件来自运行 ArchLens 的这台机器</p></div></div>
       <form id="investigation-form" class="card-body">
-        <label for="source-root">授权根目录</label><input id="source-root" required placeholder="D:\work\my-project" autocomplete="off"><p class="field-help">只读取下方清单；C# 项目可先发现候选文件，检查清单后提交。不构建或运行项目。</p>
-        <button id="discover-csharp" class="button secondary" type="button">发现 C# 项目文件</button><div id="discovery-summary" role="status"></div>
-        <label for="source-files">文件清单（相对根目录，每行一个）</label><textarea id="source-files" required rows="3" placeholder="src/main/resources/schema.sql"></textarea>
+        <label for="analysis-mode">分析范围</label><select id="analysis-mode"><option value="code">仅代码</option><option value="database">仅数据库</option><option value="joint">代码＋数据库</option></select>
+        <p id="mode-hint" class="field-help" role="status">读取授权目录内明确列出的代码文件。</p>
+        <label for="source-root">授权根目录</label><input id="source-root" required placeholder="D:\work\my-project" autocomplete="off"><p class="field-help">只读取下方清单； .NET 解决方案可先发现候选文件，检查清单后提交。不构建或运行项目。仅调查数据库时，目录和文件清单均可留空。</p>
+        <button id="discover-dotnet" class="button secondary" type="button">发现 .NET 解决方案</button><button id="discover-csharp" class="button secondary" type="button">发现 C# 项目文件</button><div id="discovery-summary" role="status"></div>
+        <label for="source-files">文件清单（仅数据库调查时留空）</label><textarea id="source-files" required rows="3" placeholder="src/main/resources/schema.sql"></textarea>
         <label for="objective">调查目标</label><textarea id="objective" required minlength="5" maxlength="4000" rows="3" placeholder="例如：调查 MySQL 到 PostgreSQL 的迁移兼容性，保持数值范围和空值语义。"></textarea>
-        <label for="scenario">调查场景</label><select id="scenario"><option value="DATABASE_MIGRATION">数据库兼容性</option><option value="LANGUAGE_MIGRATION">语言迁移</option><option value="REFACTORING">Java 重构对比</option><option value="DEPENDENCY_UPGRADE">框架 / 依赖升级</option><option value="CURRENT_STATE">现状调查</option><option value="">由模型解析目标</option></select>
-        <div class="field-grid"><div><label for="source-product">源技术</label><input id="source-product" placeholder="MySQL"></div><div><label for="source-version">源版本（未知可留空）</label><input id="source-version" placeholder="8.0.36"></div><div><label for="target-product">目标技术</label><input id="target-product" placeholder="PostgreSQL"></div><div><label for="target-version">目标版本（未知可留空）</label><input id="target-version" placeholder="16"></div></div>
+        <label for="scenario">调查场景</label><select id="scenario"><option value="DATABASE_MIGRATION">数据库兼容性</option><option value="LANGUAGE_MIGRATION">平台 / 语言迁移</option><option value="REFACTORING">Java 重构对比</option><option value="DEPENDENCY_UPGRADE">框架 / 依赖升级</option><option value="CURRENT_STATE">现状调查</option><option value="">由模型解析目标</option></select>
+        <div class="field-grid"><div><label for="source-product">源技术</label><input id="source-product" placeholder="MySQL"></div><div><label for="source-version">源版本（混合 .NET 可留空）</label><input id="source-version" placeholder="8.0.36"></div><div><label for="target-product">目标技术</label><input id="target-product" placeholder="PostgreSQL"></div><div><label for="target-version">目标版本（未知可留空）</label><input id="target-version" placeholder="16"></div></div>
+        <details id="business-config" class="constraints"><summary>业务数据库（MySQL、Oracle、人大金仓、达梦）</summary>
+          <label class="check-label"><input id="db-enabled" type="checkbox">本次连接业务数据库，仅采集结构</label><p class="field-help">分析范围选择“仅数据库”或“代码＋数据库”时启用；勾选此项也会自动切换分析范围。</p>
+          <fieldset id="db-fields" disabled><legend>业务数据库连接</legend><label for="db-product">数据库产品</label><select id="db-product"><option value="MySQL">MySQL</option><option value="Oracle">Oracle</option><option value="KingbaseES">人大金仓 KingbaseES</option><option value="DM">达梦 DM</option></select>
+            <label for="db-host">主机地址</label><input id="db-host" autocomplete="off" placeholder="例如 db.example.internal">
+            <div class="field-grid"><div><label for="db-port">端口</label><input id="db-port" type="number" min="1" max="65535" value="3306"></div><div><label for="db-name" id="db-name-label">数据库名（仅采集该库）</label><input id="db-name" autocomplete="off"></div></div>
+            <label for="db-service" id="db-service-label" hidden>服务名 / 数据库名</label><input id="db-service" autocomplete="off" hidden>
+            <label for="db-user">只读账号</label><input id="db-user" autocomplete="off">
+            <label for="db-password">密码</label><input id="db-password" type="password" autocomplete="new-password">
+            <label for="db-tls">连接加密</label><select id="db-tls"><option value="VERIFY_IDENTITY">TLS：校验证书和主机名</option><option value="REQUIRED">TLS：要求加密</option><option value="DISABLED">不加密（仅用于受控本机测试）</option><option value="DRIVER_DEFAULT" hidden>驱动默认策略（连接加密状态未验证）</option></select>
+            <label for="db-version">声明的源版本（可选）</label><input id="db-version" placeholder="例如 8.4；实际版本会重新读取">
+            <p class="field-help">连接参数仅用于本次请求，密码只保留在当前页面内存中；不写入报告、浏览器存储或模型上下文。测试连接不代表全部对象可见。</p>
+            <button id="test-database" class="button secondary" type="button">测试数据库连接</button><p id="database-status" role="status" aria-live="polite"></p>
+          </fieldset>
+        </details>
+        <details id="environment-config" class="constraints"><summary>目标环境（可选，用于记录改造条件）</summary>
+          <div class="field-grid"><div><label for="env-database">目标数据库</label><select id="env-database"><option value="">未指定</option><option>KingbaseES</option><option>MySQL</option><option>Oracle</option><option>PostgreSQL</option></select></div><div><label for="env-db-version">目标数据库版本</label><input id="env-db-version" placeholder="未知可留空"></div></div>
+          <label for="env-mode">数据库兼容模式</label><input id="env-mode" placeholder="按目标环境实际配置填写">
+          <div class="field-grid"><div><label for="env-os">目标操作系统</label><input id="env-os" placeholder="例如统信 UOS、麒麟、Linux"></div><div><label for="env-os-version">操作系统版本</label><input id="env-os-version"></div></div>
+          <label for="env-arch">CPU 架构</label><select id="env-arch"><option value="">未指定</option><option>x86_64</option><option>ARM64</option><option>LoongArch64</option></select>
+          <div class="field-grid"><div><label for="env-runtime">目标运行时</label><input id="env-runtime" placeholder="例如 Java 或 .NET"></div><div><label for="env-runtime-version">运行时版本</label><input id="env-runtime-version"></div></div>
+          <p class="field-help">目标环境是你的声明。本批联合报告盘点源码和源库结构，尚不判断目标环境兼容性，也不执行迁移。</p>
+        </details>
         <details class="constraints"><summary>约束与业务不变量</summary><label for="constraints">约束（每行一条）</label><textarea id="constraints" rows="2" placeholder="只读调查，不执行 SQL"></textarea><label for="invariants">不变量（每行一条）</label><textarea id="invariants" rows="2" placeholder="保持数值范围和空值语义"></textarea></details>
         <p class="field-help">目标、技术字段和回答会发送给已配置的模型；请勿填写凭据。源码、路径及业务对象名不会自动加入模型请求。无模型时保留确定性降级结果。</p>
+        <p class="field-help">本地预览盘点 .NET 声明与选填的业务库结构，不分析完整迁移目的，无需模型或调查存储。</p><button id="preview-dotnet" class="button secondary" type="button">预览 .NET 现状</button>
+        <button id="preview-joint" class="button secondary" type="button">预览数据库 / 联合现状</button>
         <button id="submit" class="button primary" type="submit">提交调查</button>
       </form>
     </section>
     <div class="results-column">
+      <section id="preview-panel" class="form-card" aria-labelledby="preview-heading" hidden><div class="card-heading"><div><h2 id="preview-heading">本地现状预览</h2><p>仅当前页面展示，未保存到历史记录；需要迁移分析时提交正式调查。</p></div></div><div class="card-body"><p id="preview-status" role="status"></p><button id="export-preview" class="button secondary" type="button" hidden>下载预览 JSON</button><div id="preview-report"></div></div></section>
       <section class="form-card"><div class="card-heading"><div><h2>运行与历史修订</h2><p id="history-label">最近的 Agent 调查</p></div><button id="refresh" class="button secondary" type="button">刷新</button></div><div class="card-body">
         <div class="history-actions"><button id="all-runs" class="button secondary" type="button" hidden>查看全部调查</button><span id="history-status" role="status"></span></div>
         <div id="history"></div><div class="pager"><button id="prev-page" class="button secondary" type="button" disabled>上一页</button><button id="next-page" class="button secondary" type="button" disabled>下一页</button></div>
       </div></section>
       <section id="run-panel" class="form-card" aria-labelledby="run-heading"><div class="card-heading"><div><h2 id="run-heading">调查详情</h2><p id="run-status" role="status" aria-live="polite">提交调查或选择一条历史记录。</p></div></div><div class="card-body">
         <div id="run-meta"></div><div class="run-actions"><button id="case-history" class="button secondary" type="button" hidden>本调查的修订</button><button id="cancel" class="button secondary" type="button" hidden>取消运行</button><button id="export-report" class="button secondary" type="button" hidden>下载报告 JSON</button></div>
-        <form id="answers-form" hidden><h3>补充信息以继续调查</h3><p>回答会生成新修订，旧报告保持不变。</p><div id="questions"></div><label for="resume-root">授权根目录</label><input id="resume-root" required autocomplete="off"><p class="field-help">历史 CLI 运行需重新指定根目录；网页运行沿用提交时的目录。</p><button id="answer-submit" class="button primary" type="submit">提交回答并继续</button></form>
+        <form id="answers-form" hidden><h3>补充信息以继续调查</h3><p>回答会生成新修订，旧报告保持不变。</p><div id="questions"></div><label for="resume-root">授权根目录</label><input id="resume-root" required autocomplete="off"><p class="field-help">历史 CLI 运行需重新指定根目录；网页运行沿用提交时的目录。若包含业务数据库，请在左侧重新填写原连接和账号，密码不保存。</p><button id="answer-submit" class="button primary" type="submit">提交回答并继续</button></form>
         <div id="report"></div>
       </div></section>
     </div>

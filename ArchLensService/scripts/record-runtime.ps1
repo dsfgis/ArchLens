@@ -20,9 +20,10 @@ try {
     $classpathFile = 'target/runtime-classpath.txt'
     if (-not (Test-Path -LiteralPath $classpathFile)) { throw 'Build with mvn verify first to record the resolved runtime classpath.' }
     $repoRoot = (Resolve-Path -LiteralPath '.local/m2').Path
+    $resolved = @{}
     foreach ($jar in ((Get-Content -LiteralPath $classpathFile -Raw).Trim().Split([IO.Path]::PathSeparator))) {
         $relative = [IO.Path]::GetRelativePath($repoRoot,$jar).Replace('\','/')
-        if ($relative.StartsWith('../')) { throw 'Runtime dependency is outside the configured project Maven repository.' }
+        if ($relative.StartsWith('../') -or [IO.Path]::IsPathRooted($relative)) { throw 'Runtime dependency is outside the configured project Maven repository.' }
         $segments = $relative.Split('/')
         if ($segments.Length -lt 4) { throw 'Invalid Maven repository artifact path.' }
         $groupId = ($segments[0..($segments.Length-4)] -join '.')
@@ -30,12 +31,15 @@ try {
         $version = $segments[$segments.Length-2]
         $key = $groupId + ':' + $artifactId + ':' + $version
         $coordinates[$key] = @{groupId=$groupId;artifactId=$artifactId;version=$version}
+        $resolved[$key] = $true
     }
     $items = foreach ($key in ($coordinates.Keys | Sort-Object)) {
         $p = $coordinates[$key]
         $directory = Join-Path '.local/m2' ($p.groupId.Replace('.','/') + '/' + $p.artifactId + '/' + $p.version)
         $stem = Join-Path $directory ($p.artifactId + '-' + $p.version)
         if (-not (Test-Path -LiteralPath ($stem + '.pom')) -or -not (Test-Path -LiteralPath ($stem + '.jar'))) {
+            # 实际解析依赖缺失时失败，不能把丢失的驱动误标成仅内嵌元数据而漏检。
+            if ($resolved.ContainsKey($key)) { throw "Resolved dependency is missing its POM or JAR: $key" }
             [ordered]@{
                 coordinate = $key
                 sha256 = $null
@@ -55,6 +59,8 @@ try {
             licenseScope = 'DIRECT_POM_ONLY; inherited or embedded notices require release review'
         }
     }
-    $items | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath 'docs/runtime-dependencies.json' -Encoding utf8
+    # 当前运行清单可显式刷新；历史归档及烟测证据不再作为可覆写输出。
+    [IO.Directory]::CreateDirectory((Join-Path (Get-Location) 'runtime')) | Out-Null
+    $items | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath 'runtime/runtime-dependencies.json' -Encoding utf8
     Write-Output "Recorded $($coordinates.Count) runtime/embedded coordinates with provenance."
 } finally { Pop-Location }

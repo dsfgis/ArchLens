@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "archlens.agent.v1",
+  "objective": "调查这个混合 .NET 解决方案迁移到 Java 21 的平台、框架和依赖，保持接口契约，列出未覆盖范围。",
+  "target": {
+    "scenario": "LANGUAGE_MIGRATION",
+    "sourceProfile": {
+      "product": ".NET",
+      "version": null
+    },
+    "targetProfile": {
+      "product": "Java",
+      "version": "21"
+    }
+  },
+  "constraints": [
+    "只读调查，不执行构建或业务代码"
+  ],
+  "invariants": [
+    "保持接口契约和业务行为"
+  ],
+  "files": [
+    "CoreApi/CoreApi.csproj",
+    "CoreApi/Orders.cs",
+    "CoreApi/appsettings.json",
+    "Directory.Build.props",
+    "LegacyWeb/LegacyWeb.csproj",
+    "LegacyWeb/Payment.cs",
+    "LegacyWeb/packages.config",
+    "LegacyWeb/web.config",
+    "Mixed.sln",
+    "Shared/Money.vb",
+    "Shared/Shared.vbproj",
+    "Worker/Program.fs",
+    "Worker/Worker.fsproj",
+    "global.json"
+  ],
+  "columnRequest": null,
+  "collectionBudget": {
+    "maxFiles": 100,
+    "maxBytes": 1000000,
+    "timeoutMillis": 30000
+  },
+  "agentBudget": {
+    "maxModelCalls": 10,
+    "maxToolCalls": 12,
+    "timeoutMillis": 120000
+  }
+}

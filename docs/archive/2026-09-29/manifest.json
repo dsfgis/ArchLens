@@ -1,0 +1,612 @@
+{
+  "archivedOn": "2026-09-29",
+  "purpose": "历史资料与旧 specs 的原字节归档，不作为当前实施规范。包括未提交文件。",
+  "files": [
+    {
+      "originalPath": "ArchLensService/docs/README.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/README.md",
+      "sha256": "5f02c5814d687ff2642ce538641d7d60df5c156ef3746cab1064b985efd6082e",
+      "bytes": 5347
+    },
+    {
+      "originalPath": "ArchLensService/docs/agent-orchestration.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/agent-orchestration.md",
+      "sha256": "77086f0fc9529a3958022a5b57b702fa38e513916c283f63e200a2b60926ec39",
+      "bytes": 8365
+    },
+    {
+      "originalPath": "ArchLensService/docs/business-database.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/business-database.md",
+      "sha256": "b5b9907a0aef608e2261ff23a7412a59b2c5cd6fee867752586d9551b3e1182a",
+      "bytes": 12913
+    },
+    {
+      "originalPath": "ArchLensService/docs/csharp-java.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/csharp-java.md",
+      "sha256": "5449a8cf2f3a72b59816a4bbd15fd4cc2c02748a92223ba49a2dd410578a1197",
+      "bytes": 4219
+    },
+    {
+      "originalPath": "ArchLensService/docs/deepseek.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/deepseek.md",
+      "sha256": "437eae59c1cf5ef857a544203ff7624f2e425e0a8a582b0a67d273b5e66b18f2",
+      "bytes": 3352
+    },
+    {
+      "originalPath": "ArchLensService/docs/dotnet-platform.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/dotnet-platform.md",
+      "sha256": "dd83e5619286c8232e058e0e85b17de546607c29374971131725ac2a8e3f84f7",
+      "bytes": 4930
+    },
+    {
+      "originalPath": "ArchLensService/docs/final-smoke.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/final-smoke.json",
+      "sha256": "6563ab0cbbbae307bd7f2b004890e9893b6ca399ce01dcff6903223e87925532",
+      "bytes": 552
+    },
+    {
+      "originalPath": "ArchLensService/docs/investigation-smoke-2026-09-17.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/investigation-smoke-2026-09-17.json",
+      "sha256": "329927bac834b4cf150ae4b1b565bb750133f0b562187aea040c613c54944f33",
+      "bytes": 261
+    },
+    {
+      "originalPath": "ArchLensService/docs/investigation-storage.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/investigation-storage.md",
+      "sha256": "04a18862ad60da26a8cffbae5e66b527348314264a4faa9ba4edf87f8269bf73",
+      "bytes": 9897
+    },
+    {
+      "originalPath": "ArchLensService/docs/runtime-dependencies.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/runtime-dependencies.json",
+      "sha256": "b9bb7ffb5aad61ee91a360e855cf027a646a25dcef9a0fdd9109db67790e6487",
+      "bytes": 8647
+    },
+    {
+      "originalPath": "ArchLensService/docs/scenario-rules.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/scenario-rules.md",
+      "sha256": "f806fa5024f3ee670740e6b6cfa3288a9732fdcdda1e524c82832a9d7bf97235",
+      "bytes": 12667
+    },
+    {
+      "originalPath": "ArchLensService/docs/technical-baseline.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/technical-baseline.md",
+      "sha256": "a53defe9306f323f3143719a54c1c28c1b04c7b80f6defbc90857ba8bba11b7d",
+      "bytes": 2651
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/column-smoke.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/column-smoke.json",
+      "sha256": "6563ab0cbbbae307bd7f2b004890e9893b6ca399ce01dcff6903223e87925532",
+      "bytes": 552
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/final-tests.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/final-tests.json",
+      "sha256": "b019d8d7e15ae2f294a01c51984dd99dc17f6ca3b07cf4df48c8c6d2e21d5942",
+      "bytes": 1239
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/live-model.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/live-model.json",
+      "sha256": "0d490afd8befe9f42449dc89b7cfa3ca9032d248c6d66cb7df62f1b6d865cb1c",
+      "bytes": 22192
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/manifest.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/manifest.json",
+      "sha256": "e49fa060baed765720b4951e83b6e415d25bbe9e283b02d168d7505527b0cc8a",
+      "bytes": 3914
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/offline-resumed.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/offline-resumed.json",
+      "sha256": "3a439447b61a57631b79a30e04f6be251de7807a18dcda2936fa97756e6042c3",
+      "bytes": 16925
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/offline-tests.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/offline-tests.json",
+      "sha256": "ccce96f45540a5f48a5800fce3f0f12980119be6b9e1f9f0b93a82405ac57408",
+      "bytes": 1239
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/pg-attempt.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/pg-attempt.json",
+      "sha256": "2c078d83be0e942bedca200eafc7a5e0e561f86c2aefef50af63d8a14621b229",
+      "bytes": 180
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/pg-clarification.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/pg-clarification.json",
+      "sha256": "5a06a7c1f8865ec436823e792e5d105edffdfaaa74d7e9917b1f9c28c589eeed",
+      "bytes": 2295
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/pg-resumed.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/pg-resumed.json",
+      "sha256": "4849681315b66cb3411168e782f004bb25097fcd12ff7278908038dd1d814681",
+      "bytes": 22845
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/pg-tests.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/pg-tests.json",
+      "sha256": "19bb97fcf46ae3764732fc21ac1de722df751c59f777409cd1edba736c0cd070",
+      "bytes": 533
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/scenarios/csharp-java.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/scenarios/csharp-java.json",
+      "sha256": "45386c05027106b2349b85b06b5f0a7f054772e1f8f16534dbc5adf6841c148a",
+      "bytes": 10806
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/scenarios/httpclient-upgrade.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/scenarios/httpclient-upgrade.json",
+      "sha256": "c8b1718427a0dd6fe0027e5d08122cfe23df71a6ae5aab158ae371da27019c0c",
+      "bytes": 5615
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/scenarios/java-refactor.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/scenarios/java-refactor.json",
+      "sha256": "3e5f9fe45beb8fa7d533b77a90f76e4376952b9b0ffb191c1ccc5e8a5835688b",
+      "bytes": 21555
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/scenarios/jdk-upgrade.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/scenarios/jdk-upgrade.json",
+      "sha256": "b23e2bd845c76f5ae22372430bb432933d868287a94aae86503bdeae3dd83102",
+      "bytes": 5148
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/scenarios/mysql-postgresql.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/scenarios/mysql-postgresql.json",
+      "sha256": "da2d548068a061270388fcea728139f4f36b12f9c1af02c66bfb75a61b3b188e",
+      "bytes": 14379
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/scenarios/oracle-postgresql.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/scenarios/oracle-postgresql.json",
+      "sha256": "8865342861c1b7a9c3a3b9ec00be8d04702d86b719645e5eac80da6f2faaa19f",
+      "bytes": 17227
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/scenarios/rules.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/scenarios/rules.json",
+      "sha256": "0a2db3e38c49a45b9ad577eb196c22c39a7b4418a30e7e0a7cddd591c77279d2",
+      "bytes": 8988
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/scenarios/spring-boot.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/scenarios/spring-boot.json",
+      "sha256": "c80a44c933aeca7b175491e37103578d4f30d36f45fea9ded3996dd767628bfa",
+      "bytes": 9944
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/scenarios/summary.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/scenarios/summary.json",
+      "sha256": "c3b2580174bec6196cba61e45c7f68b777dc6a71089225784958550064a11139",
+      "bytes": 2675
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/agent-20260918/storage-attempt.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/agent-20260918/storage-attempt.json",
+      "sha256": "b3cd11e5e1ba890dc4acd6795586c6303536066a3d38ed5ff3c8b8a554052d21",
+      "bytes": 1239
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/business-db-20260925/database-only-v2.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/business-db-20260925/database-only-v2.json",
+      "sha256": "acb53e050daf14ed724deb55a9706a010a9982c9fca1ecd9de41cf315a8f4047",
+      "bytes": 12714
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/business-db-20260925/joint-v2.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/business-db-20260925/joint-v2.json",
+      "sha256": "a85b53d7d20e97e3ba0fa116fa0772f15812f46c8f458c90926a1bdc45bedb7e",
+      "bytes": 37804
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/business-db-20260925/preview-joint.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/business-db-20260925/preview-joint.json",
+      "sha256": "5aface79786933acabd3d37d98d7371afc676c40afcb5ed1b73af38b6d25ad6d",
+      "bytes": 34670
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/business-db-20260925/test-database.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/business-db-20260925/test-database.json",
+      "sha256": "e0f9d501d9ba58cf76245d1719b9bf6af21b5763df01503c26514188fcb30d34",
+      "bytes": 1093
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/csharp-20260922-after-restart/downloaded.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/csharp-20260922-after-restart/downloaded.json",
+      "sha256": "687d94450a7012efdbf6b0777cff9fd9ebce666659dcd71330d0dcb73dfd764c",
+      "bytes": 36114
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/csharp-20260922-after-restart/evidence.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/csharp-20260922-after-restart/evidence.json",
+      "sha256": "5c527f9f612283d24da3d8f6c84aca2509614f075225359f91ae16f2f6983ae0",
+      "bytes": 976
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/csharp-20260922-after-restart/first.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/csharp-20260922-after-restart/first.json",
+      "sha256": "d4431cc4062f0a825373f54f539ade9cda6c949c1a557df4992ed9f8afa07ccc",
+      "bytes": 3295
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/csharp-20260922-after-restart/history.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/csharp-20260922-after-restart/history.json",
+      "sha256": "5fe07c6efd3b78d879b1cc2d398a303d03191b97ee4ee29e93efbd338c5bf820",
+      "bytes": 1184
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/csharp-20260922-after-restart/second.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/csharp-20260922-after-restart/second.json",
+      "sha256": "3a0ef7ab5c14bb878c59279d96a369a68527ad2edcc2c9113d52c594f0a6e981",
+      "bytes": 40653
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/csharp-20260922-after-restart/tests.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/csharp-20260922-after-restart/tests.json",
+      "sha256": "8b5b1983c7ac4572485a789e94c9a862227c9be722f77a03baf32b835a7b5d88",
+      "bytes": 1677
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/csharp-20260922-before-restart/downloaded.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/csharp-20260922-before-restart/downloaded.json",
+      "sha256": "687d94450a7012efdbf6b0777cff9fd9ebce666659dcd71330d0dcb73dfd764c",
+      "bytes": 36114
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/csharp-20260922-before-restart/evidence.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/csharp-20260922-before-restart/evidence.json",
+      "sha256": "e45e6ccafd6a81926c5a558a307783ceabf290543ff7ed4435d1b486f16d2400",
+      "bytes": 976
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/csharp-20260922-before-restart/first.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/csharp-20260922-before-restart/first.json",
+      "sha256": "d4431cc4062f0a825373f54f539ade9cda6c949c1a557df4992ed9f8afa07ccc",
+      "bytes": 3295
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/csharp-20260922-before-restart/history.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/csharp-20260922-before-restart/history.json",
+      "sha256": "5fe07c6efd3b78d879b1cc2d398a303d03191b97ee4ee29e93efbd338c5bf820",
+      "bytes": 1184
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/csharp-20260922-before-restart/second.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/csharp-20260922-before-restart/second.json",
+      "sha256": "3a0ef7ab5c14bb878c59279d96a369a68527ad2edcc2c9113d52c594f0a6e981",
+      "bytes": 40653
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/dotnet-20260924/agent-offline.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/dotnet-20260924/agent-offline.json",
+      "sha256": "bc132dbd4dc39545da7e020b510a3280f5cc59febe1f9054d73a09c1fb491973",
+      "bytes": 26826
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/dotnet-20260924/local-preview.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/dotnet-20260924/local-preview.json",
+      "sha256": "90a30ff29e1224058b22d772be3376df1fb54627997ce27bfef9b2d4bfaa11bf",
+      "bytes": 26411
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917/csharp-java.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917/csharp-java.json",
+      "sha256": "b7f7f9e88191f9cecb6871d182933266b191c77fe11df4e12c1b22e4dc01ea0f",
+      "bytes": 10821
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917/httpclient-upgrade.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917/httpclient-upgrade.json",
+      "sha256": "261b992e189c510563517a61ca060f894c3991e45ede2933588a400ee6fcc00d",
+      "bytes": 5457
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917/java-refactor.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917/java-refactor.json",
+      "sha256": "64800cf6c25d46bd883c105c5525eb9fae992626f8c57b266cef344587740e5a",
+      "bytes": 21570
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917/jdk-upgrade.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917/jdk-upgrade.json",
+      "sha256": "0740141711adcaa50160da62946e356f8bb179480d544980596096ca3c659697",
+      "bytes": 5166
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917/mysql-postgresql.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917/mysql-postgresql.json",
+      "sha256": "f5ce6f32ddc0f8964b92220c3cd68918d785d33c7a0c57f73bbe20a18c105186",
+      "bytes": 14391
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917/oracle-postgresql.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917/oracle-postgresql.json",
+      "sha256": "56ad24bd035440531d62d45beae95a53192084f335fd4b354beaca78ea9e2f14",
+      "bytes": 17245
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917/rules.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917/rules.json",
+      "sha256": "cea15605bb3d7bbec5eb89effca3d7a574e14c1adf45bab457cdffb62422b355",
+      "bytes": 8818
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917/spring-boot.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917/spring-boot.json",
+      "sha256": "d1ad73a2351240158e914407373708e6ebf9e7ade18e75b462c36fe2ea0094b5",
+      "bytes": 9956
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917/summary.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917/summary.json",
+      "sha256": "06fd8195d1306389ebbfdb3c5e449f111ca86147d12aebe9141c8cbcdc9f844e",
+      "bytes": 2675
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917-final/csharp-java.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917-final/csharp-java.json",
+      "sha256": "b711e3041fda6f8185b39da7946c80ccf9cb13655070bd48f2fb99646cf0e5d0",
+      "bytes": 10803
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917-final/httpclient-upgrade.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917-final/httpclient-upgrade.json",
+      "sha256": "d1833e72e46d4e0764f54e981954aebacb18dfe8e70c9ebf8067e11915d3bcb7",
+      "bytes": 5615
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917-final/java-refactor.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917-final/java-refactor.json",
+      "sha256": "c629774564fd8bdf4844e5aa7d57cc6279a4bee837e41f7baf83ededfe6118a6",
+      "bytes": 21555
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917-final/jdk-upgrade.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917-final/jdk-upgrade.json",
+      "sha256": "f4539797ce520f88c126a29b8283887845be54b6dd84d787287f0a22dc9608a9",
+      "bytes": 5151
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917-final/mysql-postgresql.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917-final/mysql-postgresql.json",
+      "sha256": "1f37acecc94c6dc5ec910c66aa5fa5dc6b83d8f56d71d81b3b39bd2b5f64cb4d",
+      "bytes": 14376
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917-final/oracle-postgresql.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917-final/oracle-postgresql.json",
+      "sha256": "7c5d8634661b3997e380896d90307f4b39d72966296fba850e3805b614602096",
+      "bytes": 17233
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917-final/rules.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917-final/rules.json",
+      "sha256": "0a2db3e38c49a45b9ad577eb196c22c39a7b4418a30e7e0a7cddd591c77279d2",
+      "bytes": 8988
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917-final/spring-boot.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917-final/spring-boot.json",
+      "sha256": "e24f5e66d370d7497db013eda1c86e675ebeaacfcc40dbfd0eb9ede3bcfce214",
+      "bytes": 9941
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917-final/stored-mysql-report.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917-final/stored-mysql-report.json",
+      "sha256": "044bc988c74ded9438f3fdeefd03261390f8b258f3f989f02f7825e44bce9ec1",
+      "bytes": 14376
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917-final/summary.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917-final/summary.json",
+      "sha256": "2e2d5164213c59773ffa4d8142d6b979e2d4bf0762577bcf5235952e40b0e329",
+      "bytes": 2675
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/scenario-rules-20260917-final/tests.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/scenario-rules-20260917-final/tests.json",
+      "sha256": "890d450d393e5b177e4e31cd7c572ef69cd1447f58996c78b76662b76a1865ff",
+      "bytes": 13313
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/storage-e2e-20260917-081301-146/evidence.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/storage-e2e-20260917-081301-146/evidence.json",
+      "sha256": "32df6b759d45fdc172fb92ea0acaeac502fabe7db0d3fc04508a0256d67d4219",
+      "bytes": 1144
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/storage-e2e-20260917-081301-146/legacy-cli-smoke.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/storage-e2e-20260917-081301-146/legacy-cli-smoke.json",
+      "sha256": "de7d4cb1eaede9776f6813736e4dedf0d828e171d33ff52b013f3c6be3634ba3",
+      "bytes": 552
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/storage-e2e-20260917-081301-146/revision-1-readback.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/storage-e2e-20260917-081301-146/revision-1-readback.json",
+      "sha256": "3a1b41298142682aa315d081aab35b16854becfd22b3923d6e5a957efb51e953",
+      "bytes": 20692
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/storage-e2e-20260917-081301-146/revision-1-report.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/storage-e2e-20260917-081301-146/revision-1-report.json",
+      "sha256": "3a1b41298142682aa315d081aab35b16854becfd22b3923d6e5a957efb51e953",
+      "bytes": 20692
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/storage-e2e-20260917-081301-146/revision-2-report.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/storage-e2e-20260917-081301-146/revision-2-report.json",
+      "sha256": "67b4e29624570cf3c79ed049077c07439c029f05159ddf6ab392866f881654f5",
+      "bytes": 20738
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/storage-e2e-20260917-081301-146/tests.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/storage-e2e-20260917-081301-146/tests.json",
+      "sha256": "d102f7c0019fcd73fbbda6c598e77ef4783568998f631b3aba00da4ad935c959",
+      "bytes": 1877
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-after-restart/cancel.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-after-restart/cancel.json",
+      "sha256": "0a23e18451f05741a577a92d5f0a09e21c52ccd6c3be58c4be1f9ebc8368a4e5",
+      "bytes": 204
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-after-restart/downloaded.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-after-restart/downloaded.json",
+      "sha256": "c5ac90b240035c99fe135b65116cf328b313ee3558c5c8e1555f500924e0ebbc",
+      "bytes": 24624
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-after-restart/evidence.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-after-restart/evidence.json",
+      "sha256": "9118baf3c0bcb6a9e52aaa328d648944d25cbb270ee48d06ff5bf844fddc3537",
+      "bytes": 670
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-after-restart/first.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-after-restart/first.json",
+      "sha256": "792057a4985f63ad6f941fc764747e5f6ceee94b1e705cb5457d49fe592ec00a",
+      "bytes": 3845
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-after-restart/history.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-after-restart/history.json",
+      "sha256": "8f6274007895088ec4f1df482cacce41761ad09f5ba43b455240e1445a0b242d",
+      "bytes": 1117
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-after-restart/second.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-after-restart/second.json",
+      "sha256": "ec60dad7ddb6b0648dea06ccca71dc48441767c6f0bffc11c505247f762e1438",
+      "bytes": 26907
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-after-restart/tests.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-after-restart/tests.json",
+      "sha256": "cb5cad6ef38e5f9353810128c77cb94bfaef8d55892843f4104b897cbf9b6d6d",
+      "bytes": 1677
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-before-restart/downloaded.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-before-restart/downloaded.json",
+      "sha256": "c5ac90b240035c99fe135b65116cf328b313ee3558c5c8e1555f500924e0ebbc",
+      "bytes": 24624
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-before-restart/evidence.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-before-restart/evidence.json",
+      "sha256": "29bfc96e46276fa4917c019d0722b5ac83417188e514575b91bb589ac776377f",
+      "bytes": 670
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-before-restart/first.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-before-restart/first.json",
+      "sha256": "792057a4985f63ad6f941fc764747e5f6ceee94b1e705cb5457d49fe592ec00a",
+      "bytes": 3845
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-before-restart/history.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-before-restart/history.json",
+      "sha256": "8f6274007895088ec4f1df482cacce41761ad09f5ba43b455240e1445a0b242d",
+      "bytes": 1117
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification/web-20260920-before-restart/second.json",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification/web-20260920-before-restart/second.json",
+      "sha256": "ec60dad7ddb6b0648dea06ccca71dc48441767c6f0bffc11c505247f762e1438",
+      "bytes": 26907
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification-2026-09-17.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification-2026-09-17.md",
+      "sha256": "0b8da876722f9e859f86b4629a56ec2b4276a4fa3275de26aa230bacc245638b",
+      "bytes": 6218
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification-access-path-2026-09-27.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification-access-path-2026-09-27.md",
+      "sha256": "87a5a4861b38833a38d684e5f650e9de18738e21fa6afe3056b36911a794d2fb",
+      "bytes": 1674
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification-agent-2026-09-18.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification-agent-2026-09-18.md",
+      "sha256": "b48846f5b0915719fb7ec16f38914ef63c895722be852742a3a9d91e8a518c35",
+      "bytes": 4803
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification-business-database-2026-09-25.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification-business-database-2026-09-25.md",
+      "sha256": "25e6ae839aba68e6b79815c912fde6ff7e2ed0e76a67a841a5478e75ab644c30",
+      "bytes": 6442
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification-csharp-2026-09-22.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification-csharp-2026-09-22.md",
+      "sha256": "e3d70d1ba08c3728e38dd983b220ff5a0238b1bdc872e0f46f742496ee8a32bc",
+      "bytes": 4552
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification-dotnet-2026-09-24.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification-dotnet-2026-09-24.md",
+      "sha256": "48311df1ac512dfbaf260d79c48720cc0c3bc61ac964f5c2f89ccbfdeb7efc24",
+      "bytes": 3615
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification-scenario-rules-2026-09-17.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification-scenario-rules-2026-09-17.md",
+      "sha256": "4240de1e058dd954dc0ccd1bb2695b1e59ddd2c52db3a265120a44c12e624987",
+      "bytes": 4639
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification-web-2026-09-18.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification-web-2026-09-18.md",
+      "sha256": "9a1210039e55ef33837a67b7cbaaa18d84f4677da33d2ae404f53d45aee6280b",
+      "bytes": 875
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification-web-2026-09-20.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification-web-2026-09-20.md",
+      "sha256": "40943ce71d892761c94cb49a801c1491b357249df85c1df14729817096b5678d",
+      "bytes": 5496
+    },
+    {
+      "originalPath": "ArchLensService/docs/verification.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/docs/verification.md",
+      "sha256": "220e5f1aea61abef83483a54bc6d34ca6fe4ab3ffb6bc2f767a8c5c0a91b670f",
+      "bytes": 2742
+    },
+    {
+      "originalPath": "ArchLensService/specs/implementation/check_list.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/specs/implementation/check_list.md",
+      "sha256": "a5706d78a1e3ba0a9f3907588b87b2734cec01b16991c4076d2d02aeceac2927",
+      "bytes": 23189
+    },
+    {
+      "originalPath": "ArchLensService/specs/implementation/design.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/specs/implementation/design.md",
+      "sha256": "79d852c488628a73f2a1be1e983c6fcb16319f063d8b1b0d1ea1c41e31307f46",
+      "bytes": 31213
+    },
+    {
+      "originalPath": "ArchLensService/specs/implementation/requirements.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/specs/implementation/requirements.md",
+      "sha256": "bbacccc0da7598adba4e2c7b681f8c02e2a85c8b3b6780a12d6344b58de8fc1f",
+      "bytes": 22222
+    },
+    {
+      "originalPath": "ArchLensService/specs/implementation/tasks.md",
+      "archivePath": "docs/archive/2026-09-29/ArchLensService/specs/implementation/tasks.md",
+      "sha256": "60b768cdf35867426aebde780285467aed6f502bc2ab400474b38bf26270c255",
+      "bytes": 21521
+    }
+  ]
+}

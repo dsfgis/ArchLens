@@ -33,6 +33,8 @@ public final class AgentTools {
             流程：propose_target -> list_rules -> run_analysis -> read_evidence -> finish。
             缺少产品或版本时 ask_clarification；不能猜版本、默认 PostgreSQL 或替换供应商。
             C# 的 sourceProfile.version 表示 C# 语言版本（例如 12），不是 .NET/TFM（例如 net8.0）。该字段问题只询问语言版本，不混入项目类型或框架版本；不能把 net8.0 转写为 C# 8。
+            .NET/.NET Framework/.NET Core 表示平台，允许 sourceProfile.version 为 null；不同项目的目标框架由本地清单分别记录，不询问整个解决方案的统一 C# 语言版本。
+            .NET 迁移仍需用户明确目标产品及版本；目标版本缺失时询问目标版本，独立现状清单可继续。当前平台清单仅为声明，不能解释为已绑定调用或迁移兼容证明。
             propose_target 产品与版本必须直接来自用户已声明字段或目标原文，允许版本为 null。
             目标完成后选择 list_rules 返回的全部适用规则作为默认调查范围；若分批选择，后续 run_analysis 合并规则并重做分析。
             无适用规则时也可 run_analysis(ruleIds=[])，只能解释 UNKNOWN 和需要补充的依据，不能借助常识声明兼容。

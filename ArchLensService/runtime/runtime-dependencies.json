@@ -1,0 +1,227 @@
+[
+  {
+    "coordinate": "com.fasterxml.jackson.core:jackson-annotations:2.18.3",
+    "sha256": "8aa5740d80b5a5025508b41bbadbaa1fb3772267c628b2e30681a4f45f8b8931",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "com.fasterxml.jackson.core:jackson-core:2.18.3",
+    "sha256": "056bc4d3e5e53ce821450fa97b3f9e0f8dde125cf6da6884353bb1f09582e1d9",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "com.fasterxml.jackson.core:jackson-databind:2.18.3",
+    "sha256": "510bdda75a7a6186c5bf33b851239488a1450906ae5757121f2e1cc48a7e108f",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "com.github.javaparser:javaparser-core:3.27.1",
+    "sha256": "7ae10d11c5388060a7bf93b721600b951f5585f3782778b6d0555160680d35f8",
+    "declaredLicenses": [
+      {
+        "name": "GNU Lesser General Public License",
+        "url": "http://www.gnu.org/licenses/lgpl-3.0.html"
+      },
+      {
+        "name": "Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "com.github.jsqlparser:jsqlparser:5.3",
+    "sha256": "41bcb5b00488231db179cb5a375690830a59aba521dfa303daa94dcb9dcc8e88",
+    "declaredLicenses": [
+      {
+        "name": "GNU Library or Lesser General Public License (LGPL) V2.1",
+        "url": "http://www.gnu.org/licenses/lgpl-2.1.html"
+      },
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "com.mysql:mysql-connector-j:9.7.0",
+    "sha256": "0353648eaa1c91e0f4020c959abf756bc866ffd583df22ae6b6f6e0cbd43eb44",
+    "declaredLicenses": [
+      {
+        "name": "The GNU General Public License, v2 with Universal FOSS Exception, v1.0",
+        "url": ""
+      }
+    ],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "io.netty:netty-buffer:4.2.2.Final",
+    "sha256": "4820eeb2d3db269b20b30711e3d7d21979664249aaf10fc67f90dee935810747",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "io.netty:netty-codec-base:4.2.2.Final",
+    "sha256": "76987614ccb2fda7d3292b69ba5b61351f30e91bf5c7d8fa4b51bc32c9f67456",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "io.netty:netty-common:4.2.2.Final",
+    "sha256": "5d022f3acad74cb0f195f60213500a4000d1340e5e941edaf1a0e756686b9bae",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "io.netty:netty-handler:4.2.2.Final",
+    "sha256": "d4ef582c78125457baa0cfa52992b5fb1bb9172d1a2c03b726e8b26e17d3fe2c",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "io.netty:netty-resolver:4.2.2.Final",
+    "sha256": "fa7841ffe2e39d52251814fb8560d6936b10ae7c67453ee50426b83fd5170ba0",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "io.netty:netty-tcnative-classes:2.0.72.Final",
+    "sha256": "3962e01a71ee252de979fd3249c5ea9068bd7c8955ecabe119f31d381f6138a3",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "io.netty:netty-transport-native-unix-common:4.2.2.Final",
+    "sha256": "aa8821a7ea2ca47f62740bd1f37d67deb97824cc77e76dde6ae2c439a923fc9d",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "io.netty:netty-transport:4.2.2.Final",
+    "sha256": "116d766a1af4722fe76a4cdaed969644985d44e08ec1337d2dbab697dd109603",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "io.projectreactor:reactor-core:3.6.18",
+    "sha256": "71f3b9adb95dd4b83db736a73a28d7698779c411a59a4936dede5da92d445553",
+    "declaredLicenses": [
+      {
+        "name": "Apache License, Version 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "net.sf.jopt-simple:jopt-simple:5.0.4",
+    "sha256": "df26cc58f235f477db07f753ba5a3ab243ebe5789d9f89ecf68dd62ea9a66c28",
+    "declaredLicenses": [
+      {
+        "name": "The MIT License",
+        "url": "http://www.opensource.org/licenses/mit-license.php"
+      }
+    ],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "org.apache.commons:commons-math3:3.6.1",
+    "sha256": "1e56d7b058d28b65abd256b8458e3885b674c1d588fa43cd7d1cbb9c7ef2b308",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "org.checkerframework:checker-qual:3.55.1",
+    "sha256": "857658c8bdcbff794949a8d9922f88d63ee3751c203c7cd7d21ea97f9e745288",
+    "declaredLicenses": [
+      {
+        "name": "The MIT License",
+        "url": "https://opensource.org/licenses/MIT"
+      }
+    ],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "org.jctools:jctools-core:4.0.5",
+    "sha256": null,
+    "declaredLicenses": [],
+    "licenseScope": "EMBEDDED_METADATA_ONLY; no standalone resolved artifact; review upstream bundled notices"
+  },
+  {
+    "coordinate": "org.neo4j.bolt:neo4j-bolt-connection-netty:6.0.2",
+    "sha256": "86a36929fa51bce37c6961c0a02d7589fccb4c12bf929cf23de674c4fd762312",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "org.neo4j.bolt:neo4j-bolt-connection-pooled:6.0.2",
+    "sha256": "b817e374f88013f348dca36b83c1c0352fe4a3ca3aca66f9772b658e6b6c9702",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "org.neo4j.bolt:neo4j-bolt-connection-routed:6.0.2",
+    "sha256": "5301c92aee13ac5b10a2e8626b017523ac05e91e5dee1f904f183376dd8d7e5e",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "org.neo4j.bolt:neo4j-bolt-connection:6.0.2",
+    "sha256": "0fa0a8c5e5969189495a2071c7059fdd066fbff7ed6174d8e6b65269e0bf5cef",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "org.neo4j.driver:neo4j-java-driver:5.28.9",
+    "sha256": "1d1c11c2cf019705d7941c42a9a839102a3ea95c74387ad2cd1717ea1048f301",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "org.openjdk.jmh:jmh-core:1.37",
+    "sha256": "dc0eaf2bbf0036a70b60798c785d6e03a9daf06b68b8edb0f1ba9eb3421baeb3",
+    "declaredLicenses": [],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "org.postgresql:postgresql:42.7.13",
+    "sha256": "6e0e4cc2d8cae902084f8a2b18728b073a6fd9d1f87c9d8bff8f298c18185b93",
+    "declaredLicenses": [
+      {
+        "name": "BSD-2-Clause",
+        "url": "https://jdbc.postgresql.org/about/license.html"
+      }
+    ],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  },
+  {
+    "coordinate": "org.reactivestreams:reactive-streams:1.0.4",
+    "sha256": "f75ca597789b3dac58f61857b9ac2e1034a68fa672db35055a8fb4509e325f28",
+    "declaredLicenses": [
+      {
+        "name": "MIT-0",
+        "url": "https://spdx.org/licenses/MIT-0.html"
+      }
+    ],
+    "licenseScope": "DIRECT_POM_ONLY; inherited or embedded notices require release review"
+  }
+]

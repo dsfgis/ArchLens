@@ -1,0 +1,390 @@
+{
+  "schemaVersion" : "archlens-contract-v1",
+  "mode" : "OFFLINE_DEVELOPER_ANALYSIS",
+  "requestHash" : "72e99252ae93cf76dfd519bc83d7fdd0cabe48357433f457ecbd12b7684bf2e9",
+  "sourceHashes" : {
+    "DeviceMapper.xml" : "124f61bac7b1f29e2948ac965ab2448bf4be4138188da0dc03cea049fde042b0",
+    "DeviceMapper.java" : "f53d771ddbf395a96da6bd3b1456a85ee71310bd9df7b40bc0ee2a439ddeb75b"
+  },
+  "graphDigest" : "184efd6adc7d9471857d18994c6dc9b96e57cea64dd955c0e9e493b2fea048b9",
+  "graph" : {
+    "schemaVersion" : "archlens-contract-v1",
+    "projectId" : "10000000-0000-0000-0000-000000000001",
+    "snapshotId" : "20000000-0000-0000-0000-000000000001",
+    "nodes" : [ {
+      "schemaVersion" : "archlens-contract-v1",
+      "projectId" : "10000000-0000-0000-0000-000000000001",
+      "snapshotId" : "20000000-0000-0000-0000-000000000001",
+      "nodeId" : "96c694e19dc3ab3b03e8981560b3c12ac6aa8a5ccb74a27e905963102eae0f3b",
+      "logicalKey" : "40000000-0000-0000-0000-000000000001/[\"example-db\",\"public\",\"device\",\"event_id\"]",
+      "type" : "COLUMN",
+      "name" : "event_id",
+      "sourceId" : "40000000-0000-0000-0000-000000000001",
+      "sourceRef" : {
+        "sourceHash" : "fdb181c0ad3a39e20d28b69195df5e90ab6aef7320df42147b307bdf33f6fecd",
+        "location" : {
+          "path" : null,
+          "startLine" : null,
+          "startColumn" : null,
+          "endLine" : null,
+          "endColumn" : null,
+          "byteOffset" : null,
+          "byteLength" : null,
+          "metadataKey" : "40000000-0000-0000-0000-000000000001/[\"example-db\",\"public\",\"device\",\"event_id\"]"
+        }
+      },
+      "attributes" : {
+        "databaseKey" : "example-db",
+        "dbType" : "text",
+        "identityMeaning" : "device-key",
+        "nullable" : false,
+        "origin" : "OFFLINE_CATALOG",
+        "schema" : "public",
+        "table" : "device"
+      }
+    }, {
+      "schemaVersion" : "archlens-contract-v1",
+      "projectId" : "10000000-0000-0000-0000-000000000001",
+      "snapshotId" : "20000000-0000-0000-0000-000000000001",
+      "nodeId" : "99bdba7f07edb6b059dac4ef1b9ad4b68e9f12f13394deed157bdb57eed20568",
+      "logicalKey" : "40000000-0000-0000-0000-000000000001/[\"example-db\",\"public\",\"device\",\"name\"]",
+      "type" : "COLUMN",
+      "name" : "name",
+      "sourceId" : "40000000-0000-0000-0000-000000000001",
+      "sourceRef" : {
+        "sourceHash" : "fdb181c0ad3a39e20d28b69195df5e90ab6aef7320df42147b307bdf33f6fecd",
+        "location" : {
+          "path" : null,
+          "startLine" : null,
+          "startColumn" : null,
+          "endLine" : null,
+          "endColumn" : null,
+          "byteOffset" : null,
+          "byteLength" : null,
+          "metadataKey" : "40000000-0000-0000-0000-000000000001/[\"example-db\",\"public\",\"device\",\"name\"]"
+        }
+      },
+      "attributes" : {
+        "databaseKey" : "example-db",
+        "dbType" : "text",
+        "identityMeaning" : "display-name",
+        "nullable" : true,
+        "origin" : "OFFLINE_CATALOG",
+        "schema" : "public",
+        "table" : "device"
+      }
+    }, {
+      "schemaVersion" : "archlens-contract-v1",
+      "projectId" : "10000000-0000-0000-0000-000000000001",
+      "snapshotId" : "20000000-0000-0000-0000-000000000001",
+      "nodeId" : "ff45088bfd27d85dc9eb338de569a1fb561d37a12ec55d80c73ff86c8a321968",
+      "logicalKey" : "30000000-0000-0000-0000-000000000001/example-service/demo.DeviceMapper#listDevices()",
+      "type" : "METHOD",
+      "name" : "listDevices",
+      "sourceId" : "30000000-0000-0000-0000-000000000001",
+      "sourceRef" : {
+        "sourceHash" : "f53d771ddbf395a96da6bd3b1456a85ee71310bd9df7b40bc0ee2a439ddeb75b",
+        "location" : {
+          "path" : "DeviceMapper.java",
+          "startLine" : 1,
+          "startColumn" : 1,
+          "endLine" : 6,
+          "endColumn" : 1,
+          "byteOffset" : 0,
+          "byteLength" : 114,
+          "metadataKey" : null
+        }
+      },
+      "attributes" : {
+        "declaringType" : "demo.DeviceMapper",
+        "diagnosticId" : "7d1ac0b81800f2c911a9799222edb5e83acb08af2f6f0fdbbe22f21b0c0c5e53",
+        "module" : "example-service",
+        "parameterTypes" : [ ],
+        "returnType" : null,
+        "returnTypeSyntax" : "java.util.List<java.util.Map<String,Object>>",
+        "signature" : "demo.DeviceMapper#listDevices()"
+      }
+    } ],
+    "edges" : [ {
+      "schemaVersion" : "archlens-contract-v1",
+      "projectId" : "10000000-0000-0000-0000-000000000001",
+      "snapshotId" : "20000000-0000-0000-0000-000000000001",
+      "relationId" : "72c7f3185b065ea32508ac4e29302ab9ebb3a232abae2e24f52b19d73e657637",
+      "fromId" : "ff45088bfd27d85dc9eb338de569a1fb561d37a12ec55d80c73ff86c8a321968",
+      "toId" : "96c694e19dc3ab3b03e8981560b3c12ac6aa8a5ccb74a27e905963102eae0f3b",
+      "kind" : "READS",
+      "condition" : "true",
+      "bindingKey" : "demo.DeviceMapper#listDevices()/event_id",
+      "evidenceIds" : [ "819d314cd44d7e7fa385b58c743bd6877e2817a8f327774cdb9acda07c674597", "c225834d750764e20b8b87b25240ed1f528a6a383eaa20ed29fcee37111d71de" ],
+      "certainty" : "CONFIRMED",
+      "confidence" : 1,
+      "producerVersion" : "archlens-core-0.1"
+    }, {
+      "schemaVersion" : "archlens-contract-v1",
+      "projectId" : "10000000-0000-0000-0000-000000000001",
+      "snapshotId" : "20000000-0000-0000-0000-000000000001",
+      "relationId" : "e7d338ed52fbe5d7bac5920e2bcaefc3cfd15129639795dc3fdecc5772d67c72",
+      "fromId" : "ff45088bfd27d85dc9eb338de569a1fb561d37a12ec55d80c73ff86c8a321968",
+      "toId" : "99bdba7f07edb6b059dac4ef1b9ad4b68e9f12f13394deed157bdb57eed20568",
+      "kind" : "READS",
+      "condition" : "true",
+      "bindingKey" : "demo.DeviceMapper#listDevices()/name",
+      "evidenceIds" : [ "819d314cd44d7e7fa385b58c743bd6877e2817a8f327774cdb9acda07c674597", "c225834d750764e20b8b87b25240ed1f528a6a383eaa20ed29fcee37111d71de" ],
+      "certainty" : "CONFIRMED",
+      "confidence" : 1,
+      "producerVersion" : "archlens-core-0.1"
+    } ],
+    "evidence" : [ {
+      "schemaVersion" : "archlens-contract-v1",
+      "projectId" : "10000000-0000-0000-0000-000000000001",
+      "snapshotId" : "20000000-0000-0000-0000-000000000001",
+      "evidenceId" : "c225834d750764e20b8b87b25240ed1f528a6a383eaa20ed29fcee37111d71de",
+      "sourceId" : "30000000-0000-0000-0000-000000000001",
+      "sourceHash" : "f53d771ddbf395a96da6bd3b1456a85ee71310bd9df7b40bc0ee2a439ddeb75b",
+      "kind" : "JAVA_DECLARATION",
+      "producerVersion" : "archlens-mapper-0.1/javaparser-3.27.1/jsqlparser-5.3",
+      "location" : {
+        "path" : "DeviceMapper.java",
+        "startLine" : 1,
+        "startColumn" : 1,
+        "endLine" : 6,
+        "endColumn" : 1,
+        "byteOffset" : 0,
+        "byteLength" : 114,
+        "metadataKey" : null
+      },
+      "validation" : "HASH_VERIFIED",
+      "certainty" : "CONFIRMED",
+      "condition" : "true",
+      "snippet" : "package demo;\n\npublic interface DeviceMapper {\n    java.util.List<java.util.Map<String, Object>> listDevices();\n}\n",
+      "snippetHash" : "f53d771ddbf395a96da6bd3b1456a85ee71310bd9df7b40bc0ee2a439ddeb75b"
+    }, {
+      "schemaVersion" : "archlens-contract-v1",
+      "projectId" : "10000000-0000-0000-0000-000000000001",
+      "snapshotId" : "20000000-0000-0000-0000-000000000001",
+      "evidenceId" : "819d314cd44d7e7fa385b58c743bd6877e2817a8f327774cdb9acda07c674597",
+      "sourceId" : "30000000-0000-0000-0000-000000000001",
+      "sourceHash" : "124f61bac7b1f29e2948ac965ab2448bf4be4138188da0dc03cea049fde042b0",
+      "kind" : "MYBATIS_SQL",
+      "producerVersion" : "archlens-mapper-0.1/javaparser-3.27.1/jsqlparser-5.3",
+      "location" : {
+        "path" : "DeviceMapper.xml",
+        "startLine" : 1,
+        "startColumn" : 1,
+        "endLine" : 8,
+        "endColumn" : 1,
+        "byteOffset" : 0,
+        "byteLength" : 257,
+        "metadataKey" : null
+      },
+      "validation" : "HASH_VERIFIED",
+      "certainty" : "CONFIRMED",
+      "condition" : "true",
+      "snippet" : "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<mapper namespace=\"demo.DeviceMapper\">\n    <!-- 离线样例：旧列的真实静态引用。 -->\n    <select id=\"listDevices\" resultType=\"map\">\n        SELECT event_id, name FROM public.device\n    </select>\n</mapper>\n",
+      "snippetHash" : "124f61bac7b1f29e2948ac965ab2448bf4be4138188da0dc03cea049fde042b0"
+    } ],
+    "diagnostics" : [ {
+      "schemaVersion" : "archlens-contract-v1",
+      "projectId" : "10000000-0000-0000-0000-000000000001",
+      "snapshotId" : "20000000-0000-0000-0000-000000000001",
+      "diagnosticId" : "7d1ac0b81800f2c911a9799222edb5e83acb08af2f6f0fdbbe22f21b0c0c5e53",
+      "sourceId" : "30000000-0000-0000-0000-000000000001",
+      "code" : "UNRESOLVED_RETURN_TYPE",
+      "message" : "Classpath resolution is not implemented for demo.DeviceMapper#listDevices()",
+      "location" : {
+        "path" : "DeviceMapper.java",
+        "startLine" : 1,
+        "startColumn" : 1,
+        "endLine" : 6,
+        "endColumn" : 1,
+        "byteOffset" : 0,
+        "byteLength" : 114,
+        "metadataKey" : null
+      },
+      "candidateNodeIds" : [ ],
+      "capability" : "JAVA_DECLARATION_V0_1"
+    }, {
+      "schemaVersion" : "archlens-contract-v1",
+      "projectId" : "10000000-0000-0000-0000-000000000001",
+      "snapshotId" : "20000000-0000-0000-0000-000000000001",
+      "diagnosticId" : "a59eb372e84eca0be2da4d88e8d599c1aa9680a9e5080fc8e104913dcd54ebcd",
+      "sourceId" : "30000000-0000-0000-0000-000000000001",
+      "code" : "FIELD_LINEAGE_GAP",
+      "message" : "Return mapping and downstream Java/JSON/Vue consumption are not covered by this analyzer slice",
+      "location" : {
+        "path" : "DeviceMapper.xml",
+        "startLine" : 1,
+        "startColumn" : 1,
+        "endLine" : 8,
+        "endColumn" : 1,
+        "byteOffset" : 0,
+        "byteLength" : 257,
+        "metadataKey" : null
+      },
+      "candidateNodeIds" : [ ],
+      "capability" : "MAPPER_STATIC_SELECT_V0_1"
+    }, {
+      "schemaVersion" : "archlens-contract-v1",
+      "projectId" : "10000000-0000-0000-0000-000000000001",
+      "snapshotId" : "20000000-0000-0000-0000-000000000001",
+      "diagnosticId" : "e95da44f008a7cdc475c5ea2e6b6af734b5e9d5ce681f8faee2d87cd504b2adc",
+      "sourceId" : "40000000-0000-0000-0000-000000000001",
+      "code" : "OFFLINE_CATALOG_UNVERIFIED",
+      "message" : "Catalog was supplied as offline input; runtime database and repository alignment are not verified",
+      "location" : {
+        "path" : null,
+        "startLine" : null,
+        "startColumn" : null,
+        "endLine" : null,
+        "endColumn" : null,
+        "byteOffset" : null,
+        "byteLength" : null,
+        "metadataKey" : "example-db"
+      },
+      "candidateNodeIds" : [ ],
+      "capability" : "OFFLINE_CATALOG"
+    } ]
+  },
+  "changeSpec" : {
+    "targetId" : "96c694e19dc3ab3b03e8981560b3c12ac6aa8a5ccb74a27e905963102eae0f3b",
+    "kind" : "COLUMN_RENAME",
+    "before" : {
+      "name" : "event_id",
+      "type" : "text",
+      "nullable" : false,
+      "identityMeaning" : "device-key"
+    },
+    "after" : {
+      "name" : "global_id",
+      "type" : "text",
+      "nullable" : false,
+      "identityMeaning" : "device-key"
+    },
+    "stage" : "PROPOSED",
+    "compatibility" : [ ],
+    "assumptions" : [ "OFFLINE_CATALOG_UNVERIFIED" ]
+  },
+  "analysis" : {
+    "ruleVersion" : "archlens-rules-0.1-column-slice",
+    "projectId" : "10000000-0000-0000-0000-000000000001",
+    "snapshotId" : "20000000-0000-0000-0000-000000000001",
+    "overlayRevision" : 0,
+    "status" : "PARTIAL",
+    "impacts" : [ {
+      "targetId" : "96c694e19dc3ab3b03e8981560b3c12ac6aa8a5ccb74a27e905963102eae0f3b",
+      "nodeId" : "ff45088bfd27d85dc9eb338de569a1fb561d37a12ec55d80c73ff86c8a321968",
+      "dependencyPresent" : true,
+      "changeRequired" : "YES",
+      "certainty" : "CONFIRMED",
+      "impactScore" : 100.00,
+      "risk" : {
+        "min" : 32,
+        "max" : 92,
+        "minLevel" : "LOW",
+        "maxLevel" : "CRITICAL",
+        "inputs" : {
+          "breaking" : {
+            "min" : 0.8,
+            "max" : 0.8,
+            "sourceKind" : "RULE",
+            "sourceRef" : "ff45088bfd27d85dc9eb338de569a1fb561d37a12ec55d80c73ff86c8a321968",
+            "ruleId" : "BR-COLUMN",
+            "confirmedBy" : null
+          },
+          "criticality" : {
+            "min" : 0,
+            "max" : 1,
+            "sourceKind" : "RULE",
+            "sourceRef" : "missing-input",
+            "ruleId" : "RISK-UNKNOWN",
+            "confirmedBy" : null
+          },
+          "dataRecovery" : {
+            "min" : 0,
+            "max" : 1,
+            "sourceKind" : "RULE",
+            "sourceRef" : "missing-input",
+            "ruleId" : "RISK-UNKNOWN",
+            "confirmedBy" : null
+          }
+        }
+      },
+      "pathIds" : [ "0e696e9cee30db62bed7c54d4462e38315132b3cd4112760416264055999caf4" ],
+      "evidenceIds" : [ "819d314cd44d7e7fa385b58c743bd6877e2817a8f327774cdb9acda07c674597", "c225834d750764e20b8b87b25240ed1f528a6a383eaa20ed29fcee37111d71de" ],
+      "unknownIds" : [ ],
+      "conditions" : [ ],
+      "conditionedOutcome" : null
+    }, {
+      "targetId" : "96c694e19dc3ab3b03e8981560b3c12ac6aa8a5ccb74a27e905963102eae0f3b",
+      "nodeId" : "96c694e19dc3ab3b03e8981560b3c12ac6aa8a5ccb74a27e905963102eae0f3b",
+      "dependencyPresent" : true,
+      "changeRequired" : "YES",
+      "certainty" : "CONFIRMED",
+      "impactScore" : 100.00,
+      "risk" : {
+        "min" : 32,
+        "max" : 92,
+        "minLevel" : "LOW",
+        "maxLevel" : "CRITICAL",
+        "inputs" : {
+          "breaking" : {
+            "min" : 0.8,
+            "max" : 0.8,
+            "sourceKind" : "RULE",
+            "sourceRef" : "96c694e19dc3ab3b03e8981560b3c12ac6aa8a5ccb74a27e905963102eae0f3b",
+            "ruleId" : "BR-COLUMN",
+            "confirmedBy" : null
+          },
+          "criticality" : {
+            "min" : 0,
+            "max" : 1,
+            "sourceKind" : "RULE",
+            "sourceRef" : "missing-input",
+            "ruleId" : "RISK-UNKNOWN",
+            "confirmedBy" : null
+          },
+          "dataRecovery" : {
+            "min" : 0,
+            "max" : 1,
+            "sourceKind" : "RULE",
+            "sourceRef" : "missing-input",
+            "ruleId" : "RISK-UNKNOWN",
+            "confirmedBy" : null
+          }
+        }
+      },
+      "pathIds" : [ "abf7629d8cdb1d16244704c1df533ed5d1ba7a7a2705d1b5ee520829293ae10d" ],
+      "evidenceIds" : [ ],
+      "unknownIds" : [ ],
+      "conditions" : [ ],
+      "conditionedOutcome" : null
+    } ],
+    "paths" : [ {
+      "pathId" : "0e696e9cee30db62bed7c54d4462e38315132b3cd4112760416264055999caf4",
+      "nodeIds" : [ "96c694e19dc3ab3b03e8981560b3c12ac6aa8a5ccb74a27e905963102eae0f3b", "ff45088bfd27d85dc9eb338de569a1fb561d37a12ec55d80c73ff86c8a321968" ],
+      "orderedRelationIds" : [ "72c7f3185b065ea32508ac4e29302ab9ebb3a232abae2e24f52b19d73e657637" ],
+      "evidenceIds" : [ "819d314cd44d7e7fa385b58c743bd6877e2817a8f327774cdb9acda07c674597", "c225834d750764e20b8b87b25240ed1f528a6a383eaa20ed29fcee37111d71de" ],
+      "semanticState" : "PHYSICAL_SCHEMA",
+      "certainty" : "CONFIRMED",
+      "impactScore" : 100.00,
+      "confidence" : 1,
+      "changeRequired" : "YES"
+    }, {
+      "pathId" : "abf7629d8cdb1d16244704c1df533ed5d1ba7a7a2705d1b5ee520829293ae10d",
+      "nodeIds" : [ "96c694e19dc3ab3b03e8981560b3c12ac6aa8a5ccb74a27e905963102eae0f3b" ],
+      "orderedRelationIds" : [ ],
+      "evidenceIds" : [ ],
+      "semanticState" : "PHYSICAL_SCHEMA",
+      "certainty" : "CONFIRMED",
+      "impactScore" : 100.00,
+      "confidence" : 1,
+      "changeRequired" : "YES"
+    } ],
+    "unknowns" : [ ],
+    "truncated" : false,
+    "truncationReasons" : [ ],
+    "workUnits" : 1,
+    "cyclesSkipped" : 0,
+    "limitations" : [ "COLUMN_SLICE_ONLY", "NO_VERIFIED_COMPATIBILITY_ENGINE", "BUSINESS_AND_RECOVERY_FACTORS_UNKNOWN", "FIELD_COVERAGE_NOT_PROVEN" ]
+  }
+}

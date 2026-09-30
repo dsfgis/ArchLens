@@ -1,6 +1,9 @@
 package io.archlens.investigation;
 
 import io.archlens.cli.ArchLensCli;
+import io.archlens.investigation.dotnet.DotnetInventory;
+import io.archlens.investigation.database.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.archlens.contract.Model.Location;
 import java.util.*;
 
@@ -8,7 +11,33 @@ public record InvestigationReport(String schemaVersion, String engineVersion, St
         InvestigationRequest request, Status status, String startedAt, String finishedAt,
         List<Source> sources, List<Gap> coverageGaps, List<Clarification> clarificationItems,
         List<Finding> findings, List<String> verificationSuggestions, String orchestration,
-        ArchLensCli.Report columnAnalysis) {
+        ArchLensCli.Report columnAnalysis,
+        @JsonInclude(JsonInclude.Include.NON_NULL) DotnetInventory dotnetInventory,
+        @JsonInclude(JsonInclude.Include.NON_NULL) DatabaseInventory databaseInventory,
+        @JsonInclude(JsonInclude.Include.NON_NULL) BusinessContext.Environment targetEnvironment,
+        @JsonInclude(JsonInclude.Include.NON_NULL) CodeDatabaseAssociation codeDatabaseAssociation) {
+    public InvestigationReport(String schemaVersion,String engineVersion,String inputFingerprint,InvestigationRequest request,
+            Status status,String startedAt,String finishedAt,List<Source> sources,List<Gap> coverageGaps,
+            List<Clarification> clarificationItems,List<Finding> findings,List<String> verificationSuggestions,
+            String orchestration,ArchLensCli.Report columnAnalysis,DotnetInventory dotnetInventory) {
+        this(schemaVersion,engineVersion,inputFingerprint,request,status,startedAt,finishedAt,sources,coverageGaps,clarificationItems,findings,verificationSuggestions,orchestration,columnAnalysis,dotnetInventory,null,null,null);
+    }
+    public InvestigationReport(String schemaVersion,String engineVersion,String inputFingerprint,InvestigationRequest request,
+            Status status,String startedAt,String finishedAt,List<Source> sources,List<Gap> coverageGaps,
+            List<Clarification> clarificationItems,List<Finding> findings,List<String> verificationSuggestions,
+            String orchestration,ArchLensCli.Report columnAnalysis,DotnetInventory dotnetInventory,
+            DatabaseInventory databaseInventory,BusinessContext.Environment targetEnvironment) {
+        this(schemaVersion,engineVersion,inputFingerprint,request,status,startedAt,finishedAt,sources,coverageGaps,
+                clarificationItems,findings,verificationSuggestions,orchestration,columnAnalysis,dotnetInventory,databaseInventory,targetEnvironment,null);
+    }
+    // 旧报告字段完全保持；缺失清单时不序列化新属性，保护已封存 canonical 哈希。
+    public InvestigationReport(String schemaVersion,String engineVersion,String inputFingerprint,InvestigationRequest request,
+            Status status,String startedAt,String finishedAt,List<Source> sources,List<Gap> coverageGaps,
+            List<Clarification> clarificationItems,List<Finding> findings,List<String> verificationSuggestions,
+            String orchestration,ArchLensCli.Report columnAnalysis) {
+        this(schemaVersion,engineVersion,inputFingerprint,request,status,startedAt,finishedAt,sources,coverageGaps,
+                clarificationItems,findings,verificationSuggestions,orchestration,columnAnalysis,null);
+    }
     public enum Status { PARTIAL, CANCELLED }
     public record Source(String sourceId,String path,String sha256,long bytes,String collectedAt,
                          Location location,String producerVersion) {}
@@ -38,6 +67,10 @@ public record InvestigationReport(String schemaVersion, String engineVersion, St
         }
     }
     public InvestigationReport {
+        io.archlens.contract.ContractException.require(dotnetInventory==null || Set.of("archlens.investigation-report.v3","archlens.investigation-report.v4","archlens.investigation-report.v5").contains(schemaVersion),
+                "UNSUPPORTED_SCHEMA","Platform inventory requires report v3");
+        io.archlens.contract.ContractException.require((databaseInventory==null&&targetEnvironment==null)||Set.of("archlens.investigation-report.v4","archlens.investigation-report.v5").contains(schemaVersion),"UNSUPPORTED_SCHEMA","Joint report requires v4");
+        io.archlens.contract.ContractException.require(codeDatabaseAssociation==null||"archlens.investigation-report.v5".equals(schemaVersion),"UNSUPPORTED_SCHEMA","Association requires v5");
         sources=List.copyOf(sources); coverageGaps=List.copyOf(coverageGaps);
         clarificationItems=List.copyOf(clarificationItems); findings=List.copyOf(findings);
         verificationSuggestions=List.copyOf(verificationSuggestions);

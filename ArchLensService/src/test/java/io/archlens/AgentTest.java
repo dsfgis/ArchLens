@@ -40,6 +40,30 @@ class AgentTest {
             };
         }
     }
+    Request dotnetRequest(String targetVersion) throws Exception {
+        Files.writeString(root.resolve("private-platform.csproj"),"<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net8.0</TargetFramework></PropertyGroup><ItemGroup><PackageReference Include=\"Private.Business.Package\" Version=\"1.0\"/></ItemGroup></Project>");
+        Files.writeString(root.resolve("appsettings.json"),"{\"Password\":\"synthetic-platform-secret\"}");
+        return new Request(AgentContracts.VERSION,"将 .NET 项目迁移到 Java",new Target(Scenario.LANGUAGE_MIGRATION,new Profile(".NET",null),new Profile("Java",targetVersion)),List.of(),List.of(),List.of("private-platform.csproj","appsettings.json"),null,new Budget(10,100000,10000),new Limits(12,16,30000));
+    }
+    @Test void dotnetPlatformDoesNotRequireOneSourceVersionAndKeepsInventoryLocal() throws Exception {
+        request=dotnetRequest("21");var model=new Script(request.target());var report=new AgentOrchestrator(model).investigate(root,request,()->false);
+        assertTrue(report.questions().isEmpty());assertEquals("MODEL_TOOL_LOOP",report.orchestration());
+        assertEquals(1,report.investigation().dotnetInventory().projects().size());
+        String sent=String.join("",model.captured);assertTrue(sent.contains("platformProjectCount"));
+        for(String privateValue:List.of("private-platform.csproj","Private.Business.Package","synthetic-platform-secret",root.toString()))assertFalse(sent.contains(privateValue));
+    }
+    @Test void dotnetTargetClarificationRetainsIndependentCurrentStateInventory() throws Exception {
+        request=dotnetRequest(null);
+        var report=new AgentOrchestrator((m,t,time)->call(0,"ask_clarification",Map.of("questions",List.of(Map.of("field","targetProfile.version","prompt","目标 Java 版本？"))))).investigate(root,request,()->false);
+        assertEquals(Status.NEEDS_CLARIFICATION,report.status());assertEquals("targetProfile.version",report.questions().getFirst().field());
+        assertNotNull(report.investigation().dotnetInventory());assertEquals(Scenario.CURRENT_STATE,report.investigation().request().scenario());
+    }
+    @Test void dotnetInventoryIsDiscardedAfterAgentSourceDrift() throws Exception {
+        request=dotnetRequest("21");var script=new Script(request.target());
+        script.before=n->{if(n==4)try{Files.writeString(root.resolve("private-platform.csproj"),"<Project/>");}catch(Exception e){throw new RuntimeException(e);}};
+        var report=new AgentOrchestrator(script).investigate(root,request,()->false);
+        assertTrue(report.diagnostics().contains("AGENT_SOURCE_DRIFT"));assertNull(report.investigation().dotnetInventory());
+    }
     @Test void realToolsProduceGroundedReportAndKeepPrivateSourcesLocal()throws Exception {
         var model=new Script(request.target());var r=new AgentOrchestrator(model).investigate(root,request,()->false);
         assertEquals("MODEL_TOOL_LOOP",r.orchestration());assertEquals(Status.PARTIAL,r.status());assertEquals(5,r.modelCalls());

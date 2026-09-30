@@ -1,0 +1,418 @@
+{
+  "mode": "LOCAL_DATABASE_PREVIEW",
+  "persisted": false,
+  "report": {
+    "clarificationItems": [],
+    "columnAnalysis": null,
+    "coverageGaps": [
+      {
+        "code": "DB_ACCOUNT_VISIBLE_OBJECTS_ONLY",
+        "source": "business-database"
+      },
+      {
+        "code": "DB_NON_ATOMIC_METADATA",
+        "source": "business-database"
+      },
+      {
+        "code": "DB_CODE_BINDING_UNAVAILABLE",
+        "source": "business-database"
+      },
+      {
+        "code": "DB_DEFINITION_AND_DEFAULT_TEXT_WITHHELD",
+        "source": "business-database"
+      },
+      {
+        "code": "CONTENT_INVENTORY_ONLY",
+        "source": "No supported semantic findings were published; inspect gaps"
+      }
+    ],
+    "databaseInventory": {
+      "coverageGaps": [
+        "DB_ACCOUNT_VISIBLE_OBJECTS_ONLY",
+        "DB_NON_ATOMIC_METADATA",
+        "DB_CODE_BINDING_UNAVAILABLE",
+        "DB_DEFINITION_AND_DEFAULT_TEXT_WITHHELD"
+      ],
+      "database": "archlens_fixture",
+      "extendedMetadata": {
+        "checks": [
+          {
+            "clauseLength": 25,
+            "clauseVisible": true,
+            "enforced": true,
+            "name": "ck_customer_name",
+            "table": "customers"
+          }
+        ],
+        "columns": [
+          {
+            "column": "id",
+            "commentPresent": false,
+            "defaultExpression": false,
+            "defaultPresent": false,
+            "generatedExpressionPresent": false,
+            "table": "customers"
+          },
+          {
+            "column": "name",
+            "commentPresent": false,
+            "defaultExpression": false,
+            "defaultPresent": false,
+            "generatedExpressionPresent": false,
+            "table": "customers"
+          },
+          {
+            "column": "internal_note",
+            "commentPresent": true,
+            "defaultExpression": false,
+            "defaultPresent": true,
+            "generatedExpressionPresent": false,
+            "table": "customers"
+          },
+          {
+            "column": "customer_id",
+            "commentPresent": false,
+            "defaultExpression": false,
+            "defaultPresent": false,
+            "generatedExpressionPresent": false,
+            "table": "order_totals"
+          },
+          {
+            "column": "total",
+            "commentPresent": false,
+            "defaultExpression": false,
+            "defaultPresent": false,
+            "generatedExpressionPresent": false,
+            "table": "order_totals"
+          },
+          {
+            "column": "id",
+            "commentPresent": false,
+            "defaultExpression": false,
+            "defaultPresent": false,
+            "generatedExpressionPresent": false,
+            "table": "orders"
+          },
+          {
+            "column": "customer_id",
+            "commentPresent": false,
+            "defaultExpression": false,
+            "defaultPresent": false,
+            "generatedExpressionPresent": false,
+            "table": "orders"
+          },
+          {
+            "column": "amount",
+            "commentPresent": false,
+            "defaultExpression": false,
+            "defaultPresent": false,
+            "generatedExpressionPresent": false,
+            "table": "orders"
+          },
+          {
+            "column": "created_at",
+            "commentPresent": false,
+            "defaultExpression": false,
+            "defaultPresent": false,
+            "generatedExpressionPresent": false,
+            "table": "orders"
+          }
+        ],
+        "parameters": [],
+        "programs": [],
+        "tables": [
+          {
+            "commentPresent": true,
+            "name": "customers"
+          },
+          {
+            "commentPresent": true,
+            "name": "order_totals"
+          },
+          {
+            "commentPresent": false,
+            "name": "orders"
+          }
+        ],
+        "views": [
+          {
+            "checkOption": "NONE",
+            "definitionLength": 202,
+            "definitionVisible": true,
+            "name": "order_totals",
+            "securityType": "DEFINER",
+            "updatable": false
+          }
+        ]
+      },
+      "finishedAt": "2026-09-25T15:57:30.380372373Z",
+      "metadataHash": "c2375e47904a9832f0b896cc095f4aee50aa2211160db31200b7b60490f00f69",
+      "observedVersion": "8.4.11",
+      "product": "MySQL",
+      "schemaVersion": "archlens.database-inventory.v2",
+      "settings": {
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_0900_ai_ci",
+        "databaseCharset": "utf8mb4",
+        "databaseCollation": "utf8mb4_0900_ai_ci",
+        "mode": "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION",
+        "names": "0"
+      },
+      "sourceFingerprint": "83afc5a63498799593b468743ba1c403fc656fd8cbebc86d02fe2a70a3795185",
+      "startedAt": "2026-09-25T15:57:29.801836651Z",
+      "status": "PARTIAL",
+      "tables": [
+        {
+          "collation": "utf8mb4_0900_ai_ci",
+          "columns": [
+            {
+              "charset": null,
+              "collation": null,
+              "columnType": "bigint",
+              "dataType": "bigint",
+              "extra": "",
+              "name": "id",
+              "nullable": false,
+              "ordinal": 1
+            },
+            {
+              "charset": "utf8mb4",
+              "collation": "utf8mb4_0900_ai_ci",
+              "columnType": "varchar(100)",
+              "dataType": "varchar",
+              "extra": "",
+              "name": "name",
+              "nullable": false,
+              "ordinal": 2
+            },
+            {
+              "charset": "utf8mb4",
+              "collation": "utf8mb4_0900_ai_ci",
+              "columnType": "varchar(100)",
+              "dataType": "varchar",
+              "extra": "",
+              "name": "internal_note",
+              "nullable": true,
+              "ordinal": 3
+            }
+          ],
+          "engine": "InnoDB",
+          "evidenceId": "ec1b8cb02fe45b6fd4804912c76fee1fbd29750355f2a5c1db5daa13698ee565",
+          "indexes": [
+            {
+              "column": "id",
+              "name": "PRIMARY",
+              "ordinal": 1,
+              "type": "BTREE",
+              "unique": true
+            }
+          ],
+          "keys": [
+            {
+              "column": "id",
+              "name": "PRIMARY",
+              "ordinal": 1,
+              "referencedColumn": null,
+              "referencedSchema": null,
+              "referencedTable": null,
+              "type": "PRIMARY KEY"
+            }
+          ],
+          "kind": "BASE TABLE",
+          "name": "customers"
+        },
+        {
+          "collation": null,
+          "columns": [
+            {
+              "charset": null,
+              "collation": null,
+              "columnType": "bigint",
+              "dataType": "bigint",
+              "extra": "",
+              "name": "customer_id",
+              "nullable": false,
+              "ordinal": 1
+            },
+            {
+              "charset": null,
+              "collation": null,
+              "columnType": "decimal(40,2)",
+              "dataType": "decimal",
+              "extra": "",
+              "name": "total",
+              "nullable": true,
+              "ordinal": 2
+            }
+          ],
+          "engine": null,
+          "evidenceId": "c1dcfad2952ce9cc2e0dc3096b10ef459b46fc66cbc95258deb77525d627ce80",
+          "indexes": [],
+          "keys": [],
+          "kind": "VIEW",
+          "name": "order_totals"
+        },
+        {
+          "collation": "utf8mb4_0900_ai_ci",
+          "columns": [
+            {
+              "charset": null,
+              "collation": null,
+              "columnType": "bigint unsigned",
+              "dataType": "bigint",
+              "extra": "auto_increment",
+              "name": "id",
+              "nullable": false,
+              "ordinal": 1
+            },
+            {
+              "charset": null,
+              "collation": null,
+              "columnType": "bigint",
+              "dataType": "bigint",
+              "extra": "",
+              "name": "customer_id",
+              "nullable": false,
+              "ordinal": 2
+            },
+            {
+              "charset": null,
+              "collation": null,
+              "columnType": "decimal(18,2)",
+              "dataType": "decimal",
+              "extra": "",
+              "name": "amount",
+              "nullable": false,
+              "ordinal": 3
+            },
+            {
+              "charset": null,
+              "collation": null,
+              "columnType": "datetime",
+              "dataType": "datetime",
+              "extra": "",
+              "name": "created_at",
+              "nullable": false,
+              "ordinal": 4
+            }
+          ],
+          "engine": "InnoDB",
+          "evidenceId": "981030bdbb960b382cf5ff6090a3be344724d306bbb3056e58746e04d64f2af0",
+          "indexes": [
+            {
+              "column": "id",
+              "name": "PRIMARY",
+              "ordinal": 1,
+              "type": "BTREE",
+              "unique": true
+            },
+            {
+              "column": "customer_id",
+              "name": "uq_customer_created",
+              "ordinal": 1,
+              "type": "BTREE",
+              "unique": true
+            },
+            {
+              "column": "created_at",
+              "name": "uq_customer_created",
+              "ordinal": 2,
+              "type": "BTREE",
+              "unique": true
+            }
+          ],
+          "keys": [
+            {
+              "column": "customer_id",
+              "name": "fk_customer",
+              "ordinal": 1,
+              "referencedColumn": "id",
+              "referencedSchema": "archlens_fixture",
+              "referencedTable": "customers",
+              "type": "FOREIGN KEY"
+            },
+            {
+              "column": "id",
+              "name": "PRIMARY",
+              "ordinal": 1,
+              "referencedColumn": null,
+              "referencedSchema": null,
+              "referencedTable": null,
+              "type": "PRIMARY KEY"
+            },
+            {
+              "column": "customer_id",
+              "name": "uq_customer_created",
+              "ordinal": 1,
+              "referencedColumn": null,
+              "referencedSchema": null,
+              "referencedTable": null,
+              "type": "UNIQUE"
+            },
+            {
+              "column": "created_at",
+              "name": "uq_customer_created",
+              "ordinal": 2,
+              "referencedColumn": null,
+              "referencedSchema": null,
+              "referencedTable": null,
+              "type": "UNIQUE"
+            }
+          ],
+          "kind": "BASE TABLE",
+          "name": "orders"
+        }
+      ]
+    },
+    "engineVersion": "archlens-investigation-0.6",
+    "findings": [
+      {
+        "conditions": [],
+        "evidence": [],
+        "evidenceIds": [],
+        "findingId": "7468029bdf34c439bc516d952e5f9f38a00c86fe1b3224c62d474d6d059de685",
+        "impacts": [],
+        "outcome": "UNKNOWN",
+        "recommendations": [],
+        "rule": null,
+        "ruleRef": "no-supported-compatibility-rule",
+        "subjectId": null,
+        "summary": null,
+        "unknownReasons": [
+          "Unchecked scope remains UNKNOWN; individual rules do not establish whole-project compatibility"
+        ]
+      }
+    ],
+    "finishedAt": "2026-09-25T15:57:30.462496684Z",
+    "inputFingerprint": "648cc08d8bc7cccf96f1e1522b968a71f9d5f238310d1a185035ead06e6ae2d0",
+    "orchestration": "DETERMINISTIC_ONLY_NO_MODEL_ORCHESTRATION",
+    "request": {
+      "budget": {
+        "maxBytes": 50000000,
+        "maxFiles": 1000,
+        "timeoutMillis": 25000
+      },
+      "columnRequest": null,
+      "constraints": [],
+      "files": [],
+      "invariants": [],
+      "objective": "仅数据库结构现状调查",
+      "scenario": "CURRENT_STATE",
+      "schemaVersion": "archlens.investigation-request.v1",
+      "sourceProfile": {
+        "product": "UNSPECIFIED",
+        "version": null
+      },
+      "targetProfile": null
+    },
+    "schemaVersion": "archlens.investigation-report.v4",
+    "sources": [],
+    "startedAt": "2026-09-25T15:57:29.795069376Z",
+    "status": "PARTIAL",
+    "verificationSuggestions": [
+      "Review declared coverage and resolve unknown versions before making compatibility decisions",
+      "Validate invariants in a user-controlled isolated environment; no verification commands were executed"
+    ]
+  },
+  "reportHash": "a2d7fdfef94349fc2b4ffe9a0f390ea471b9297cf9f8eb8ba25095c9abdcc80b"
+}

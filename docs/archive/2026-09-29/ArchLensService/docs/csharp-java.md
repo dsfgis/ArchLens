@@ -2,6 +2,8 @@
 
 当前支持矩阵：C# 12.x → Java 21.x。`.NET 8`/`net8.0` 是框架版本，不应填入 C# 语言版本字段。其他语言版本保留 UNKNOWN，不借用最近版本规则。
 
+2026-09-24 产品目标已扩展为 .NET 平台级分析，包括 .NET Framework、.NET Core、现代 .NET 及混合解决方案。本页继续说明已经实现的 C# 子集；平台候选发现与 C#/VB.NET/F# 项目声明清单已新增，见 [.NET 平台说明](dotnet-platform.md)；VB.NET 等语义分析、应用框架与部署迁移仍需后续独立实施验收。规划见 [需求](../specs/implementation/requirements.md)、[设计](../specs/implementation/design.md) 和 [任务](../specs/implementation/tasks.md)。
+
 ## 从网页运行
 
 从项目根目录启动 `ArchLensClient/start.ps1 -JdkHome <JDK21目录>`，访问本机 4173。需要现有 ArchLens PG 存储配置；模型使用后端已有配置，源码和路径不进入模型。

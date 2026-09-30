@@ -1,161 +1,265 @@
-# ArchLens 分析调查 Agent 设计
+# ArchLens 自主迁移设计 Agent：实施设计
 
-当前修订日期：2026-09-22；目标设计基线：2026-09-14。本文同时标明 INV-REQ-01–09 的目标设计与已实现子集，按 [需求](requirements.md) 追踪。旧 DOCX 是未重制的历史设计，不作为当前接口或完成状态依据；当前文档入口见 [文档导航](../../docs/README.md)。
+<!-- 2026-09-30：按批准的目标设计重建；旧设计原字节保存在 2026-09-29 归档。新协议、表和目录均待实现。 -->
 
-## 当前实现结构
+重建完成日期：2026-09-30。依据：[详细设计 v2.0](../../../docs/design/ArchLens-自主迁移设计Agent-详细设计-v2.0.md)、[现有项目总结](../../../docs/design/ArchLens-现有项目总结-2026-09-29.md)。配套：[需求](requirements.md)、[任务](tasks.md)、[验收](check_list.md)。[旧设计归档](../../../docs/archive/2026-09-29/ArchLensService/specs/implementation/design.md)保留原接口、日期和实现记录。
 
-`AgentCli → AgentOrchestrator ↔ DeepSeekAgentModel` 构成模型循环；六个受限工具调用 `RuleCatalog / InvestigationEngine / ScenarioRules`，事实与证据仍由本地确定性程序产生。`AgentContracts.Report` 分开保存调查结果和未核实模型解释；文件模式写新报告，存储模式通过 `PgInvestigationStore` 封存修订，存在已绑定列分析图时再投影 Neo4j。
+本文件把 MD-D01–20 转为实施边界，使用同编号 MIG-D01–20 追踪 MIG-R01–20。除明确标为“现有”的能力外，以下组件、接口、表、状态和行为都是待开发设计，不能据本文调用不存在的 API。
 
-旧 `analyze/investigate` 不依赖模型，旧网页 `/api/parse-target` 仅解析提议。本机网页 Agent 适配已加入，设计及验证范围见文末；生产 HTTP、递归扫描、在线业务元数据采集和联网规则研究未实现。OIDC 鉴权经 2026-09-21 用户决策本版本不实施，本设计不包含生产身份鉴权组件。工具参数、状态及具体限额见 [编排说明](../../docs/agent-orchestration.md)。
+## MIG-D01 交付范围与完成对象
 
-## 现有基础切片
+A0 交付调查报告；A1 交付结构化迁移设计及验证计划；A2 在隔离环境完成约定的设计验证。A3 修改真实项目、业务数据迁移和生产切换不在本轮实现范围。
 
-| 包 | 职责 | 需求 |
+首次运行冻结 acceptanceScope：必需来源、模块/对象/关键路径、约束、不变量、验证等级及可接受未知项。后续调整需要新修订。完成检查针对该范围，不对未检查的全仓库作保证。首个样例采用小型 .NET 数据访问模块/MySQL 合成库，目标 Java、目标数据库版本/模式在样例配置中明确，不硬编码“所有 .NET 转 Java”或“所有数据库转金仓”。
+
+## MIG-D02 请求、来源与正常旅程
+
+| analysisMode | 必需来源 | 缺失处理 |
 | --- | --- | --- |
-| contract | 严格 JSON、canonical JSON 哈希、IR、不可变图校验 | REQ01/02 |
-| analysis | 有界遍历、语义判断、风险区间及路径证据 | REQ03 |
-| parser | 只读 UTF-8 Java/MyBatis XML 与显式 catalog，静态 AST 绑定 | REQ01/02 |
-| cli | 离线分析、调查、Agent 及存储命令；各输入契约独立 | SLICE-AC05/06、INV-REQ-01/07 |
-| investigation / rules | 显式采集、版本匹配、25 条规则、证据及覆盖报告 | INV-REQ-02/03/05 |
-| agent | 目标解析、工具循环、匿名证据投影、澄清修订与降级 | INV-REQ-01/06/08/09 |
-| storage | 自身 PG Case/Run 封存与 Neo4j 条件式投影 | INV-REQ-07 |
+| CODE_ONLY | 授权代码来源 | 无业务库时明确数据行为未知，不要求无关连接 |
+| DATABASE_ONLY | 业务源或声明为离线的结构 | 无代码时明确应用影响未知 |
+| JOINT | 代码与业务库 | 缺来源阻塞联合覆盖；用户变更范围才降为单项 |
 
-依赖关系使用 dependent → dependency；从变更目标反向遍历，CONTAINS 不参与传播。有限规则只在足够证据下给 YES；对象链、候选链和未支持语义一律 UNKNOWN。兼容性验证引擎尚未实现，因此本批禁止传入 VERIFIED，PROPOSED 仅附条件；不提供能把用户布尔值当作已验证事实的后门。
+MigrationRequest 包含 schemaVersion、analysisMode、sourceRefs、objective、targetEnvironment、constraints、invariants、acceptanceScope、policyRefs、modelConfigRef、budget。宿主保存授权来源、凭据引用和执行策略；可序列化请求不含连接密码。声明技术画像与观测画像分别存储，冲突进入调查任务或澄清。
 
-入图时验证节点 ID、来源、关系类型端点、证据 hash/位置及 scope，构造只读 incoming 索引。报告保存完整已访问判断的合并值与最多三条展示路径。遍历顺序固定，工作预算可复算；墙钟超时独立标记。风险计算使用 BigDecimal / HALF_UP，置信度不乘风险。
+正常流程：校验并入队→建立基线→调查 DAG→按需取证→缺口/澄清→方案比较→结构与独立审查→允许的验证→修订→完成检查→封存。查看和故障恢复不改变请求；答案、目标、范围或策略变化产生新请求哈希和新业务修订。
 
-离线 catalog 是用户显式提供的分析范围，报告标记为离线输入且整体 PARTIAL；不会冒充生产数据库采集或完整元数据快照。Java 使用 JavaParser，SQL 使用 JSqlParser AST；未覆盖表达式通过诊断保留空缺。文件定位按原始 UTF-8 字节，结束位置不包含；首批证据粒度为原始整文件，禁止把规范化 SQL 字符串位置当原文件位置。首批 XML 禁止 DOCTYPE/实体；带 DTD 的常规 MyBatis 文件也会被明确拒绝，后续在隔离解析协议中扩充支持。
+## MIG-D03 技术决策
 
-JDK21 为运行基线，Maven 固定直接依赖及构建插件。先验证独立核心，后续 Spring Boot 应用适配这个核心；当前不引入无业务用途的空 controller、假数据库或无鉴权服务器。
+| 组件 | 决策 | 实施约束 |
+| --- | --- | --- |
+| 编排 | 独立 LangGraph TypeScript worker | P0 锁定 Node/TS/LangGraph 版本，实测检查点导入和中断重放 |
+| 模型 | 自有 ModelGateway，按需用 LangChain 组件 | 供应商切换不改变工具权限、数据策略和业务契约 |
+| 分析 | 复用 Java 21 核心 | 事实、规则、证据、范围校验不移入提示词 |
+| .NET 语义 | 独立 Roslyn 进程 | C#/VB 能力分别声明；F# 继续盘点，不能借 Roslyn 名义宣称绑定 |
+| 存储 | PG 权威，checkpoint 独立 schema | Neo4j/向量索引均为派生投影，首例无需依赖其上线 |
+| Agent 数量 | 单主规划器与独立审查步骤 | 后续可并行独立任务，模型一致意见不是验证 |
+| 部署 | 本机单用户，保留原生页面 | 不在本轮引入 Vue/Spring Boot 或公网多租户 |
 
-## INV-D01：统一调查上下文（INV-REQ-01、07）
+新依赖记录 engines、lockfile、许可证和部署影响。当前 Node 18+、Java CLI 及手写 Agent 是既有基线，不代表新 worker 已可运行。
 
-调查业务对象统一使用 `Investigation Case`，不把一切迁移强行编码成列变更 `ChangeSpec`。拟议 `InvestigationSpec` 包含：
+## MIG-D04 进程与目录边界
 
-| 字段 | 语义及校验 |
+```mermaid
+flowchart TD
+  UI[原生工作台] --> API[Node 本机 API]
+  API --> J[Java 运行服务与工具边界]
+  W[LangGraph TS Worker] --> J
+  W --> M[模型网关和受控上下文]
+  W --> CP[(框架 checkpoint)]
+  J --> PG[(PG 运行/产物权威)]
+  J --> C[只读采集与规则]
+  J --> S[Roslyn 语义进程]
+  J --> V[隔离验证服务]
+  PG --> P[Neo4j/检索派生投影]
+```
+
+Node 创建/查询业务运行，不依赖 HTTP 请求持续存活来执行长任务。Java 独占业务状态写入、授权登记、租约、工具参数/结果校验及封存。worker 可写专属 checkpoint，但不能直接操作事实/终态表。验证服务只写作业状态和不可变结果，不能直接推进方案。
+
+拟议代码位置：Java `src/main/java/io/archlens/migration/`、`runtime/`；TS `ArchLensService/agent-runtime/src/{graph,context,model,bridge}/`；Roslyn `ArchLensService/analyzers/dotnet/`；验证适配 `ArchLensService/validation/`。这些目录按任务落地，不以创建空骨架计完成。首期 Java 桥接使用受控 JSON Lines；后续进程部署调整不改变工具契约和权威边界。
+
+## MIG-D05 契约、身份与版本
+
+| 对象 | 必需身份/引用 | 关键约束 |
+| --- | --- | --- |
+| MigrationCase/Run | caseId、runId、revision、requestHash | Case 独立最新修订；固定请求不原地改写 |
+| SourceSnapshot | snapshotId/hash、sourceHashes、collectorVersions、consistency、coverage | 多来源观察集合不冒充原子快照 |
+| Evidence/Finding | subjectId、sourceHash、location、producerVersion、ruleRef、outcome | 事实由工具生成；候选与绑定保留区别 |
+| Hypothesis | claim、supportRefs、counterEvidenceRefs、verificationNeeded | 模型推断有独立类型，不能注入事实图 |
+| InvestigationTask | taskId、planVersion、dependencies、capability、status、attempts | 调查 DAG，不是开发实施工单 |
+| MigrationPlan/WorkItem | planHash/version、scope、workItemId、reasonRefs、validationRefs | 绑定当前请求/快照；工作项依赖无环 |
+| ValidationRecord | validationId、planHash、snapshotHash、environmentHash、testSpecHash | 结果不可变，保存执行者/断言/受控日志 |
+| DecisionRecord | decisionId、options、choice、reasonRefs、decisionSource | 区分模型建议、已确认业务取舍及范围接受 |
+
+请求、计划、工具、事件分别使用 `archlens.migration-request.v1`、`archlens.migration-plan.v1`、`archlens.tool-envelope.v1`、`archlens.migration-event.v1`。它们不覆盖现有 `archlens.agent.v1/v2` 或调查报告 v1–v5。领域记录和边界报文拒绝未知版本/字段/枚举；框架内部状态另记 graphVersion/stateSchemaVersion。
+
+JSON Schema 作为 TS/Java 共同契约来源，canonical JSON 的数字、空值、省略字段、排序和 Unicode 行为用跨语言黄金样例固定；内容哈希字段自身不参与自身摘要，时间/观察元数据的哈希范围在对应 Schema 明确，不能由两端各自猜测。
+
+所有有效引用绑定运行、修订和快照；跨运行复用产生导入记录，保留原始 hash/来源和新范围核验结果，不改写旧对象身份。代码对象身份包含项目/TFM/编译条件；数据库对象包含源、目录、模式、类型和原始标识符。稳定别名仅用于模型投影，本地可反查身份。
+
+## MIG-D06 采集与语义工具
+
+现有 [InvestigationEngine](../../src/main/java/io/archlens/investigation/InvestigationEngine.java)、[DotnetInventoryAnalyzer](../../src/main/java/io/archlens/investigation/dotnet/DotnetInventoryAnalyzer.java)、[DatabaseCollectors](../../src/main/java/io/archlens/investigation/database/DatabaseCollectors.java) 和候选关联可封装为初始工具。复用时保留原限额/诊断，不将一次源码封装标为语义增强。
+
+本地读取逐次校验真实路径、符号链接、包含/排除范围和预算；Git 固定 commit，独立副本，不执行 hooks，明确 submodule/LFS。SourceSnapshot 保存内容哈希和观察一致性；来源漂移使受影响结果失效，并创建新修订重新采集，旧封存保留。
+
+Roslyn 输入为已授权源码、明确引用程序集/编译条件和项目身份，输出符号及绑定证据。静态模式不运行项目 analyzer、generator、MSBuild 或 restore。引用缺失时输出覆盖缺口；ADO.NET/EF6/EF Core/Dapper、Web/桌面/服务框架按适配器逐项注册。
+
+数据库元数据和对象定义由固定系统目录查询/驱动适配获取；不开放任意 SQL。各产品单列版本、模式、对象类别、权限、TLS 及实库验证。默认不读业务行；统计/抽样是另外授权的能力，不能悄然纳入迁移调查。
+
+跨来源路径各边分别记录证据与等级：入口→方法→访问 API→SQL/ORM→对象。保持 `CANDIDATE/AMBIGUOUS/UNKNOWN`，新绑定产物引用原候选而不直接改写其等级。覆盖分母来自授权范围，分别计数发现/纳入/采集/解析/符号绑定/对象绑定/规则/验证。
+
+## MIG-D07 源目标能力与知识
+
+SourceFeatureProfile 记录实际使用的源能力；TargetCapabilityProfile 记录指定产品/版本/模式/配置的目标能力；MappingRule 记录通用映射条件；PairExceptionRule 记录具体方向例外。规则适用判断先验证版本、模式、配置及证据前提，再输出规则结果，缺项返回 UNKNOWN。
+
+映射检查涵盖精度/值域、时间/时区、空串/NULL、大小写/排序、JSON/LOB、生成键、约束/索引、SQL/过程、权限、驱动、事务/锁/重试以及同步方式。源→目标不能倒转使用；PostgreSQL 规则不能直接当 KingbaseES 规则。
+
+知识检索记录官方来源、适用版本、抓取时间、内容哈希及引用。检索/模型提出的规则进入候选记录，经过正反例、版本核对与发布审阅后才进入正式规则包。组合目标统一检查依赖、事务和部署冲突，比较先迁语言/数据库或分模块过渡，缺业务参数时不虚构双写/停机可行性。
+
+## MIG-D08 计划及导出
+
+MigrationPlan 字段组：identity、objectiveAndScope、currentArchitecture、alternatives、targetArchitecture、mappings、workItems、validationPlan、rolloutAndRollback、assumptionsAndGaps、evidenceAndDecisions、estimates。备选不足、估算缺依据或某一领域不适用时明确原因，不能用空段落伪装完整。
+
+MigrationWorkItem 包含稳定 ID、标题、源对象、原因/证据/假设、变更说明、dependsOn、前置条件、预期产物、完成标准、验证项与优先级依据。结构检查拒绝环、悬空依赖、跨范围对象与缺必要字段。InvestigationTask 的完成不自动把开发工作项标为已实施。
+
+版本化 JSON 为权威计划；Markdown 和页面由同一结构生成，导出保留范围、未知项、验证状态和来源引用。草案/封存分开，封存内容不可变；后续 Word/PDF 仅作呈现适配。
+
+## MIG-D09 图循环、任务和上下文
+
+节点序列为 validate_request→establish_baseline→plan_investigation→choose_next_task→collect_or_analyze→assess_gaps→synthesize_design→review_design→validate_design→evaluate_completion→request_seal。允许缺口/反例回到调查或设计，允许澄清/外部等待暂停；执行前置条件由 Java 和确定性图路由检查。
+
+State 仅保存固定请求/快照引用、任务、问题、假设、方案/验证引用、预算摘要、事件游标和带引用的工作摘要；不保存凭据、连接对象和完整源码。重要决定入 DecisionRecord，摘要不能成为事实。模型调用按任务检索上下文，保留约束、反证和未决项。
+
+任务状态 PLANNED→READY→RUNNING→SUCCEEDED/BLOCKED/FAILED/SKIPPED；重试新尝试有计数和预算，SKIPPED 必带原因且计入覆盖缺口。建议连续两轮无新增证据、有效任务变化或可用反馈时 PARTIAL/NEEDS_INPUT；具体初值在 P1 样例固定。独立审查使用不同上下文检查遗漏、冲突和验证空白，不通过投票宣布兼容。
+
+## MIG-D10 业务状态、持久化与恢复
+
+### 10.1 状态维度和转换
+
+| 维度 | 值 | 权威 |
+| --- | --- | --- |
+| executionState | QUEUED、RUNNING、NEEDS_INPUT、WAITING_EXTERNAL、COMPLETED、PARTIAL、FAILED、CANCELLED、SUPERSEDED | Java/PG |
+| designStatus | DRAFT、BLOCKED、READY_FOR_REVIEW、ACCEPTED_FOR_SCOPE、SUPERSEDED | 结构门槛与记录主体，接受须绑定 planHash/范围 |
+| validationStatus | NOT_RUN、RUNNING、PASSED_FOR_SCOPE、FAILED、INCONCLUSIVE | 验证服务及覆盖核验 |
+| rule outcome | COMPATIBLE、INCOMPATIBLE、CONDITIONAL、UNKNOWN | 已发布规则与证据 |
+
+| 起点/事件 | 结果 | 必要原子检查 |
+| --- | --- | --- |
+| 创建请求 | QUEUED | 宿主提交幂等键、请求 hash、case/revision 分配 |
+| QUEUED 领取、RUNNING 租约过期接管 | RUNNING/新 epoch | 当前修订、可领取状态、租约过期或空闲、worker |
+| RUNNING 续租 | RUNNING | 同 worker/epoch、未过期、未取消，PG 时钟 |
+| RUNNING 请求澄清 | NEEDS_INPUT | 问题/父产物/认可 checkpoint 持久，旧票据失效 |
+| RUNNING 等外部作业 | WAITING_EXTERNAL | 作业已登记、认可 checkpoint 持久，旧票据失效 |
+| NEEDS_INPUT 回答 | 旧 run SUPERSEDED、新 run QUEUED | 父 hash/问题集/expectedRevision、答案幂等键一次消费 |
+| WAITING_EXTERNAL 作业可消费 | 领取后 RUNNING/新 epoch | 同固定请求、最新修订、有效作业结果、重新核验权限 |
+| RUNNING 封存 | COMPLETED/PARTIAL | 第 13 节门槛、租约/epoch/请求/修订与产物 hash |
+| 活跃/暂停运行取消 | CANCELLED | epoch 增加、幂等回执；终态不会因重复取消改写 |
+| 不可恢复失败或预算停机 | FAILED 或封存 PARTIAL | 错误及可用产物保存，原运行不原地变回活跃 |
+
+COMPLETED/PARTIAL/FAILED/CANCELLED 是不可恢复执行终态；重试创建新修订。SUPERSEDED 表示被新输入取代的运行；已封存报告正文和原回执不变，用独立继任关系/历史视图表达其被取代。活跃或暂停 run 被新修订取代时应原子失效票据。ACCEPTED_FOR_SCOPE 另存接受事件，不改写封存计划字节，也不把范围外能力升为通过。
+
+### 10.2 新表与旧数据
+
+| 新逻辑表 | 内容/唯一性 | 写入者 |
+| --- | --- | --- |
+| migration_case / migration_run | 独立 latest_revision；唯一 case+revision、runId；固定请求/类型/状态/租约/epoch | Java 运行服务 |
+| migration_task | taskId/planVersion、DAG、尝试、结果引用 | Java 工具/运行服务 |
+| tool_invocation | invocationId、稳定去重键、输入/工具/快照 hash、结果 | Java 工具边界 |
+| migration_artifact | 类型/版本/范围/内容 hash、不可变位置、导入依据 | 产物服务 |
+| migration_event | run/revision、单调 eventId、受控摘要 | 业务事务内事件 |
+| migration_question / migration_answer | 问题集/父产物、回答 hash、消费/幂等身份 | Java 澄清服务 |
+| validation_job | 稳定 jobId、环境/输入/测试 hash、作业状态/结果 | 验证服务 |
+| checkpoint_link | 认可 checkpoint、graph/stateSchema、epoch、sequence、状态 hash | Java CAS 更新 |
+
+通过追加数据库迁移创建；不改 [V001](../../src/main/resources/db/V001__investigation_storage.sql) 校验和。旧 [PgInvestigationStore](../../src/main/java/io/archlens/storage/PgInvestigationStore.java) 的 investigation_case/run 保持旧状态、修订、封存哈希和来源 checkpoint；不能把新 COMPLETED 写入旧枚举。旧报告仅通过 legacyRunRef/sourceReportHash 显式导入，不更新旧 latest_revision。
+
+框架 checkpoint 使用独立 schema/权限/保留策略；worker 不能直接写上述业务表。每 run 的编排类型固定；旧 LEGACY 与新 LANGGRAPH 各自只有一个所有者，新运行不能嵌套旧模型循环。
+
+### 10.3 租约、暂停、澄清及外部等待
+
+宿主票据绑定 workerId、runId、revision、epoch、requestHash、授权策略和期限。工具派发、结果消费、checkpoint 认可、续租、封存均校验状态/当前修订/epoch/租约。建议原型租约 180 秒、30 秒内续租，以 PG 时钟为准；过期票据不能靠迟到心跳复活。取消/暂停/取代均使旧票据失效。
+
+暂停步骤：保存产物和问题/作业→保存框架 checkpoint→Java 校验并认可该引用→在业务事务内写暂停状态、事件并失效租约。中途崩溃时仍以最后已认可业务状态和调用账本恢复，不能仅凭框架“已中断”判业务暂停成功。
+
+回答携带 questionSetHash、parentArtifactHash、expectedRevision 和宿主幂等键；Java 原子消费答案、分配下一 revision、使旧 run SUPERSEDED 并创建新请求。新 run 从 validate_request 和新 thread_id 开始，核验后显式导入可复用产物/任务并重新规划。禁止对旧 interrupt 执行 Command(resume) 后替换请求身份；框架 resume 仅用于同固定输入运行的受控恢复。
+
+WAITING_EXTERNAL 释放执行租约后，验证服务凭作业身份写 validation_job/不可变结果，只发唤醒事件；新 worker 领取新 epoch，检查当前修订和作业绑定后消费。已取消/取代时仅保留作业历史，不推进任务/计划。作业取消与资源回收有独立结果，不假设运行取消能瞬时终止外部执行。
+
+### 10.4 认可 checkpoint 与恢复算法
+
+1. Java 原子核对当前修订和可领取状态，分配新 epoch/租约。不能领取仍有效的其他 worker 租约。
+2. 读取 PG checkpoint_link，核验 graphVersion/stateSchemaVersion、请求/来源、引用产物及策略。无认可 checkpoint 时从入口和已登记幂等账本重建，不从任意最新框架记录恢复。
+3. thread_id=runId，namespace 包含 graphVersion/epoch；适配器把核验后的状态导入新 epoch namespace。同 epoch 内命名空间稳定，不能假设只改配置就自动继承状态。
+4. 新检查点写好后，通过 CAS 校验 worker/epoch/租约、预期旧指针、递增 checkpointSequence/事件游标；旧 worker 写旧 namespace 或同 epoch 回调乱序均不能倒退认可指针。并行子图由主图汇合认可。
+5. 先对账 tool_invocation/validation_job，再恢复图。中断节点开头可能重放，只能只读或调用稳定幂等操作。
+6. 来源、目标、规则或策略不适用时使相关产物失效并按输入变化建立新修订。graph/stateSchema 不兼容时显式适配或新运行，禁止盲目反序列化旧检查点。
+
+状态导入是 P0 必须在所锁 LangGraph 版本上验证的适配能力，不由框架默认自动保证。checkpoint 与业务表不使用跨系统事务，顺序持久化、认可指针和账本对账提供恢复保障。
+
+### 10.5 工具幂等与崩溃窗口
+
+宿主在派发前生成 invocationId；去重身份绑定 runId、稳定任务/动作身份、任务版本、toolVersion、规范化输入 hash、snapshotHash，epoch 不参与，模型不能任意选幂等键。对重放的同一动作回读同一调用；明确需要再次观察或重跑时先生成新任务版本/动作身份。跨运行复用走显式导入而非撞同一调用 ID。
+
+| 中断位置 | 对账恢复 |
 | --- | --- |
-| schemaVersion、caseId、revision | 版本化契约；持久化服务管理身份，离线标识不构成权限 |
-| scenario | CURRENT_STATE、COLUMN_CHANGE、DATABASE_MIGRATION、LANGUAGE_MIGRATION、REFACTORING、DEPENDENCY_UPGRADE |
-| sourceProfile、targetProfile | 产品/语言/框架名称、版本、相关配置；未知值显式记录，不默认猜测 |
-| scope、sourceRefs | 模块/对象范围及来源引用；凭据仅引用受控配置，不进入调查 JSON |
-| objective、constraints、invariants | 调查问题、限制和必须保持的行为；模型提议待程序校验 |
-| clarificationItems | 缺失信息及其阻塞的结论范围 |
+| 登记调用后、未派发 | 同 invocationId 派发 |
+| 工具完成/结果保存、checkpoint 未推进 | 回读不可变结果，幂等推进任务，不重复作业 |
+| 作业已启动、回执丢失 | 按 validationJobId 查询，不重复启动 |
+| checkpoint 有记录但业务未认可 | 忽略未认可前进位置，按最后指针与账本恢复 |
+| 取消/取代后结果返回 | 隔离为迟到/历史结果，不更新 run/plan |
+| 模型请求回执保存失败 | 记录可能重复计费，按剩余预算有限重试；不宣称恰好一次 |
 
-目标版本未知时允许采集现状；兼容结论保持 UNKNOWN。列分析通过专用适配器定位固定图中目标并验证前状态后创建 ChangeSpec，不能将 InvestigationSpec 或 TargetProposal 直接传入旧 analyze 命令。当前前端草稿、模型提议和 OfflineRequest 格式保持原有边界，未来使用独立版本适配并保留旧 CLI 回归。
+同一封存请求重复到达时，在 planHash/requestHash 与终态一致条件下返回原回执；冲突内容拒绝。数据库事务以条件更新和唯一约束保证一次业务提交，模型/网络调用成本不保证恰好一次。
 
-## INV-D02：受控采集与事实层（INV-REQ-02、08、09）
+## MIG-D11 工具协议和失败分类
 
-目标设计按代码 AST、依赖/配置、数据库元数据注册采集器。当前实现读取明确文件清单，支持有限 Java/MyBatis、SQL/C# 词法特征、Java AST、直接 Maven 属性及 C# 项目声明分析；没有 MySQL/Oracle 在线元数据采集器或完整 C# 符号绑定。语法和产品版本范围见 [规则矩阵](../../docs/scenario-rules.md)。
+工具目录分为授权发现、符号/依赖/证据读取、数据库采集/定义、版本知识、确定性规则/影响、方案检查、隔离作业和澄清/封存。Manifest 明确 toolId/version、Schema、能力范围、权限、资源上限、超时/重试/幂等行为。旧六工具保持旧协议，新工具独立发布。
 
-读取限制在授权根目录和元数据接口；数据库连接账号只读，查询来自审核过的固定模板并参数化，不接受模型 SQL。默认不读取业务行，不执行存储过程；解析源码不加载或运行被分析项目。文件变化、权限不足、编码错误、语法不支持分别记录诊断及覆盖范围。
+TS→Java 信封：protocolVersion、requestId、runId、revision、epoch、invocationId、snapshotHash、toolId、toolVersion、arguments、budget、capabilityRef；宿主票据走不可进入 prompt 的受控字段。响应：status、artifactRefs、diagnostics、coverageDelta、retryability、elapsedMillis。大结果只返回授权 artifactRef，不开放任意文件路径。
 
-事实和证据保存 sourceId、内容哈希、采集时间、解析器版本、位置与确定性。不能精确定位时标注粒度，不伪造 token 位置。采集批次结束检查来源变化；来源漂移使相关结论失效或 PARTIAL。跨来源时间一致性未经验证时不得宣称原子快照。
+UTF-8 JSON Lines 的大小上限、超时、进程退出码和错误码在 P0 合约固定；参数数组启动进程，不拼 shell。stdout 仅协议，日志独立。权限/票据失效不重试，临时网络故障有界退避，能力缺失返回 UNKNOWN/缺口，存储失败禁止成功回执，模型失败保留确定性产物和部分草案。
 
-## INV-D03：兼容性规则与场景分析器（INV-REQ-03）
+## MIG-D12 上下文与权限
 
-规则包声明 ruleId、版本、适用源/目标版本范围、所需事实、判断条件、官方依据及复核日期、解释模板和建议模板。实施时核对指定版本的官方文档，并用正反例验证；本文的检查维度不是数据库差异已经证实的规则。
+SUMMARY_ONLY→匿名规则与数量；SCOPED_SEMANTICS→稳定别名/结构关系和必要属性；SCOPED_SNIPPETS→明确授权范围内有限源码/对象片段。未配置新策略时保持 SUMMARY_ONLY；私有模型也不能扩大来源权限。每次请求记录策略版本、范围、证据及投影 hash，实际正文按本地受控保留策略保存。
 
-`CompatibilityFinding` 包含 findingId、subjectId、ruleRef、evidenceIds、outcome、conditions、unknownReasons、sourceLocation、recommendations。outcome 为 COMPATIBLE / INCOMPATIBLE / CONDITIONAL / UNKNOWN。无规则不等于兼容；COMPATIBLE 仅对应明确检查过的规则和对象，不代表整个项目可迁移。条件未验证保持 CONDITIONAL，不能映射为已验证无需修改。规则冲突或来源不足记录 UNKNOWN 和冲突依据。
+密码、token、连接串、业务行和敏感日志不进入模型/checkpoint/导出；源码、定义及用户文本需敏感检测，删改影响判断时留下缺口。外部内容作为数据，不能选择新端点或改变工具权限。云 trace 默认关闭，启用需要独立的数据范围/保留配置。
 
-场景分析器复用事实层和规则机制，但分别实现语义：数据库分析处理类型/方言/过程/驱动/事务等；语言迁移处理类型/运行时/框架及业务不变量；重构处理公共契约/调用/状态与副作用；升级处理 API/配置和传递依赖。不得仅扩展枚举便宣称支持场景。
+## MIG-D13 验证服务与封存门槛
 
-## INV-D04：影响传播（INV-REQ-04、09）
+V1 验 Schema、引用、版本、DAG、覆盖；V2 验已实现类型映射、接口/依赖/SQL/配置冲突；V3 在独立账号/环境执行样例构建、SQL/DDL、契约/差异测试。静态调查继续不执行项目；restore/generator 只可在显式隔离执行模式受控运行。资源限制包含 CPU、内存、时长、磁盘、网络和作业数；数据库临时对象用已登记模板创建/清理，清理失败记录并限制后续分配。
 
-以兼容发现涉及的对象或已验证变更目标为传播起点。边仍为 dependent → dependency，使用带语义的反向传播；代码中存在边类型不等于采集器已能提取它。结果分别记录 dependencyPresent、changeRequired、certainty、impactScore、risk、coverage 和 evidenceIds，禁止用风险分数推导必改或安全。
+ValidationRecord 保存命令模板、镜像/工具/驱动版本、environmentHash、输入及 testSpecHash、退出码、断言和受控日志。人工导入默认 EXTERNAL_UNVERIFIED。关键假设/不变量必须指向验证或明确外部确认；验证通过只覆盖选定样本和环境。
 
-列、SQL、方法、API、配置、库与数据库对象需各自定义语义转换规则。对象级调用只能说明潜在影响，不能代替字段链或业务等价性证明。复用预算、循环控制和路径展示机制；新增场景的权重须单独验证，不能直接声称旧列评分适用所有迁移。
+Java evaluate_completion 检查：必需来源可用；必需对象有处置；关键约束有决策；必需工作项字段及验证齐全；无未解决阻塞冲突；来源/预算仍有效；必需执行验证全部必需断言通过并匹配最终 planHash/snapshotHash/environmentHash/testSpecHash。FAILED/INCONCLUSIVE/NOT_RUN/旧计划通过记录均不满足必需执行项。
 
-## INV-D05：调查报告（INV-REQ-05）
+修改计划后重跑受影响验证；通过确定性依赖核验可复用者保存显式重绑定记录，不能篡改原结果 planHash。A1 本就不要求的 V3 可 NOT_RUN 并交付 READY_FOR_REVIEW；A2 缺环境保持 BLOCKED/PARTIAL。模型 finish 只能请求检查。ACCEPTED_FOR_SCOPE 须有绑定 planHash、范围和确认主体的独立决策。
 
-报告按以下内容组织：调查目标与技术版本、现状及支持范围、兼容性发现、直接/间接影响和路径、风险与未知、改造建议及适用条件、验证清单、来源及规则版本。每条建议关联发现，每个验证项关联行为不变量或兼容假设，并注明由用户在其环境执行；外部验证结果标记为外部提供，保留来源与未独立核实状态。
+## MIG-D14 API、事件与凭据
 
-确定事实、规则结论、模型解释和待验证假设分开呈现。引用不到证据的模型判断不得进入确认发现列表。模型解释不能改写机器结果。成功生成报告与覆盖完成分别表达；当前离线报告继续 PARTIAL。后续只有预先声明的支持范围全部检查通过才可表示该范围完成，不能输出无条件的全系统安全结论。
-
-## INV-D06：只读调查编排（INV-REQ-06、08）
-
-Agent 流程为：解析目标 → 校验/澄清 → 选择已注册分析能力 → 请求受控采集 → 规则检查 → 影响分析 → 证据检查 → 生成报告。必要时循环补充证据，每次受预算限制。工具返回事实或结果引用；事实构造和写入必须经程序校验，模型不直接写图。
-
-拟议工具能力限于读取授权源码/元数据、查询事实图、运行静态规则、查询证据和保存自身报告。参数包含范围和资源预算，服务端校验调用者权限及来源引用。不存在任意 shell、文件修改、SQL 执行、补丁应用、迁移或部署工具；说明“请执行迁移”只能产生超范围提示及分析建议。提示注入防护由工具授权和参数约束实施，不能只依靠提示词。
-
-当前六工具循环已实现；上段中的任意图查询、在线元数据采集和生产调用者权限仍是目标能力，不在现有工具注册表。旧 DeepSeek 描述接口不变；新增通道只发送用户声明、通用规则及匿名证据摘要，不自动发送路径、源码、业务名称或连接信息。缺少外部模型时，确定性模块继续运行并标记 DETERMINISTIC_FALLBACK；模型解释保持 MODEL_EXPLANATION_UNVERIFIED。
-
-## INV-D07：生命周期、失败与运行边界（INV-REQ-07、09）
-
-拟议运行状态为 DRAFT、NEEDS_CLARIFICATION、RUNNING、COMPLETED、PARTIAL、CANCELLED、FAILED。COMPLETED 只表示请求范围内调查结束；兼容性结论独立表达。旧报告和修订保持不可变，目标/来源/规则变化创建新修订；晚到的响应必须核对 revision，不得覆盖新结果。
-
-| 失败类型 | 行为 |
+| 接口（拟议） | 行为 |
 | --- | --- |
-| 缺少目标版本或约束 | 返回澄清项；独立现状调查可继续 |
-| 无权限/来源缺失/解析失败 | 标记来源及相关覆盖缺口；其他来源可继续 |
-| 规则不支持或证据冲突 | 对应发现 UNKNOWN，保留原因 |
-| 模型不可用 | 回退确定性已支持流程，声明编排限制 |
-| 超时、节点或工具预算耗尽 | 停止扩展，保留证据和截断原因，PARTIAL |
-| 用户取消 | 停止新采集，隔离迟到结果，CANCELLED |
-| 契约损坏、越权或存储失败 | 拒绝相关操作；不能生成可信报告时 FAILED |
+| POST /api/migrations | 校验/幂等创建/入队，202 返回真实 caseId/runId/revision |
+| GET /api/migrations/{runId} | 三维状态、预算、缺口和最新修订标记 |
+| GET /api/migrations/{runId}/tasks、/events | 分页任务和单调事件游标，支持断线回读 |
+| GET /api/migrations/{runId}/questions | 问题集 hash、父产物和阻塞范围 |
+| POST /api/migrations/{runId}/answers | 原子创建下一修订，重复回原回执，冲突拒绝 |
+| POST /api/migrations/{runId}/cancel、/retry | 取消失效票据；retry 针对终态创建新修订，同固定输入的活跃运行故障接管由调度器在原 run 内完成 |
+| GET /api/migrations/{runId}/plan、/artifacts/{artifactId} | 明确版本/草案/封存，校验所属范围 |
+| POST /api/migrations/{runId}/validation-jobs、/decisions | 验证授权去重、绑定方案的决策/接受 |
+| GET /api/migrations/{runId}/export | 同结构 JSON/Markdown，保留封存 hash |
 
-运行记录包含来源摘要、规则/解析器版本、工具耗时、预算和错误码。当前已实现 PG Case/Run、180 秒租约、epoch、checkpoint、不可变报告与修订，及有事实图时的 Neo4j 幂等投影。Agent 报告状态为 NEEDS_CLARIFICATION/PARTIAL/CANCELLED；澄清报告在 PG 运行层记为 PARTIAL。回答绑定父报告哈希，PG 通过最新修订条件更新拒绝重复恢复；文件模式允许分支。生产权限、自动后台恢复、保留期限和规模目标仍待实施；不以业务库充当自身存储。
+凭据另由本机接口登记不透明 credentialRef，按来源/权限/时效校验；重启未恢复时请求重绑，秘密不入固定请求。数据源身份不变的密码轮换不新建修订，其他身份/策略变化需重新核验。错误统一 code/message/retryable/correlationId/relatedRefs，不回显供应商/驱动原始秘密。
 
-版本升级需保留历史报告解释所需版本信息，不静默重算旧结论；不兼容输入明确拒绝或经显式适配生成新修订。这里的恢复指自身调查记录恢复，不是执行业务数据库回滚。
+事件含 RUN_CREATED、TASK_STARTED、EVIDENCE_ADDED、QUESTION_RAISED、PLAN_REVISED、VALIDATION_FINISHED、RUN_SEALED、RUN_CANCELLED，事务内记录受控摘要，按游标回读。事件重放不能导致客户端虚构终态；以 PG 查询和回执为准。
 
-## 方案取舍与追踪
+## MIG-D15 工作台
 
-- 采用统一调查契约加场景分析器：复用证据、图和报告，同时允许数据库与语言迁移具有不同语义。
-- 不采用扩大 ChangeSpec 枚举来承载全部调查：现状调查没有变更目标，整库/跨语言调查也不对应单一节点。
-- 不采用让模型直接判断迁移安全：无法提供稳定规则、完整覆盖及行为等价性证明。
-- 不在本次引入框架迁移、执行沙箱或业务迁移引擎。未来的只读验证工具也需单独界定，当前仅给验证建议和审阅外部证据。
+复用三模式表单、新增来源/环境、任务、证据、方案比较、工作项、验证/决策、历史/导出面板。请求权限和数据策略是用户可理解选项，内部 epoch/checkpoint 不成为业务表单字段。候选、未运行、未知、草案和封存分别标识，断网回读进度，不随机估计百分比。用户回答后转到新修订，旧历史只读。交互验收包括键盘、中文错误、窄屏与下载内容一致性。
 
-| 需求 | 设计 |
-| --- | --- |
-| INV-REQ-01 | INV-D01 |
-| INV-REQ-02 | INV-D02 |
-| INV-REQ-03 | INV-D03 |
-| INV-REQ-04 | INV-D04 |
-| INV-REQ-05 | INV-D05 |
-| INV-REQ-06 | INV-D06 |
-| INV-REQ-07 | INV-D01、INV-D07 |
-| INV-REQ-08 | INV-D02、INV-D06 |
-| INV-REQ-09 | INV-D02、INV-D04、INV-D07 |
+## MIG-D16 预算、缓存和运维
 
-## 2026-09-17 实施补充：统一调查及自身存储切片
+共享预算账本在派发前预留、完成后结算模型/token/工具/时长/并发/文件对象/重试/验证资源；恢复不得重置累计消耗。原型建议 20 分钟、32 次模型、64 次工具、1 个模型/2 个只读工具/1 个验证并发，均待 P0/P1 实测定版，不是当前容量保证。旧采集限额继续有效。
 
-- `InvestigationRequest` 独立于旧 OfflineRequest，使用 `archlens.investigation-request.v1`。调查问题、源/目标 profile、约束、不变量、显式文件和预算均严格反序列化；Case/Run/revision 由存储层分配，前端草稿没有自动转换入口。
-- `InvestigationEngine` 仅采集明确文件清单、原始 SHA-256/时间/字节范围，检查越界、缺失、UTF-8、预算及漂移。列场景引用旧请求并复用已验证分析核心；其他场景输出未知与澄清，未注册兼容规则。模型上传范围未扩大。
-- `InvestigationReport` 包含来源、覆盖缺口、澄清、UNKNOWN 兼容发现、建议及可选列分析。引擎版本/请求/来源哈希/覆盖缺口形成输入指纹；默认结果仍为 PARTIAL。
-- PG 的 `archlens` 专用 schema 是权威存储，保存不可变报告、校验哈希及图 JSON，Case 行更新串行分配修订。独立 checkpoint 留存已采集清单；最终封存校验 epoch、租约、状态、请求哈希。取消/失败隔离迟到写入；不提供修改已封存报告的接口。
-- Neo4j 是按 runId 隔离的可重建投影，使用固定标签、参数化语句、唯一约束和单事务写入。PG 中 PENDING/READY 记录投影进度，失败不删除报告；重试同 run 幂等，不保证跨库原子提交。
-- 迁移仅作用于 ArchLens 自身存储。管理员可预建 `archlens` schema，使应用账号无需数据库 CREATE 权限。配置位于被忽略的 `.local`，Windows 密码通过当前用户 DPAPI 加密；不出现在调查请求或模型请求中。
-- CLI 增加调查、存储初始化/检查、封存、状态、导出、取消、超期恢复及投影重试。没有新增生产 HTTP 服务、OIDC、递归扫描、在线业务库采集、语言迁移规则或完整模型编排。时间预算为协作式，单个解析调用暂不能强制中断。
+缓存键包含来源、解析器/规则、目标条件和投影策略；模型结果另含模型配置/提示版本。数据库缓存校验权限和观察时效，不按库名直接命中。引用依赖决定增量失效；封存记录不可变。
 
-## 2026-09-17 追加：INV-D03/04/05 场景规则设计落地
+本机启动器管理 API/worker/Java，任务不依赖浏览器。日志只含受控事件、哈希、成本/耗时/错误；备份同时包含 PG、checkpoint 和产物，恢复核对引用/hash。垃圾回收先算封存可达引用，不能删除仍被依赖的证据。多用户鉴权、租户/配额和公网部署另行设计。
 
-上节是存储切片当时状态。其后新增 `investigation/rules/`，由 `ScenarioRules` 按明确产品及版本分派，`RuleCatalog` 固定 22 条规则元数据。SQL 使用有界特征词法器和有限列声明解析，C# 使用保守词法特征调查，Java 复用 JavaParser AST；不新增第三方依赖。官方依据、复核日期、源码事实与条件进入同一发现；矩阵外请求和来源版本冲突不能套用规则。
+## MIG-D17 兼容发布
 
-`InvestigationEngine` 缓存采集时的 `SourceText`，规则只分析该缓存；规则后仍做来源重查。漂移/取消/超时使发现撤销，来源和缺口保留。报告升级到 `archlens.investigation-report.v2`，Finding 增加 subjectId、summary、内嵌 RuleBasis/Evidence、建议和声明/候选影响项；历史 v1 新字段缺失时为空，PG 不改写旧封存 JSON。规则元数据加入输入指纹。
+现有 [AgentOrchestrator](../../src/main/java/io/archlens/agent/AgentOrchestrator.java)/CLI/网页调查和预览不改名冒充新能力。旧输入/报告按原 schema/hash 回读；新 API/表/状态独立。新增能力关闭时旧功能继续，新运行须由匹配版本恢复或明确停止/新修订。历史报告导入保留能力限制，不将旧 PARTIAL 重新解释为完整设计。
 
-SQL/C#/Java AST 发现具有 token/AST 级 UTF-8 原文定位，XML/计划仍使用整文件位置。Evidence 引用来源清单 ID/hash，不能由描述文本生成。重构只接受显式 `archlens.refactor-plan.v1` 前后文件对，路径必须已在 files 中采集；平坦类的原始类型方法描述符做局部兼容判断，方法体/状态不同单列 UNKNOWN，同名调用仅为 CANDIDATE，绝不据此创建事实图边。
+现有 FactGraph 的 dependent→dependency 和证据身份继续保留；新候选/推断不进入权威事实边。Neo4j 失败不丢 PG 结果，投影仍可重建。每次契约变化更新消费者、示例及回归，保留用户已有本地源码工作。
 
-`rules` CLI 导出本地注册规则。新场景报告沿用既有 PG 封存/导出流程，因无新绑定图，Neo4j 为 NOT_APPLICABLE；旧列场景的投影机制不变。模型仍只发送描述；全部调查仍 PARTIAL。范围、限额和失败行为详见 [多场景说明](../../docs/scenario-rules.md)。
+## MIG-D18 分阶段交付
 
-具体契约、状态、命令、失败行为及限额见 [调查与双存储切片](../../docs/investigation-storage.md)。这是一份可运行子集设计，不将目标设计中的全部状态或 INV 任务宣称为已实现。
+P0 契约/框架恢复原型，P1 草案闭环，P2 语义与方向规则，P3 隔离验证，P4 产品/版本扩展和运行质量。每阶段依赖、文件职责、通过条件和 MD-AC 映射见 [tasks](tasks.md)；所有新阶段当前待开发。
 
-## 2026-09-18 追加：INV-D06 模型循环实现
+## MIG-D19 验收与评测
 
-`AgentOrchestrator` 使用 `AgentModel` 接口；生产 `DeepSeekAgentModel` 每轮接收一个原生工具调用，宿主验证后执行并回传结果，继续下一轮。注册工具为 propose_target、list_rules、run_analysis、read_evidence、ask_clarification、finish。模型不接触路径选择、任意命令、SQL、存储票据或事实构造接口。
+[check_list](check_list.md)逐条承接 MD-AC01–28，记录未来真实证据，不迁移旧勾选。离线桩、真实模型、厂商实库、浏览器和故障恢复分别保留输入、环境、断言及结果；子范围通过不使总项自动通过。质量评测同时记录覆盖、误报、遗漏、无依据建议、人工修改量、成本及时延。
 
-契约 `archlens.agent.v1` 将原始请求、解析目标、机器调查、未核实解释和哈希审计分开。目标字段必须与用户显式声明一致，未声明产品/版本需出现在目标原文或先澄清。选择规则只能来自本地适用目录，遗漏规则显式报告覆盖缺口。模型解释仅校验结构、引用与 outcome，不宣称语义已被证明。
+## MIG-D20 追踪与变更管理
 
-NEEDS_CLARIFICATION 报告保存稳定问题 ID；Answers 绑定父报告 canonical 哈希和完整问题集合。恢复时重新读取授权文件，最多八修订。PG 复用现有 JSONB 报告封存、租约和 epoch；最新修订条件更新与创建 Run 同事务，拒绝重复恢复。数据库 PARTIAL 与报告 NEEDS_CLARIFICATION 分层表达，无 schema 迁移。
-
-每轮模型调用受取消轮询与总时间预算约束；工具、模型轮数、分析次数及上下文大小均有上限。模型失败保留确定性降级结果；最终来源漂移撤销当前发现与解释。对外投影通过白名单构造，不直接序列化 Request 或完整报告；只包含用户输入、通用规则及匿名引用。详细限制见 [Agent 说明](../../docs/agent-orchestration.md)。
-
-## 2026-09-20 网页适配设计落地
-
-原生工作台通过同源 Node 接口调用 WebAgentCli，再复用 AgentOrchestrator 与 PG；JSON 行协议显式 UTF-8。PG 保存权威状态和不可变修订；恢复请求从父报告读取，回答绑定父报告哈希，旧回答返回冲突。授权根目录只保存在本机上下文，不进入模型。页面轮询真实状态，历史修订只读，报告下载复用封存内容。
-
-GET /api/investigations/example 提供仓库合成样例的实际路径，支持直接复现。服务最多并发两次调查、六次查询，仅监听本机；原草稿页和解析接口保留。INV-D01、05、06、07 的该子集已完成真实浏览器、PG 和模型验证，见 [验收证据](../../docs/verification-web-2026-09-20.md)。
-
-## 2026-09-22 C# 项目分析设计
-
-INV-D02/03/05/06：Node discover-csharp 仅递归发现授权根目录的候选 .cs/.csproj 和 Directory.Build/Packages 文件，不求值工程。它返回可编辑的显式文件清单、排除项与范围提示；Java 重新采集并绑定 SHA-256。CSharpProjectRules 使用禁用 DTD、外部实体和外部 schema 的 XML 解析器，只读取直接 PropertyGroup/ItemGroup 声明，不跟随 ProjectReference/Import 读取额外文件。
-
-规则目录升级为 1.1（25 条），增加 CS_PROJECT_PROFILE、CS_PROJECT_DEPENDENCY、CS_PROJECT_REFERENCE；与已有四条 C# 特征规则共同参与 Agent 选择。项目 XML 证据绑定整个声明文件，页面明确其粒度。声明引用仅核对目标是否在已采集来源中，不创造调用图。语言版本冲突撤销本次规则发现；条件声明不冒充有效版本。模型投影继续排除摘要、包名、路径及源码。C# sourceProfile.version 仅代表语言版本；网页和模型提示明确与 TFM 区别。
+MIG-Rxx→MIG-Dxx 对应同编号 MD-Dxx；任务编号与验收编号建立显式多对多映射。旧 INV/TASK/历史测试计数只在归档保留，新的完成状态必须有新日期、代码基线、环境和证据。仅文档重建不构成新框架或产品能力通过；本轮测试资源迁移回归独立记录。改变范围、上下文策略或执行模式时同步需求、设计、任务、验收和工程约束。

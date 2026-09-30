@@ -4,6 +4,10 @@
 
 本文件是开发代理的工作入口；工程约束见 [project_rules.md](project_rules.md)。这里的开发代理不同于产品中的模型解析器，不代表 ArchLens 已实现完整自主调查 Agent。
 
+2026-09-29 文档整理：当前入口为 [文档导航](docs/README.md) 和重建后的四份 specs。`docs/archive/` 保存原字节历史资料，其中旧 INV 任务和旧能力陈述不作为当前实施指令。
+
+2026-09-30 续整：常规 `rg` 搜索通过 `.rgignore` 排除历史归档；需要追溯时用 `rg --no-ignore` 显式查找。归档文件不得当作待修正文档覆盖，按 `manifest.json` 保持其原字节与日期。
+
 ## 1. 协作原则
 
 - 默认使用中文，直接说明结论、依据和未验证事项。
@@ -25,9 +29,9 @@
 | --- | --- |
 | 前端输入、交互、本地适配器 | [前端说明](ArchLensClient/README.md)、`index.html`、`app.js`、`server.mjs` |
 | 离线分析与核心契约 | [后端说明](ArchLensService/README.md)、`contract/`、`parser/`、`analysis/`、`cli/` |
-| DeepSeek 接入及 Agent 编排 | [模型说明](ArchLensService/docs/deepseek.md)、[Agent 说明](ArchLensService/docs/agent-orchestration.md)、`llm/`、`agent/`、CLI 与前端适配器 |
+| DeepSeek 接入及 Agent 编排 | [现有项目总结](docs/design/ArchLens-现有项目总结-2026-09-29.md)、`llm/`、`agent/`、CLI 与前端适配器；历史说明见归档 |
 | 功能范围和实施追踪 | [需求](ArchLensService/specs/implementation/requirements.md)、[设计](ArchLensService/specs/implementation/design.md)、[任务](ArchLensService/specs/implementation/tasks.md)、[验收](ArchLensService/specs/implementation/check_list.md) |
-| 总体架构 | [设计文档](ArchLensService/ArchLens_设计文档_v1.0.docx)；核对规划与当前实现的区别 |
+| 总体架构 | [自主迁移设计 Agent 详细设计](docs/design/ArchLens-自主迁移设计Agent-详细设计-v2.0.md)、[实施设计](ArchLensService/specs/implementation/design.md)；区分待开发与现有实现 |
 
 表中的 Java 包路径均位于 `ArchLensService/src/main/java/io/archlens/`。
 

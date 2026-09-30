@@ -22,7 +22,7 @@ public final class PgInvestigationStore {
                              String objective,String projectionState,String errorCode,String createdAt,String finishedAt,boolean leaseExpired) {}
     public List<RunSummary> listAgentRuns(UUID caseId,int offset) throws SQLException {
         require(offset>=0&&offset<=100000,"INVALID_PAGE","Invalid page offset");
-        String sql="SELECT r.case_id,r.run_id,r.revision,r.revision=c.latest_revision,r.state,r.report_json->>'status',r.request_json->>'objective',r.projection_state,r.error_code,r.created_at,r.finished_at,(r.state='RUNNING' AND r.lease_until<=clock_timestamp()) FROM archlens.investigation_run r JOIN archlens.investigation_case c ON c.case_id=r.case_id WHERE r.request_json->>'schemaVersion'='archlens.agent.v1'"+(caseId==null?"":" AND r.case_id=?")+" ORDER BY r.created_at DESC,r.run_id LIMIT 25 OFFSET ?";
+        String sql="SELECT r.case_id,r.run_id,r.revision,r.revision=c.latest_revision,r.state,r.report_json->>'status',r.request_json->>'objective',r.projection_state,r.error_code,r.created_at,r.finished_at,(r.state='RUNNING' AND r.lease_until<=clock_timestamp()) FROM archlens.investigation_run r JOIN archlens.investigation_case c ON c.case_id=r.case_id WHERE r.request_json->>'schemaVersion' IN ('archlens.agent.v1','archlens.agent.v2')"+(caseId==null?"":" AND r.case_id=?")+" ORDER BY r.created_at DESC,r.run_id LIMIT 25 OFFSET ?";
         try(var c=config.connect();var p=c.prepareStatement(sql)) {
             int index=1;if(caseId!=null)p.setObject(index++,caseId);p.setInt(index,offset);
             try(var r=p.executeQuery()) {

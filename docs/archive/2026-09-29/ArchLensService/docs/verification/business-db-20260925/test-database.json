@@ -1,0 +1,29 @@
+{
+  "connectionTest": {
+    "coverageGaps": [
+      "DB_ACCOUNT_VISIBLE_OBJECTS_ONLY",
+      "DB_NON_ATOMIC_METADATA",
+      "DB_CODE_BINDING_UNAVAILABLE",
+      "DB_PROGRAM_BODIES_VIEWS_DEFAULTS_CHECKS_AND_INDEX_EXPRESSIONS_UNCOLLECTED",
+      "DB_CONNECTION_TEST_ONLY"
+    ],
+    "database": "archlens_fixture",
+    "finishedAt": "2026-09-25T00:42:19.461289875Z",
+    "metadataHash": "893c60dd971e63fedd7f2f472d0db479291cc3a57d1638189996a62e9d9144b7",
+    "observedVersion": "8.4.11",
+    "product": "MySQL",
+    "schemaVersion": "archlens.database-inventory.v1",
+    "settings": {
+      "charset": "utf8mb4",
+      "collation": "utf8mb4_0900_ai_ci",
+      "databaseCharset": "utf8mb4",
+      "databaseCollation": "utf8mb4_0900_ai_ci",
+      "mode": "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION",
+      "names": "0"
+    },
+    "sourceFingerprint": "af6001afc6cb010d5342d46484100dfb929524ca298589c4f7ab78293168c168",
+    "startedAt": "2026-09-25T00:42:18.977606951Z",
+    "status": "CONNECTED",
+    "tables": []
+  }
+}

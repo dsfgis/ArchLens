@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.archlens.contract.*;
 import io.archlens.investigation.*;
 import io.archlens.investigation.rules.*;
+import io.archlens.investigation.dotnet.DotnetInventory;
+import io.archlens.investigation.database.*;
 import io.archlens.parser.SourceText;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -17,11 +19,13 @@ import static io.archlens.investigation.InvestigationRequest.*;
 
 /** 有限、可恢复的模型调查循环。模型选择动作，事实、文件范围、结果引用和终止条件由本地控制。 */
 public final class AgentOrchestrator {
-    public static final String ENGINE="archlens-agent-0.1";
+    public static final String ENGINE="archlens-agent-0.2";
     private static final Set<String> TOOLS=Set.of("propose_target","list_rules","run_analysis","read_evidence","ask_clarification","finish");
     private static final Set<String> FIELDS=Set.of("scenario","sourceProfile.product","sourceProfile.version","targetProfile.product","targetProfile.version","context");
     private final AgentModel model;
-    public AgentOrchestrator(AgentModel model){this.model=model;}
+    private final BusinessConnection businessConnection;
+    public AgentOrchestrator(AgentModel model){this(model,null);}
+    public AgentOrchestrator(AgentModel model,BusinessConnection connection){this.model=model;this.businessConnection=connection;}
     public Report investigate(Path root,Request request,BooleanSupplier cancelled)throws Exception {
         return execute(root,request,null,null,cancelled,sources->{});
     }
@@ -59,6 +63,11 @@ public final class AgentOrchestrator {
                 String original=declaredField(request.target(),field);
                 require(original==null||original.equals(value),"INVALID_ANSWERS","Answers cannot replace originally declared technical fields");
             }
+            java.util.function.Function<String,String> field=k->userAnswers.getOrDefault(k,declaredField(request.target(),k));
+            String scenario=field.apply("scenario"),sp=field.apply("sourceProfile.product"),tp=field.apply("targetProfile.product");
+            AgentContracts.validateBusinessTarget(new Target(scenario==null?null:Scenario.valueOf(scenario),
+                    sp==null?null:new Profile(sp,field.apply("sourceProfile.version")),
+                    tp==null?null:new Profile(tp,field.apply("targetProfile.version"))),request.businessContext());
             return Map.copyOf(userAnswers);
     }
     private static String declaredField(Target t,String field) {
@@ -90,6 +99,8 @@ public final class AgentOrchestrator {
             // 对外上下文由白名单重新构造。绝不直接序列化 Request、源码或 InvestigationReport。
             Map<String,Object> context=new LinkedHashMap<>();context.put("objective",req.objective());context.put("declaredTarget",target);
             context.put("constraints",req.constraints());context.put("invariants",req.invariants());context.put("answers",answers);
+            // 业务地址、账户、库名与结构不加入模型上下文；只声明是否包含独立业务源。
+            context.put("hasBusinessDatabase",req.businessContext()!=null&&req.businessContext().source()!=null);
             context.put("authorizedFileCount",req.files().size());context.put("hasColumnAdapter",req.columnRequest()!=null);
             messages.add(Map.of("role","user","content",Json.canonical(context)));
         }
@@ -124,6 +135,11 @@ public final class AgentOrchestrator {
                 }
                 if(!wasCancelled&&!complete(target)&&questions.isEmpty())questions=missingQuestions();
             }
+            if(clarifying && analysis==null && target!=null && target.sourceProfile()!=null
+                    && (DotnetInventory.platformProduct(target.sourceProfile().product())||req.businessContext()!=null) && remaining()>0) {
+                try {analysis=analyze(new Target(Scenario.CURRENT_STATE,target.sourceProfile(),null),null);}
+                catch(Exception e){diagnostics.add(code(e));}
+            }
             if(cancelled.getAsBoolean()){wasCancelled=true;explanations=List.of();diagnostics.add("AGENT_CANCELLED");}
             if(analysis!=null) {
                 String invalidation=null;
@@ -138,7 +154,7 @@ public final class AgentOrchestrator {
                 if(invalidation!=null){analysis=invalidate(analysis,invalidation);explanations=List.of();diagnostics.add(invalidation);}
             }
             Status status=wasCancelled?Status.CANCELLED:questions.isEmpty()?Status.PARTIAL:Status.NEEDS_CLARIFICATION;
-            return new Report(AgentContracts.VERSION,ENGINE,requestHash,req,revision,parent,status,
+            return new Report(req.schemaVersion(),ENGINE,requestHash,req,revision,parent,status,
                     wasCancelled?"MODEL_LOOP_CANCELLED":fallback?"DETERMINISTIC_FALLBACK":"MODEL_TOOL_LOOP",start,Instant.now().toString(),target,
                     answers,questions,trace,List.copyOf(selected),analysis,explanations,
                     explanations.isEmpty()?"NO_MODEL_EXPLANATION":"MODEL_EXPLANATION_UNVERIFIED",List.copyOf(new LinkedHashSet<>(diagnostics)),calls);
@@ -213,7 +229,7 @@ public final class AgentOrchestrator {
             r=new InvestigationRequest(r.schemaVersion(),r.scenario(),r.sourceProfile(),r.targetProfile(),r.objective(),r.constraints(),r.invariants(),r.files(),r.columnRequest(),
                     new Budget(r.budget().maxFiles(),r.budget().maxBytes(),budget));
             // 使用较短的临时预算执行，但报告请求保持本次实际预算，方便复核时间限制。
-            var result=new InvestigationEngine().investigate(root,r,()->cancelled.getAsBoolean()||remaining()<=0,checkpoint,ruleIds);
+            var result=new InvestigationEngine(businessConnection).investigate(root,r,()->cancelled.getAsBoolean()||remaining()<=0,checkpoint,ruleIds,req.businessContext());
             active();return result;
         }
         private Object projection(InvestigationReport result,boolean evidence,List<InvestigationReport.Finding> findings) {
@@ -226,10 +242,11 @@ public final class AgentOrchestrator {
                 items.add(item);
             }
             // 不包含 summary、gap.source、impact.subject、源码位置或片段；这些字段可能携带业务名称/路径。
-            return Map.of("status",result.status(),"findings",items,"totalFindings",result.findings().size(),"findingsTruncated",!evidence&&findings.size()<result.findings().size(),"sourceCount",result.sources().size(),
+            return Map.of("status",result.status(),"findings",items,"totalFindings",result.findings().size(),"findingsTruncated",!evidence&&findings.size()<result.findings().size(),"sourceCount",result.sources().size(),"platformProjectCount",result.dotnetInventory()==null?0:result.dotnetInventory().projects().size(),
                     "gapCodes",result.coverageGaps().stream().map(InvestigationReport.Gap::code).distinct().toList(),"projection","ANONYMIZED_RULE_EVIDENCE_SUMMARY");
         }
         private void validateTarget(Target p) {
+            AgentContracts.validateBusinessTarget(p,req.businessContext());
             require(p!=null&&p.scenario()!=null&&p.sourceProfile()!=null,"AGENT_TARGET_INVALID","Missing target structure");
             require((p.scenario()==Scenario.COLUMN_CHANGE)==(req.columnRequest()!=null),"AGENT_TARGET_INVALID","Column adapter is controlled by request");
             String declaredScenario=declared("scenario");if(declaredScenario!=null)require(declaredScenario.equals(p.scenario().name()),"TARGET_CONFLICT","Scenario conflicts with user input");
@@ -255,13 +272,13 @@ public final class AgentOrchestrator {
         }
         private boolean complete(Target t) {
             return t!=null&&t.scenario()!=null&&t.sourceProfile()!=null&&(t.scenario()==Scenario.CURRENT_STATE||t.scenario()==Scenario.COLUMN_CHANGE
-                    ||t.sourceProfile().version()!=null&&t.targetProfile()!=null&&t.targetProfile().version()!=null);
+                    ||(t.sourceProfile().version()!=null||DotnetInventory.platformProduct(t.sourceProfile().product()))&&t.targetProfile()!=null&&t.targetProfile().version()!=null);
         }
         private List<String> missingFields() {
             List<String> fields=new ArrayList<>();if(target==null||target.scenario()==null)fields.add("scenario");
             if(target==null||target.sourceProfile()==null)fields.add("sourceProfile.product");
             if(target==null||target.scenario()!=Scenario.CURRENT_STATE&&target.scenario()!=Scenario.COLUMN_CHANGE) {
-                if(target==null||target.sourceProfile()==null||target.sourceProfile().version()==null)fields.add("sourceProfile.version");
+                if(target==null||target.sourceProfile()==null||target.sourceProfile().version()==null&&!DotnetInventory.platformProduct(target.sourceProfile().product()))fields.add("sourceProfile.version");
                 if(target==null||target.targetProfile()==null)fields.add("targetProfile.product");
                 if(target==null||target.targetProfile()==null||target.targetProfile().version()==null)fields.add("targetProfile.version");
             }

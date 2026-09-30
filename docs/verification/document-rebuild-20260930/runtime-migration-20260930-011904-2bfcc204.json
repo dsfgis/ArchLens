@@ -1,0 +1,94 @@
+{
+  "checkedAtUtc": "2026-09-30T01:19:04.990649+00:00",
+  "mode": "EQUIVALENT_PYTHON_CHECK",
+  "powerShellExecuted": false,
+  "artifact": "target/archlens-0.1.0-SNAPSHOT-cli.jar",
+  "artifactSha256": "75d036ff271e18267ecd7a84efc545f28ba10ec558338e9fb696394c52d15d95",
+  "classpathSha256": "70c701f60ffd097da642bc6ac992a839c8fb00294f20f692c55a3d77511d6017",
+  "manifest": "runtime/runtime-dependencies.json",
+  "manifestSha256": "5cf96f4b58039430c37ef1707b714a70227981e9929b15c4af8810914ce6caaa",
+  "runtimeArtifacts": 26,
+  "recordedCoordinates": 27,
+  "embeddedOnly": 1,
+  "mysqlIncluded": true,
+  "freshnessNegativeCasesRejected": [
+    "archived_manifest",
+    "missing_mysql",
+    "mysql_hash_mismatch"
+  ],
+  "preservedNoticeChecks": 15,
+  "noticeChecks": [
+    {
+      "coordinate": "com.fasterxml.jackson.core:jackson-annotations:2.18.3",
+      "entry": "META-INF/LICENSE"
+    },
+    {
+      "coordinate": "com.fasterxml.jackson.core:jackson-annotations:2.18.3",
+      "entry": "META-INF/NOTICE"
+    },
+    {
+      "coordinate": "com.fasterxml.jackson.core:jackson-core:2.18.3",
+      "entry": "META-INF/LICENSE"
+    },
+    {
+      "coordinate": "com.fasterxml.jackson.core:jackson-core:2.18.3",
+      "entry": "META-INF/NOTICE"
+    },
+    {
+      "coordinate": "com.fasterxml.jackson.core:jackson-databind:2.18.3",
+      "entry": "META-INF/LICENSE"
+    },
+    {
+      "coordinate": "com.fasterxml.jackson.core:jackson-databind:2.18.3",
+      "entry": "META-INF/NOTICE"
+    },
+    {
+      "coordinate": "com.github.jsqlparser:jsqlparser:5.3",
+      "entry": "LICENSE"
+    },
+    {
+      "coordinate": "com.github.jsqlparser:jsqlparser:5.3",
+      "entry": "THIRD-PARTY"
+    },
+    {
+      "coordinate": "com.mysql:mysql-connector-j:9.7.0",
+      "entry": "LICENSE"
+    },
+    {
+      "coordinate": "org.apache.commons:commons-math3:3.6.1",
+      "entry": "META-INF/LICENSE.txt"
+    },
+    {
+      "coordinate": "org.apache.commons:commons-math3:3.6.1",
+      "entry": "META-INF/NOTICE.txt"
+    },
+    {
+      "coordinate": "org.checkerframework:checker-qual:3.55.1",
+      "entry": "META-INF/LICENSE.txt"
+    },
+    {
+      "coordinate": "org.openjdk.jmh:jmh-core:1.37",
+      "entry": "LICENSE"
+    },
+    {
+      "coordinate": "org.openjdk.jmh:jmh-core:1.37",
+      "entry": "THIRD-PARTY"
+    },
+    {
+      "coordinate": "org.postgresql:postgresql:42.7.13",
+      "entry": "META-INF/LICENSE"
+    }
+  ],
+  "report": "target/verification/final-report-20260930-011904-2bfcc204.json",
+  "reportSha256": "0fefeda7cd06f87cda3e15ba5c08ceb73323c23582567f5ff1642623b4e76d6c",
+  "analysisStatus": "PARTIAL",
+  "nodes": 3,
+  "edges": 2,
+  "diagnostics": 3,
+  "mapperChangeRequired": "YES",
+  "mapperRiskInterval": [
+    32,
+    92
+  ],
+  "status": "PASS"
+}

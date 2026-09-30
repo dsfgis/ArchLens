@@ -1,0 +1,786 @@
+{
+  "mode": "LOCAL_PREVIEW",
+  "persisted": false,
+  "report": {
+    "clarificationItems": [],
+    "columnAnalysis": null,
+    "coverageGaps": [
+      {
+        "code": "DOTNET_CONFIG_VALUES_WITHHELD",
+        "source": "CoreApi/appsettings.json"
+      },
+      {
+        "code": "DOTNET_CONDITIONAL_DECLARATION",
+        "source": "Directory.Build.props"
+      },
+      {
+        "code": "DOTNET_PROPERTY_UNEVALUATED",
+        "source": "Directory.Build.props"
+      },
+      {
+        "code": "DOTNET_SHARED_PROPERTIES_NOT_APPLIED",
+        "source": "Directory.Build.props"
+      },
+      {
+        "code": "DOTNET_PACKAGE_RESOLUTION_UNAVAILABLE",
+        "source": "LegacyWeb/packages.config"
+      },
+      {
+        "code": "DOTNET_CONFIG_VALUES_WITHHELD",
+        "source": "LegacyWeb/web.config"
+      },
+      {
+        "code": "DOTNET_SOLUTION_CONFIG_UNEVALUATED",
+        "source": "Mixed.sln"
+      },
+      {
+        "code": "DOTNET_LANGUAGE_SEMANTICS_UNSUPPORTED",
+        "source": "Worker/Worker.fsproj"
+      },
+      {
+        "code": "DOTNET_CONFIG_VALUES_WITHHELD",
+        "source": "global.json"
+      },
+      {
+        "code": "DOTNET_DECLARATIONS_ONLY",
+        "source": "Imports, conditions, SDK defaults and effective build configuration are not evaluated"
+      },
+      {
+        "code": "DOTNET_SEMANTIC_BINDING_UNAVAILABLE",
+        "source": "Source code is collected but symbols, calls and runtime behavior are not bound"
+      },
+      {
+        "code": "DOTNET_COMPATIBILITY_UNASSESSED",
+        "source": "Platform inventory does not establish Java or target-environment compatibility"
+      },
+      {
+        "code": "EXPLICIT_FILES_ONLY",
+        "source": "No recursive/full-project or business-database collection"
+      },
+      {
+        "code": "NON_ATOMIC_SOURCES",
+        "source": "Source collection and recheck are not an atomic snapshot"
+      },
+      {
+        "code": "CONTENT_INVENTORY_ONLY",
+        "source": "No supported semantic findings were published; inspect gaps"
+      }
+    ],
+    "dotnetInventory": {
+      "coverage": {
+        "collectedFiles": 14,
+        "parsedProjects": 4,
+        "parsedSolutions": 1,
+        "projectFiles": 4,
+        "semanticallyBoundFiles": 0,
+        "solutionFiles": 1,
+        "sourceCodeFiles": 4,
+        "submittedFiles": 14
+      },
+      "gaps": [
+        {
+          "code": "DOTNET_CONFIG_VALUES_WITHHELD",
+          "source": "CoreApi/appsettings.json"
+        },
+        {
+          "code": "DOTNET_CONDITIONAL_DECLARATION",
+          "source": "Directory.Build.props"
+        },
+        {
+          "code": "DOTNET_PROPERTY_UNEVALUATED",
+          "source": "Directory.Build.props"
+        },
+        {
+          "code": "DOTNET_SHARED_PROPERTIES_NOT_APPLIED",
+          "source": "Directory.Build.props"
+        },
+        {
+          "code": "DOTNET_PACKAGE_RESOLUTION_UNAVAILABLE",
+          "source": "LegacyWeb/packages.config"
+        },
+        {
+          "code": "DOTNET_CONFIG_VALUES_WITHHELD",
+          "source": "LegacyWeb/web.config"
+        },
+        {
+          "code": "DOTNET_SOLUTION_CONFIG_UNEVALUATED",
+          "source": "Mixed.sln"
+        },
+        {
+          "code": "DOTNET_LANGUAGE_SEMANTICS_UNSUPPORTED",
+          "source": "Worker/Worker.fsproj"
+        },
+        {
+          "code": "DOTNET_CONFIG_VALUES_WITHHELD",
+          "source": "global.json"
+        },
+        {
+          "code": "DOTNET_DECLARATIONS_ONLY",
+          "source": "Imports, conditions, SDK defaults and effective build configuration are not evaluated"
+        },
+        {
+          "code": "DOTNET_SEMANTIC_BINDING_UNAVAILABLE",
+          "source": "Source code is collected but symbols, calls and runtime behavior are not bound"
+        },
+        {
+          "code": "DOTNET_COMPATIBILITY_UNASSESSED",
+          "source": "Platform inventory does not establish Java or target-environment compatibility"
+        }
+      ],
+      "projects": [
+        {
+          "applicationHints": [
+            "ASP_NET_CORE_SDK_CANDIDATE",
+            "DAPPER_DEPENDENCY_CANDIDATE"
+          ],
+          "declarations": [
+            {
+              "name": "Sdk",
+              "state": "DECLARED",
+              "value": "Microsoft.NET.Sdk.Web"
+            },
+            {
+              "name": "TargetFramework",
+              "state": "DECLARED",
+              "value": "netcoreapp3.1"
+            }
+          ],
+          "dependencies": [
+            {
+              "kind": "PackageReference",
+              "name": "Dapper",
+              "state": "DECLARED",
+              "version": "2.0.123"
+            }
+          ],
+          "gaps": [],
+          "language": "C#",
+          "origin": {
+            "granularity": "WHOLE_FILE",
+            "path": "CoreApi/CoreApi.csproj",
+            "sourceHash": "9f3e80acb62f56b92191ddcc14928324f72a7f718dc1d5f0f4542e3864c21588",
+            "sourceId": "4d2f198d77a5f1140a1c7f3f09fa38e14fb7f8ccaa46d33c4273075e7fcb14be"
+          },
+          "projectStyle": "SDK_STYLE_DECLARATION",
+          "references": [
+            {
+              "declaredPath": "..\\Shared\\Shared.vbproj",
+              "resolvedPath": "Shared/Shared.vbproj",
+              "state": "COLLECTED_NOT_BOUND"
+            }
+          ],
+          "targetFrameworks": [
+            {
+              "declaredValue": "netcoreapp3.1",
+              "family": ".NET Core",
+              "platform": null,
+              "state": "DECLARED",
+              "version": "3.1"
+            }
+          ]
+        },
+        {
+          "applicationHints": [
+            "ASP_NET_FRAMEWORK_CANDIDATE",
+            "WCF_DEPENDENCY_CANDIDATE"
+          ],
+          "declarations": [
+            {
+              "name": "TargetFrameworkVersion",
+              "state": "DECLARED",
+              "value": "v4.8"
+            },
+            {
+              "name": "OutputType",
+              "state": "DECLARED",
+              "value": "Library"
+            },
+            {
+              "name": "LangVersion",
+              "state": "DECLARED",
+              "value": "7.3"
+            }
+          ],
+          "dependencies": [
+            {
+              "kind": "Reference",
+              "name": "System.Web",
+              "state": "DECLARED",
+              "version": null
+            },
+            {
+              "kind": "Reference",
+              "name": "System.ServiceModel",
+              "state": "DECLARED",
+              "version": null
+            }
+          ],
+          "gaps": [],
+          "language": "C#",
+          "origin": {
+            "granularity": "WHOLE_FILE",
+            "path": "LegacyWeb/LegacyWeb.csproj",
+            "sourceHash": "b9a7233d79f955cc51b87c62bd1bc25dac413e3f5711be6cc58191aac9798141",
+            "sourceId": "d73a57a0cdec3eab73a851ad75a4ea1a3bf7f533cf57007a83e9042e6537e725"
+          },
+          "projectStyle": "LEGACY_OR_UNSPECIFIED",
+          "references": [
+            {
+              "declaredPath": "..\\Shared\\Shared.vbproj",
+              "resolvedPath": "Shared/Shared.vbproj",
+              "state": "COLLECTED_NOT_BOUND"
+            }
+          ],
+          "targetFrameworks": [
+            {
+              "declaredValue": "v4.8",
+              "family": ".NET Framework",
+              "platform": null,
+              "state": "DECLARED",
+              "version": "4.8"
+            }
+          ]
+        },
+        {
+          "applicationHints": [],
+          "declarations": [
+            {
+              "name": "Sdk",
+              "state": "DECLARED",
+              "value": "Microsoft.NET.Sdk"
+            },
+            {
+              "name": "TargetFrameworks",
+              "state": "DECLARED",
+              "value": "netstandard2.0;net8.0"
+            },
+            {
+              "name": "LangVersion",
+              "state": "DECLARED",
+              "value": "16.9"
+            }
+          ],
+          "dependencies": [],
+          "gaps": [],
+          "language": "VB.NET",
+          "origin": {
+            "granularity": "WHOLE_FILE",
+            "path": "Shared/Shared.vbproj",
+            "sourceHash": "15e5e3682853599066179a5d4defe7f7598737e44eeb82165f441c9e0a0518a3",
+            "sourceId": "3313e6182c94ac95bf3c005d6328ad9ddd5c3eb5b07ea3c6dd442768a00950a5"
+          },
+          "projectStyle": "SDK_STYLE_DECLARATION",
+          "references": [],
+          "targetFrameworks": [
+            {
+              "declaredValue": "netstandard2.0",
+              "family": ".NET Standard",
+              "platform": null,
+              "state": "DECLARED",
+              "version": "2.0"
+            },
+            {
+              "declaredValue": "net8.0",
+              "family": ".NET",
+              "platform": null,
+              "state": "DECLARED",
+              "version": "8.0"
+            }
+          ]
+        },
+        {
+          "applicationHints": [],
+          "declarations": [
+            {
+              "name": "Sdk",
+              "state": "DECLARED",
+              "value": "Microsoft.NET.Sdk"
+            },
+            {
+              "name": "TargetFramework",
+              "state": "DECLARED",
+              "value": "net8.0"
+            },
+            {
+              "name": "OutputType",
+              "state": "DECLARED",
+              "value": "Exe"
+            }
+          ],
+          "dependencies": [],
+          "gaps": [
+            "DOTNET_LANGUAGE_SEMANTICS_UNSUPPORTED"
+          ],
+          "language": "F#",
+          "origin": {
+            "granularity": "WHOLE_FILE",
+            "path": "Worker/Worker.fsproj",
+            "sourceHash": "5f578615cd01f318c2f1cbdda29881a0ec2bb6bfec226321d5ba390358c47db8",
+            "sourceId": "4ec7c14207254370a032e6ebc2fc9250ec83a48968263142a7a8c48db1058703"
+          },
+          "projectStyle": "SDK_STYLE_DECLARATION",
+          "references": [],
+          "targetFrameworks": [
+            {
+              "declaredValue": "net8.0",
+              "family": ".NET",
+              "platform": null,
+              "state": "DECLARED",
+              "version": "8.0"
+            }
+          ]
+        }
+      ],
+      "schemaVersion": "archlens.dotnet-inventory.v1",
+      "solutions": [
+        {
+          "origin": {
+            "granularity": "WHOLE_FILE",
+            "path": "Mixed.sln",
+            "sourceHash": "ad111b5350fd837f8dd9d755ca608d73783acb45f09f7fe2b8b06a594c75eaba",
+            "sourceId": "8788b221f70b6eb0d365c9944c18fc5710b64045c8a6f171eae2aed814b51205"
+          },
+          "projects": [
+            {
+              "declaredPath": "LegacyWeb\\LegacyWeb.csproj",
+              "resolvedPath": "LegacyWeb/LegacyWeb.csproj",
+              "state": "COLLECTED_NOT_BOUND"
+            },
+            {
+              "declaredPath": "CoreApi\\CoreApi.csproj",
+              "resolvedPath": "CoreApi/CoreApi.csproj",
+              "state": "COLLECTED_NOT_BOUND"
+            },
+            {
+              "declaredPath": "Shared\\Shared.vbproj",
+              "resolvedPath": "Shared/Shared.vbproj",
+              "state": "COLLECTED_NOT_BOUND"
+            },
+            {
+              "declaredPath": "Worker\\Worker.fsproj",
+              "resolvedPath": "Worker/Worker.fsproj",
+              "state": "COLLECTED_NOT_BOUND"
+            }
+          ]
+        }
+      ],
+      "supportingFiles": [
+        {
+          "applicationHints": [],
+          "declarations": [],
+          "dependencies": [],
+          "kind": "APPLICATION_CONFIGURATION",
+          "origin": {
+            "granularity": "WHOLE_FILE",
+            "path": "CoreApi/appsettings.json",
+            "sourceHash": "335c16d4fd3ef1e1793301222839d3cc18761f3d6a12ad26cbe04b22f7d02260",
+            "sourceId": "25dcdd107ccfdc863055d49cbf4506459747b932bafd359d73375af83b0d7c6a"
+          }
+        },
+        {
+          "applicationHints": [],
+          "declarations": [
+            {
+              "name": "LangVersion",
+              "state": "CONDITIONAL",
+              "value": "latest"
+            }
+          ],
+          "dependencies": [],
+          "kind": "SHARED_BUILD_DECLARATIONS",
+          "origin": {
+            "granularity": "WHOLE_FILE",
+            "path": "Directory.Build.props",
+            "sourceHash": "42d98f7ee54e97cee846df98e6729d8f24d18ceb6a65b1454b7ba6d8c18ce2ef",
+            "sourceId": "b391075b8c8afab7dbc4661f7c29d18e823c1af00affab21622673ca3be52875"
+          }
+        },
+        {
+          "applicationHints": [],
+          "declarations": [],
+          "dependencies": [
+            {
+              "kind": "packages.config",
+              "name": "EntityFramework",
+              "state": "DECLARED_NOT_RESOLVED",
+              "version": "6.4.4"
+            }
+          ],
+          "kind": "LEGACY_PACKAGE_DECLARATIONS",
+          "origin": {
+            "granularity": "WHOLE_FILE",
+            "path": "LegacyWeb/packages.config",
+            "sourceHash": "862180f481dc51b780da9622ca0fd005518e1d926fb6d334778b6addcc4a5a77",
+            "sourceId": "0e2f2e1d4488c6e9e379237545d17a2bca3ed52cd83b62e5bddd0be6a9d1e450"
+          }
+        },
+        {
+          "applicationHints": [
+            "ASP_NET_FRAMEWORK_CONFIGURATION",
+            "WCF_CONFIGURATION"
+          ],
+          "declarations": [],
+          "dependencies": [],
+          "kind": "APPLICATION_CONFIGURATION",
+          "origin": {
+            "granularity": "WHOLE_FILE",
+            "path": "LegacyWeb/web.config",
+            "sourceHash": "06de9f29c1248820af58234ad6b1fa275dc508b9810ca8be952cf6f63688eb54",
+            "sourceId": "2ed4d007ffaad133ad04de33678368758587c0030beb1b16af4eedbec203dc79"
+          }
+        },
+        {
+          "applicationHints": [],
+          "declarations": [
+            {
+              "name": "SdkVersion",
+              "state": "DECLARED_NOT_RESOLVED",
+              "value": "8.0.100"
+            }
+          ],
+          "dependencies": [],
+          "kind": "SDK_CONFIGURATION",
+          "origin": {
+            "granularity": "WHOLE_FILE",
+            "path": "global.json",
+            "sourceHash": "7e0739520de22985795b9e078c255cde0b74abf31a10e181816730e83c0b9a27",
+            "sourceId": "b2a27f6fc036babf2c6f97cfbbfe6da48e65ad1dd5a14c7b63cee433e0ca583b"
+          }
+        }
+      ]
+    },
+    "engineVersion": "archlens-investigation-0.5",
+    "findings": [
+      {
+        "conditions": [],
+        "evidence": [],
+        "evidenceIds": [
+          "4d2f198d77a5f1140a1c7f3f09fa38e14fb7f8ccaa46d33c4273075e7fcb14be",
+          "ca9440677b9d2e858149d832236850015404c8a3bd82cae4bda3b4c28ee9ade7",
+          "25dcdd107ccfdc863055d49cbf4506459747b932bafd359d73375af83b0d7c6a",
+          "b391075b8c8afab7dbc4661f7c29d18e823c1af00affab21622673ca3be52875",
+          "d73a57a0cdec3eab73a851ad75a4ea1a3bf7f533cf57007a83e9042e6537e725",
+          "2fa40f85a84e5c43b71c16de9d0829dfb08d05bc6e1e831a3c3679860eb32e86",
+          "0e2f2e1d4488c6e9e379237545d17a2bca3ed52cd83b62e5bddd0be6a9d1e450",
+          "2ed4d007ffaad133ad04de33678368758587c0030beb1b16af4eedbec203dc79",
+          "8788b221f70b6eb0d365c9944c18fc5710b64045c8a6f171eae2aed814b51205",
+          "cfc1a7d934ef8a8a487ee9ee701a290bb1b7c1d92da98ed362dda6235266be91",
+          "3313e6182c94ac95bf3c005d6328ad9ddd5c3eb5b07ea3c6dd442768a00950a5",
+          "14ebfda88de1e3078916430659b28ea3258e5d102787ffc748248006ab8b2c98",
+          "4ec7c14207254370a032e6ebc2fc9250ec83a48968263142a7a8c48db1058703",
+          "b2a27f6fc036babf2c6f97cfbbfe6da48e65ad1dd5a14c7b63cee433e0ca583b"
+        ],
+        "findingId": "ebbe119663c4377a0211b3399927a22cf30d67fdc09d4cdc3804cdf39f7ad7e7",
+        "impacts": [],
+        "outcome": "UNKNOWN",
+        "recommendations": [],
+        "rule": null,
+        "ruleRef": "no-supported-compatibility-rule",
+        "subjectId": null,
+        "summary": null,
+        "unknownReasons": [
+          "Unchecked scope remains UNKNOWN; individual rules do not establish whole-project compatibility"
+        ]
+      }
+    ],
+    "finishedAt": "2026-09-24T12:27:43.500154779Z",
+    "inputFingerprint": "57f810dc0d8402c37b3a22cc2fb158eba04e6f1974425d67048455c2ad1d9df5",
+    "orchestration": "DETERMINISTIC_ONLY_NO_MODEL_ORCHESTRATION",
+    "request": {
+      "budget": {
+        "maxBytes": 50000000,
+        "maxFiles": 1000,
+        "timeoutMillis": 25000
+      },
+      "columnRequest": null,
+      "constraints": [],
+      "files": [
+        "CoreApi/CoreApi.csproj",
+        "CoreApi/Orders.cs",
+        "CoreApi/appsettings.json",
+        "Directory.Build.props",
+        "LegacyWeb/LegacyWeb.csproj",
+        "LegacyWeb/Payment.cs",
+        "LegacyWeb/packages.config",
+        "LegacyWeb/web.config",
+        "Mixed.sln",
+        "Shared/Money.vb",
+        "Shared/Shared.vbproj",
+        "Worker/Program.fs",
+        "Worker/Worker.fsproj",
+        "global.json"
+      ],
+      "invariants": [],
+      "objective": "本地 .NET 平台现状预览",
+      "scenario": "CURRENT_STATE",
+      "schemaVersion": "archlens.investigation-request.v1",
+      "sourceProfile": {
+        "product": ".NET",
+        "version": null
+      },
+      "targetProfile": null
+    },
+    "schemaVersion": "archlens.investigation-report.v3",
+    "sources": [
+      {
+        "bytes": 264,
+        "collectedAt": "2026-09-24T12:27:43.369899946Z",
+        "location": {
+          "byteLength": 264,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 5,
+          "metadataKey": null,
+          "path": "CoreApi/CoreApi.csproj",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "CoreApi/CoreApi.csproj",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "9f3e80acb62f56b92191ddcc14928324f72a7f718dc1d5f0f4542e3864c21588",
+        "sourceId": "4d2f198d77a5f1140a1c7f3f09fa38e14fb7f8ccaa46d33c4273075e7fcb14be"
+      },
+      {
+        "bytes": 86,
+        "collectedAt": "2026-09-24T12:27:43.370903131Z",
+        "location": {
+          "byteLength": 86,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 3,
+          "metadataKey": null,
+          "path": "CoreApi/Orders.cs",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "CoreApi/Orders.cs",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "d169501dd4d0b73da3f9fc3381fac8a2c1d6e821ad6024340bd2bd79421e24f4",
+        "sourceId": "ca9440677b9d2e858149d832236850015404c8a3bd82cae4bda3b4c28ee9ade7"
+      },
+      {
+        "bytes": 51,
+        "collectedAt": "2026-09-24T12:27:43.371741989Z",
+        "location": {
+          "byteLength": 51,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 2,
+          "metadataKey": null,
+          "path": "CoreApi/appsettings.json",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "CoreApi/appsettings.json",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "335c16d4fd3ef1e1793301222839d3cc18761f3d6a12ad26cbe04b22f7d02260",
+        "sourceId": "25dcdd107ccfdc863055d49cbf4506459747b932bafd359d73375af83b0d7c6a"
+      },
+      {
+        "bytes": 128,
+        "collectedAt": "2026-09-24T12:27:43.372976739Z",
+        "location": {
+          "byteLength": 128,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 2,
+          "metadataKey": null,
+          "path": "Directory.Build.props",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "Directory.Build.props",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "42d98f7ee54e97cee846df98e6729d8f24d18ceb6a65b1454b7ba6d8c18ce2ef",
+        "sourceId": "b391075b8c8afab7dbc4661f7c29d18e823c1af00affab21622673ca3be52875"
+      },
+      {
+        "bytes": 404,
+        "collectedAt": "2026-09-24T12:27:43.373555851Z",
+        "location": {
+          "byteLength": 404,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 5,
+          "metadataKey": null,
+          "path": "LegacyWeb/LegacyWeb.csproj",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "LegacyWeb/LegacyWeb.csproj",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "b9a7233d79f955cc51b87c62bd1bc25dac413e3f5711be6cc58191aac9798141",
+        "sourceId": "d73a57a0cdec3eab73a851ad75a4ea1a3bf7f533cf57007a83e9042e6537e725"
+      },
+      {
+        "bytes": 101,
+        "collectedAt": "2026-09-24T12:27:43.374040030Z",
+        "location": {
+          "byteLength": 101,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 3,
+          "metadataKey": null,
+          "path": "LegacyWeb/Payment.cs",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "LegacyWeb/Payment.cs",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "85a3712256de1c8c102c3151655eb9473a928cccf975378efc14fe04b7536a2e",
+        "sourceId": "2fa40f85a84e5c43b71c16de9d0829dfb08d05bc6e1e831a3c3679860eb32e86"
+      },
+      {
+        "bytes": 93,
+        "collectedAt": "2026-09-24T12:27:43.374622775Z",
+        "location": {
+          "byteLength": 93,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 2,
+          "metadataKey": null,
+          "path": "LegacyWeb/packages.config",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "LegacyWeb/packages.config",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "862180f481dc51b780da9622ca0fd005518e1d926fb6d334778b6addcc4a5a77",
+        "sourceId": "0e2f2e1d4488c6e9e379237545d17a2bca3ed52cd83b62e5bddd0be6a9d1e450"
+      },
+      {
+        "bytes": 67,
+        "collectedAt": "2026-09-24T12:27:43.375234396Z",
+        "location": {
+          "byteLength": 67,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 2,
+          "metadataKey": null,
+          "path": "LegacyWeb/web.config",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "LegacyWeb/web.config",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "06de9f29c1248820af58234ad6b1fa275dc508b9810ca8be952cf6f63688eb54",
+        "sourceId": "2ed4d007ffaad133ad04de33678368758587c0030beb1b16af4eedbec203dc79"
+      },
+      {
+        "bytes": 641,
+        "collectedAt": "2026-09-24T12:27:43.376373111Z",
+        "location": {
+          "byteLength": 641,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 12,
+          "metadataKey": null,
+          "path": "Mixed.sln",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "Mixed.sln",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "ad111b5350fd837f8dd9d755ca608d73783acb45f09f7fe2b8b06a594c75eaba",
+        "sourceId": "8788b221f70b6eb0d365c9944c18fc5710b64045c8a6f171eae2aed814b51205"
+      },
+      {
+        "bytes": 65,
+        "collectedAt": "2026-09-24T12:27:43.376772012Z",
+        "location": {
+          "byteLength": 65,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 4,
+          "metadataKey": null,
+          "path": "Shared/Money.vb",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "Shared/Money.vb",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "34e26d8f46f4391831eda31e56a6f85e6ab63cbc69c47a0921e37efab8187c8e",
+        "sourceId": "cfc1a7d934ef8a8a487ee9ee701a290bb1b7c1d92da98ed362dda6235266be91"
+      },
+      {
+        "bytes": 164,
+        "collectedAt": "2026-09-24T12:27:43.377246341Z",
+        "location": {
+          "byteLength": 164,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 2,
+          "metadataKey": null,
+          "path": "Shared/Shared.vbproj",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "Shared/Shared.vbproj",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "15e5e3682853599066179a5d4defe7f7598737e44eeb82165f441c9e0a0518a3",
+        "sourceId": "3313e6182c94ac95bf3c005d6328ad9ddd5c3eb5b07ea3c6dd442768a00950a5"
+      },
+      {
+        "bytes": 79,
+        "collectedAt": "2026-09-24T12:27:43.377612087Z",
+        "location": {
+          "byteLength": 79,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 4,
+          "metadataKey": null,
+          "path": "Worker/Program.fs",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "Worker/Program.fs",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "cae70e0827ae29b658beef387aad090a8bc93b656212d678df41159b3cd9460d",
+        "sourceId": "14ebfda88de1e3078916430659b28ea3258e5d102787ffc748248006ab8b2c98"
+      },
+      {
+        "bytes": 144,
+        "collectedAt": "2026-09-24T12:27:43.378180082Z",
+        "location": {
+          "byteLength": 144,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 2,
+          "metadataKey": null,
+          "path": "Worker/Worker.fsproj",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "Worker/Worker.fsproj",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "5f578615cd01f318c2f1cbdda29881a0ec2bb6bfec226321d5ba390358c47db8",
+        "sourceId": "4ec7c14207254370a032e6ebc2fc9250ec83a48968263142a7a8c48db1058703"
+      },
+      {
+        "bytes": 30,
+        "collectedAt": "2026-09-24T12:27:43.378733178Z",
+        "location": {
+          "byteLength": 30,
+          "byteOffset": 0,
+          "endColumn": 1,
+          "endLine": 2,
+          "metadataKey": null,
+          "path": "global.json",
+          "startColumn": 1,
+          "startLine": 1
+        },
+        "path": "global.json",
+        "producerVersion": "archlens-investigation-0.5",
+        "sha256": "7e0739520de22985795b9e078c255cde0b74abf31a10e181816730e83c0b9a27",
+        "sourceId": "b2a27f6fc036babf2c6f97cfbbfe6da48e65ad1dd5a14c7b63cee433e0ca583b"
+      }
+    ],
+    "startedAt": "2026-09-24T12:27:43.328992335Z",
+    "status": "PARTIAL",
+    "verificationSuggestions": [
+      "Review declared coverage and resolve unknown versions before making compatibility decisions",
+      "Validate invariants in a user-controlled isolated environment; no verification commands were executed"
+    ]
+  },
+  "reportHash": "a7d06db62025ee74dbe97b84fde3a2e1374e5d39ab92229e8de851a9d98f3184"
+}

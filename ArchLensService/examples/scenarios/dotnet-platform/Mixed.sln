@@ -1,0 +1,11 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LegacyWeb", "LegacyWeb\LegacyWeb.csproj", "{10000000-0000-4000-8000-000000000001}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreApi", "CoreApi\CoreApi.csproj", "{10000000-0000-4000-8000-000000000002}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Shared", "Shared\Shared.vbproj", "{10000000-0000-4000-8000-000000000003}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Worker", "Worker\Worker.fsproj", "{10000000-0000-4000-8000-000000000004}"
+EndProject
+Global
+EndGlobal
