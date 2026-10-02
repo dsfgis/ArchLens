@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlens.local/schema/archlens.migration-evidence.v1.schema.json",
+  "title": "ArchLens MigrationEvidence v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "evidenceId", "runId", "revision", "snapshotId", "snapshotHash", "subjectId", "sourceRef", "sourceHash", "location", "producerVersion", "producer", "observation"],
+  "properties": {
+    "schemaVersion": {"const": "archlens.migration-evidence.v1"},
+    "evidenceId": {"$ref": "#/$defs/id"},
+    "runId": {"$ref": "#/$defs/uuid"},
+    "revision": {"type": "integer", "minimum": 1, "maximum": 1000000},
+    "snapshotId": {"$ref": "#/$defs/id"},
+    "snapshotHash": {"$ref": "#/$defs/hash"},
+    "subjectId": {"$ref": "#/$defs/id"},
+    "sourceRef": {"$ref": "#/$defs/id"},
+    "sourceHash": {"$ref": "#/$defs/hash"},
+    "location": {"$ref": "#/$defs/location"},
+    "producerVersion": {"type": "string", "minLength": 1, "maxLength": 100},
+    "producer": {"enum": ["TOOL", "USER_IMPORT"]},
+    "observation": {"enum": ["OBSERVED", "CANDIDATE", "EXTERNAL_UNVERIFIED"]}
+  },
+  "allOf": [
+    {"if": {"properties": {"producer": {"const": "USER_IMPORT"}}},
+     "then": {"properties": {"observation": {"const": "EXTERNAL_UNVERIFIED"}}}}
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._:-]{0,99}$"},
+    "uuid": {"type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"},
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "location": {
+      "type": "object", "additionalProperties": false,
+      "required": ["granularity", "locator", "startLine", "endLine"],
+      "properties": {
+        "granularity": {"enum": ["CODE_SPAN", "FILE", "DATABASE_OBJECT", "UNKNOWN"]},
+        "locator": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "startLine": {"type": ["integer", "null"]},
+        "endLine": {"type": ["integer", "null"]}
+      },
+      "if": {"properties": {"granularity": {"const": "CODE_SPAN"}}},
+      "then": {"properties": {"startLine": {"type": "integer", "minimum": 1}, "endLine": {"type": "integer", "minimum": 1}}},
+      "else": {"properties": {"startLine": {"type": "null"}, "endLine": {"type": "null"}}}
+    }
+  }
+}

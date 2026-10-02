@@ -44,6 +44,9 @@ public final class Json {
             out.append(']');
         } else if (node.isNumber()) {
             out.append(node.decimalValue().stripTrailingZeros().toPlainString());
+        } else if (node.isTextual()) {
+            // Route string values through the same Unicode guard used for object keys.
+            out.append(quote(node.textValue()));
         } else out.append(node.toString());
     }
     public static int compareCodePoints(String a, String b) {
@@ -52,6 +55,17 @@ public final class Json {
         return Boolean.compare(x.hasNext(), y.hasNext());
     }
     private static String quote(String s) {
+        // Jackson replaces lone UTF-16 surrogates during UTF-8 output; reject them before hashing.
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (Character.isHighSurrogate(c)) {
+                if (i + 1 >= s.length() || !Character.isLowSurrogate(s.charAt(i + 1)))
+                    throw new ContractException("INVALID_UNICODE", "Unpaired surrogate in canonical JSON");
+                i++;
+            } else if (Character.isLowSurrogate(c)) {
+                throw new ContractException("INVALID_UNICODE", "Unpaired surrogate in canonical JSON");
+            }
+        }
         try { return MAPPER.writeValueAsString(s); } catch (JsonProcessingException e) { throw new IllegalArgumentException(e); }
     }
     public static String hash(Object value) { return sha256(canonical(value).getBytes(StandardCharsets.UTF_8)); }

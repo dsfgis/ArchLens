@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlens.local/schema/archlens.migration-request.v1.schema.json",
+  "title": "ArchLens MigrationRequest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "analysisMode", "objective", "sourceRefs", "targetEnvironment", "constraints", "invariants", "acceptanceScope", "policyRefs", "budget", "unresolvedFields"],
+  "properties": {
+    "schemaVersion": {"const": "archlens.migration-request.v1"},
+    "analysisMode": {"enum": ["CODE_ONLY", "DATABASE_ONLY", "JOINT"]},
+    "objective": {"type": "string", "minLength": 5, "maxLength": 4000},
+    "sourceRefs": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"$ref": "#/$defs/sourceRef"}},
+    "targetEnvironment": {"$ref": "#/$defs/targetEnvironment"},
+    "constraints": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/condition"}},
+    "invariants": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/condition"}},
+    "acceptanceScope": {"$ref": "#/$defs/acceptanceScope"},
+    "policyRefs": {"$ref": "#/$defs/policyRefs"},
+    "budget": {"$ref": "#/$defs/budget"},
+    "unresolvedFields": {"type": "array", "maxItems": 64, "items": {"type": "string", "minLength": 1, "maxLength": 500}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._:-]{0,99}$"},
+    "optionalText100": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+    "sourceRef": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sourceRef", "kind", "locatorRef", "credentialRef", "declaredProduct", "declaredVersion", "offlineUnverified"],
+      "properties": {
+        "sourceRef": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["LOCAL_CODE", "GIT_CODE", "BUSINESS_DATABASE", "OFFLINE_SCHEMA"]},
+        "locatorRef": {"$ref": "#/$defs/id"},
+        "credentialRef": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "declaredProduct": {"$ref": "#/$defs/optionalText100"},
+        "declaredVersion": {"$ref": "#/$defs/optionalText100"},
+        "offlineUnverified": {"type": "boolean"}
+      },
+      "allOf": [
+        {"if": {"properties": {"kind": {"const": "OFFLINE_SCHEMA"}}},
+         "then": {"properties": {"offlineUnverified": {"const": true}, "credentialRef": {"type": "null"}}},
+         "else": {"properties": {"offlineUnverified": {"const": false}}}},
+        {"if": {"properties": {"kind": {"const": "BUSINESS_DATABASE"}}},
+         "then": {"required": ["credentialRef"], "properties": {"credentialRef": {"$ref": "#/$defs/id"}}}}
+      ]
+    },
+    "technology": {
+      "type": "object", "additionalProperties": false, "required": ["product", "version", "compatibilityMode"],
+      "properties": {"product": {"type": "string", "minLength": 1, "maxLength": 100},
+        "version": {"$ref": "#/$defs/optionalText100"}, "compatibilityMode": {"$ref": "#/$defs/optionalText100"}}
+    },
+    "targetEnvironment": {
+      "type": "object", "additionalProperties": false,
+      "required": ["runtime", "database", "operatingSystem", "architecture"],
+      "properties": {
+        "runtime": {"anyOf": [{"$ref": "#/$defs/technology"}, {"type": "null"}]},
+        "database": {"anyOf": [{"$ref": "#/$defs/technology"}, {"type": "null"}]},
+        "operatingSystem": {"$ref": "#/$defs/optionalText100"},
+        "architecture": {"$ref": "#/$defs/optionalText100"}
+      }
+    },
+    "condition": {
+      "type": "object", "additionalProperties": false, "required": ["id", "description"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "description": {"type": "string", "minLength": 1, "maxLength": 1000}}
+    },
+    "acceptedUnknown": {
+      "type": "object", "additionalProperties": false, "required": ["id", "impact", "confirmedBy"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "impact": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "confirmedBy": {"$ref": "#/$defs/id"}}
+    },
+    "idArray": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "acceptanceScope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["level", "requiredSourceRefs", "requiredSubjects", "requiredPaths", "requiredConstraintIds", "requiredInvariantIds", "requiredValidationLevels", "acceptedUnknowns"],
+      "properties": {
+        "level": {"enum": ["A0", "A1", "A2"]},
+        "requiredSourceRefs": {"type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "requiredSubjects": {"type": "array", "maxItems": 256, "items": {"type": "string", "minLength": 1, "maxLength": 500}},
+        "requiredPaths": {"type": "array", "maxItems": 64, "items": {"type": "string", "minLength": 1, "maxLength": 500}},
+        "requiredConstraintIds": {"$ref": "#/$defs/idArray"},
+        "requiredInvariantIds": {"$ref": "#/$defs/idArray"},
+        "requiredValidationLevels": {"type": "array", "maxItems": 3, "uniqueItems": true, "items": {"enum": ["V1", "V2", "V3"]}},
+        "acceptedUnknowns": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/acceptedUnknown"}}
+      },
+      "allOf": [
+        {"if": {"properties": {"level": {"enum": ["A1", "A2"]}}},
+         "then": {"properties": {"requiredValidationLevels": {"contains": {"const": "V1"}}}}},
+        {"if": {"properties": {"level": {"const": "A2"}}},
+         "then": {"properties": {"requiredValidationLevels": {"contains": {"const": "V3"}}}}}
+      ]
+    },
+    "policyRefs": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authorizationRef", "modelConfigRef", "dataPolicy", "executionPolicy", "allowedTools"],
+      "properties": {
+        "authorizationRef": {"$ref": "#/$defs/id"},
+        "modelConfigRef": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "dataPolicy": {"enum": ["SUMMARY_ONLY", "SCOPED_SEMANTICS", "SCOPED_SNIPPETS"]},
+        "executionPolicy": {"enum": ["READ_ONLY", "ISOLATED_VALIDATION"]},
+        "allowedTools": {"$ref": "#/$defs/idArray"}
+      }
+    },
+    "budget": {
+      "type": "object", "additionalProperties": false,
+      "required": ["maxToolCalls", "maxModelCalls", "maxElapsedMillis"],
+      "properties": {
+        "maxToolCalls": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "maxModelCalls": {"type": "integer", "minimum": 0, "maximum": 200},
+        "maxElapsedMillis": {"type": "integer", "minimum": 1000, "maximum": 86400000}
+      }
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"analysisMode": {"const": "CODE_ONLY"}}},
+     "then": {"properties": {"sourceRefs": {"contains": {"properties": {"kind": {"enum": ["LOCAL_CODE", "GIT_CODE"]}}}}}}},
+    {"if": {"properties": {"analysisMode": {"const": "DATABASE_ONLY"}}},
+     "then": {"properties": {"sourceRefs": {"contains": {"properties": {"kind": {"enum": ["BUSINESS_DATABASE", "OFFLINE_SCHEMA"]}}}}}}},
+    {"if": {"properties": {"analysisMode": {"const": "JOINT"}}},
+     "then": {"properties": {"sourceRefs": {"allOf": [
+       {"contains": {"properties": {"kind": {"enum": ["LOCAL_CODE", "GIT_CODE"]}}}},
+       {"contains": {"properties": {"kind": {"enum": ["BUSINESS_DATABASE", "OFFLINE_SCHEMA"]}}}}
+     ]}}}},
+    {"if": {"properties": {"acceptanceScope": {"properties": {"requiredValidationLevels": {"contains": {"const": "V3"}}}}}},
+     "then": {"properties": {"policyRefs": {"properties": {"executionPolicy": {"const": "ISOLATED_VALIDATION"}}}}}}
+  ]
+}

@@ -53,6 +53,8 @@ public final class PgInvestigationStore {
                     if(r.next()) require(checksum.equals(r.getString(1)),"MIGRATION_DRIFT","Installed migration differs from this build");
                     else try(var p=c.prepareStatement("INSERT INTO archlens.schema_version(version,checksum) VALUES(1,?)")) {p.setString(1,checksum);p.executeUpdate();}
                 }
+                // Additive V002 leaves the legacy investigation tables and their original checksum untouched.
+                PgMigrationSchema.install(c,s);
                 c.commit();
             } catch(Exception e) { c.rollback();throw e; }
         }

@@ -1,0 +1,22 @@
+[
+  {
+    "schemaVersion": "archlens.migration-evidence.v1",
+    "evidenceId": "evidence-orders",
+    "runId": "11111111-1111-4111-8111-111111111111",
+    "revision": 1,
+    "snapshotId": "snapshot-orders",
+    "snapshotHash": "7607089ddf21c9a42414f67a29c83c2854ccf35dfe00fa141fce2ce59ca5b45e",
+    "subjectId": "subject-order-access",
+    "sourceRef": "orders-code",
+    "sourceHash": "dcc6ae1424b6f8b6491e849144940459f21d14ccfcf5760392309c665a2ca2db",
+    "location": {
+      "granularity": "CODE_SPAN",
+      "locator": "CoreApi/Orders.cs",
+      "startLine": 10,
+      "endLine": 20
+    },
+    "producerVersion": "fixture-tool-v1",
+    "producer": "TOOL",
+    "observation": "CANDIDATE"
+  }
+]

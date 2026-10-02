@@ -1,0 +1,8 @@
+{
+  "request": {"file": "request-code-only.json", "sha256": "1853855b825bccc6b3a539c66e6ed513514f1ff62ddb6b3eba1299098bb16062"},
+  "evidence": {"file": "evidence-code-only.json", "sha256": "c905d9c4b2c940e8f0861378ba1fcdd1cb9867dd4ebe77060f7e24ee0236d128"},
+  "plan": {"file": "plan-code-only.json", "sha256": "ab8b6474dd923e23df1b148c963c2a435de54149dbe10e24502dd41b69202026"},
+  "validation": {"file": "validation-not-run.json", "sha256": "d255dca639cd55408ac433889ccf41588b24df105ac8f3de5a624ead19b0e8fd"},
+  "event": {"file": "event-plan-drafted.json", "sha256": "10c588a39446be48c4080609424bc98a182f96e14cd7c8a981718ca6ffb0824e"},
+  "edge": {"file": "canonical-edge.json", "sha256": "0d8306a258b4e41768908a25db7683b25dcef03570da43d6a921d87bcd42de40"}
+}

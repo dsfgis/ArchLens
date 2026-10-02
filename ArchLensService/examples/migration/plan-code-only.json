@@ -1,0 +1,170 @@
+{
+  "schemaVersion": "archlens.migration-plan.v1",
+  "identity": {
+    "planId": "plan-orders-v1",
+    "caseId": "case-orders",
+    "runId": "11111111-1111-4111-8111-111111111111",
+    "revision": 1,
+    "requestHash": "1853855b825bccc6b3a539c66e6ed513514f1ff62ddb6b3eba1299098bb16062",
+    "snapshotId": "snapshot-orders",
+    "snapshotHash": "7607089ddf21c9a42414f67a29c83c2854ccf35dfe00fa141fce2ce59ca5b45e"
+  },
+  "objectiveAndScope": {
+    "objective": "分析订单模块从 .NET Framework 迁移到 Java 的改造设计",
+    "analysisMode": "CODE_ONLY",
+    "acceptanceScope": {
+      "level": "A1",
+      "requiredSourceRefs": [
+        "orders-code"
+      ],
+      "requiredSubjects": [
+        "订单数据访问模块"
+      ],
+      "requiredPaths": [
+        "创建订单接口到数据访问方法"
+      ],
+      "requiredConstraintIds": [
+        "api-compatibility"
+      ],
+      "requiredInvariantIds": [
+        "amount-rounding"
+      ],
+      "requiredValidationLevels": [
+        "V1",
+        "V2"
+      ],
+      "acceptedUnknowns": []
+    }
+  },
+  "currentArchitecture": {
+    "summary": "订单访问方法存在静态候选；调用链与数据行为尚未绑定。",
+    "evidenceRefs": [
+      "evidence-orders"
+    ],
+    "limitations": [
+      "仅有合成候选证据，不能认定完整调用路径。"
+    ]
+  },
+  "alternatives": [
+    {
+      "alternativeId": "route-java",
+      "description": "逐模块迁移到 Java 并保持接口契约。",
+      "rationale": "先确认金额与接口约束，再决定数据访问实现。",
+      "evidenceRefs": [
+        "evidence-orders"
+      ]
+    },
+    {
+      "alternativeId": "route-staged",
+      "description": "先封装订单接口，再逐步替换实现。",
+      "rationale": "降低一次性改造范围，但需确认过渡边界。",
+      "evidenceRefs": [
+        "evidence-orders"
+      ]
+    }
+  ],
+  "selectedAlternativeId": null,
+  "targetArchitecture": {
+    "summary": "目标 Java 21；组件边界和数据访问方式待调查。",
+    "evidenceRefs": [],
+    "limitations": [
+      "目标数据库未声明。"
+    ]
+  },
+  "mappings": [
+    {
+      "subjectId": "subject-order-access",
+      "disposition": "UNDECIDED",
+      "rationale": "候选路径尚未绑定，需继续调查。",
+      "evidenceRefs": [
+        "evidence-orders"
+      ]
+    }
+  ],
+  "workItems": [
+    {
+      "workItemId": "work-amount-contract",
+      "title": "明确金额迁移契约",
+      "sourceSubjectRefs": [
+        "subject-order-access"
+      ],
+      "changeDescription": "定义 Java 端金额类型和舍入边界，并据此实施接口与数据访问改造。",
+      "evidenceRefs": [
+        "evidence-orders"
+      ],
+      "assumptionRefs": [],
+      "dependsOn": [],
+      "prerequisites": [
+        "确认现有金额规则和接口约定"
+      ],
+      "deliverables": [
+        "金额类型映射决策",
+        "边界用例"
+      ],
+      "acceptanceCriteria": [
+        "金额边界用例满足已确认的不变量"
+      ],
+      "validationRefs": [
+        "validation-money"
+      ],
+      "priorityBasis": "金额不变量属于用户明确的必需范围。"
+    }
+  ],
+  "validationPlan": [
+    {
+      "validationId": "validation-structure",
+      "level": "V1",
+      "invariantRefs": [],
+      "evidenceRefs": [
+        "evidence-orders"
+      ],
+      "method": "检查请求、证据、方案引用与依赖结构。",
+      "expectedCriteria": "无悬空或跨快照引用。",
+      "testSpecHash": "e7792101e986f72ae4209873e87ec8754571c9203ce85cf08d6437ecbbb8f83c",
+      "required": true
+    },
+    {
+      "validationId": "validation-money",
+      "level": "V2",
+      "invariantRefs": [
+        "amount-rounding"
+      ],
+      "evidenceRefs": [
+        "evidence-orders"
+      ],
+      "method": "设计金额类型和舍入的静态边界用例。",
+      "expectedCriteria": "覆盖约定的金额边界与舍入规则。",
+      "testSpecHash": "b96b30a00145a0163a4abe1ba62e024c2ac6f745bfa4b4df5fd21ed41f43ae5f",
+      "required": true
+    }
+  ],
+  "rolloutAndRollback": {
+    "rolloutSteps": [
+      "先冻结接口契约并实现代表性模块。"
+    ],
+    "rollbackSteps": [
+      "保留旧实现直至代表性验证完成。"
+    ],
+    "irreversibleLimits": [
+      "真实数据切换未设计。"
+    ]
+  },
+  "assumptionsAndGaps": [
+    {
+      "assumptionId": "assumption-db-impact",
+      "claim": "订单数据库影响尚不明确。",
+      "verificationNeeded": "补充数据库源或确认代码单项范围。",
+      "blocking": true
+    }
+  ],
+  "evidenceRefs": [
+    "evidence-orders"
+  ],
+  "decisionRefs": [],
+  "estimates": {
+    "minDays": null,
+    "maxDays": null,
+    "basis": null,
+    "missingReason": "缺少模块规模和业务验收条件，无法估算。"
+  }
+}

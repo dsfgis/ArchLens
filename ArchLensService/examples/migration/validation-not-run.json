@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "archlens.migration-validation.v1",
+  "validationId": "record-money-not-run",
+  "validationItemRef": "validation-money",
+  "runId": "11111111-1111-4111-8111-111111111111",
+  "revision": 1,
+  "snapshotId": "snapshot-orders",
+  "snapshotHash": "7607089ddf21c9a42414f67a29c83c2854ccf35dfe00fa141fce2ce59ca5b45e",
+  "planHash": "ab8b6474dd923e23df1b148c963c2a435de54149dbe10e24502dd41b69202026",
+  "environmentHash": null,
+  "testSpecHash": "b96b30a00145a0163a4abe1ba62e024c2ac6f745bfa4b4df5fd21ed41f43ae5f",
+  "level": "V2",
+  "status": "NOT_RUN",
+  "executedBy": "SYSTEM",
+  "resultRefs": []
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "archlens.migration-request.v1",
+  "analysisMode": "CODE_ONLY",
+  "objective": "分析订单模块从 .NET Framework 迁移到 Java 的改造设计",
+  "sourceRefs": [
+    {
+      "sourceRef": "orders-code",
+      "kind": "LOCAL_CODE",
+      "locatorRef": "registered-orders-root",
+      "credentialRef": null,
+      "declaredProduct": ".NET Framework",
+      "declaredVersion": "4.8",
+      "offlineUnverified": false
+    }
+  ],
+  "targetEnvironment": {
+    "runtime": {"product": "Java", "version": "21", "compatibilityMode": null},
+    "database": null,
+    "operatingSystem": null,
+    "architecture": null
+  },
+  "constraints": [{"id": "api-compatibility", "description": "保持现有订单接口兼容"}],
+  "invariants": [{"id": "amount-rounding", "description": "金额计算与舍入行为不变"}],
+  "acceptanceScope": {
+    "level": "A1",
+    "requiredSourceRefs": ["orders-code"],
+    "requiredSubjects": ["订单数据访问模块"],
+    "requiredPaths": ["创建订单接口到数据访问方法"],
+    "requiredConstraintIds": ["api-compatibility"],
+    "requiredInvariantIds": ["amount-rounding"],
+    "requiredValidationLevels": ["V1", "V2"],
+    "acceptedUnknowns": []
+  },
+  "policyRefs": {
+    "authorizationRef": "auth-orders-read",
+    "modelConfigRef": null,
+    "dataPolicy": "SUMMARY_ONLY",
+    "executionPolicy": "READ_ONLY",
+    "allowedTools": ["discover_projects"]
+  },
+  "budget": {"maxToolCalls": 12, "maxModelCalls": 4, "maxElapsedMillis": 120000},
+  "unresolvedFields": ["targetEnvironment.operatingSystem", "targetEnvironment.architecture"]
+}

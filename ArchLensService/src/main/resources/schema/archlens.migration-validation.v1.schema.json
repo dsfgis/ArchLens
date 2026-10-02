@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlens.local/schema/archlens.migration-validation.v1.schema.json",
+  "title": "ArchLens MigrationValidationRecord v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "validationId", "validationItemRef", "runId", "revision", "snapshotId", "snapshotHash", "planHash", "environmentHash", "testSpecHash", "level", "status", "executedBy", "resultRefs"],
+  "properties": {
+    "schemaVersion": {"const": "archlens.migration-validation.v1"},
+    "validationId": {"$ref": "#/$defs/id"},
+    "validationItemRef": {"$ref": "#/$defs/id"},
+    "runId": {"$ref": "#/$defs/uuid"},
+    "revision": {"type": "integer", "minimum": 1, "maximum": 1000000},
+    "snapshotId": {"$ref": "#/$defs/id"},
+    "snapshotHash": {"$ref": "#/$defs/hash"},
+    "planHash": {"$ref": "#/$defs/hash"},
+    "environmentHash": {"anyOf": [{"$ref": "#/$defs/hash"}, {"type": "null"}]},
+    "testSpecHash": {"$ref": "#/$defs/hash"},
+    "level": {"enum": ["V1", "V2", "V3"]},
+    "status": {"enum": ["NOT_RUN", "RUNNING", "PASSED", "FAILED", "INCONCLUSIVE", "EXTERNAL_UNVERIFIED"]},
+    "executedBy": {"enum": ["SYSTEM", "EXTERNAL_IMPORT"]},
+    "resultRefs": {"type": "array", "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+  },
+  "allOf": [
+    {"if": {"properties": {"executedBy": {"const": "EXTERNAL_IMPORT"}}},
+     "then": {"properties": {"status": {"const": "EXTERNAL_UNVERIFIED"}}}},
+    {"if": {"properties": {"status": {"enum": ["PASSED", "FAILED", "INCONCLUSIVE"]}}},
+     "then": {"properties": {"resultRefs": {"minItems": 1}}}},
+    {"if": {"properties": {"status": {"const": "NOT_RUN"}}},
+     "then": {"properties": {"resultRefs": {"maxItems": 0}}}},
+    {"if": {"properties": {"level": {"const": "V3"}, "status": {"not": {"const": "NOT_RUN"}}}},
+     "then": {"properties": {"environmentHash": {"$ref": "#/$defs/hash"}}}}
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._:-]{0,99}$"},
+    "uuid": {"type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"},
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

@@ -60,6 +60,20 @@ catalog 中的标识符必须使用数据库实际大小写，`defaultSchema` �
 
 [实施任务](specs/implementation/tasks.md) 和 [验收记录](specs/implementation/check_list.md) 跟踪已完成的子集与后续工作。单元/集成测试验证本批能力，不等于新迁移设计的全部验收。历史总体设计中的黄金样例数量与旧验收保留在归档，新阶段按当前 check_list 明确范围及证据。当前已有报告/图 JSON 持久化、运行租约、报告封存及有限场景规则；完整项目采集、业务元数据快照与更广泛迁移语义仍需逐项实施。
 
+2026-10-02 P0 新增只读请求契约探针：`java -jar target/archlens-0.1.0-SNAPSHOT-cli.jar migration-request-check examples/migration/request-code-only.json`。它对 [MigrationRequest v1 Schema](src/main/resources/schema/archlens.migration-request.v1.schema.json) 对应的 Java 对象执行严格 JSON/语义校验，输出 canonical 请求哈希、模式和 A0/A1/A2 等级；不会启动调查或保存运行。`sourceRef`、`locatorRef`、`credentialRef`、`authorizationRef` 是未来登记服务解析的标识，不是路径、连接串或明文秘密。离线结构必须标记 `offlineUnverified=true`；在线业务库必须提供凭据引用。V3 必需项要求 `ISOLATED_VALIDATION` 策略，但策略声明本身不代表测试环境已经就绪或已执行验证。未决目标字段留在 `unresolvedFields`，后续完成检查仍需处理。
+
+同日继续新增 [方案 v1 Schema](src/main/resources/schema/archlens.migration-plan.v1.schema.json)、证据、验证记录与事件 Schema，以及只读命令：`java -jar target/archlens-0.1.0-SNAPSHOT-cli.jar migration-plan-check examples/migration/request-code-only.json examples/migration/evidence-code-only.json examples/migration/plan-code-only.json`。命令检查请求 hash、同一 run/revision/snapshot 的证据、来源范围、计划引用、工作项依赖和必填结构，输出 `STRUCTURE_VALID` 与内容哈希。`planHash` 对方案 JSON 内容计算，不是方案内部可伪造字段。示例证据/计划是合成输入，工具尚未核实其来源真实性；结构通过不等于方案完整、V1/V2/V3 已通过或真实迁移可行。验证记录的 `NOT_RUN` 与外部导入状态保持单独表示。完整错误目录、来源/凭据登记、迁移 API、封存门槛仍待开发。
+
+P0 的 [TypeScript 契约运行时](agent-runtime/README.md) 已补齐五份 Schema 的 Node 校验和与 Java 共用的六组黄金哈希。它单独要求 Node 24+，从 `ArchLensService/agent-runtime` 执行 `npm ci --ignore-scripts && npm test`；当前只做形状/版本与 canonical 哈希，不负责跨文件真实性或调度。Java 仍负责权威引用校验。完整错误目录、来源/凭据登记、迁移 API、封存门槛和 LangGraph 调度仍待开发。
+
+同日继续为 Node 文件输入加入重复 JSON 键拒绝（包含转义后同名），并固定一份历史 Agent 报告的原字节与 canonical 哈希回读基线；见[输入边界与旧报告验证](../docs/verification/migration-input-legacy-2026-10-02.md)。该基线只覆盖一个历史样例，尚不代表所有旧版本报告/API/CLI 的部署回归。
+
+P0 存储继续追加 [V002 迁移任务表](src/main/resources/db/V002__migration_runtime.sql)：独立 migration Case/Run、任务/调用/产物/事件/澄清/验证作业/认可 checkpoint 表和独立 `archlens_checkpoint` schema。`PgInvestigationStore.initialize()` 在同一个事务及 advisory lock 下核对 V001，并依次安装或核对 V002、[V003 提交键表](src/main/resources/db/V003__migration_submission.sql)和[V004 小型工具结果表](src/main/resources/db/V004__migration_tool_result.sql)；运行 `storage-init` 需要有创建这些对象的数据库权限。V001/V002/V003 原文件与旧 investigation 表未修改。存储结构验证见[临时 PostgreSQL 记录](../docs/verification/migration-storage-schema-2026-10-02.md)。
+
+[PgMigrationRunStore](src/main/java/io/archlens/storage/PgMigrationRunStore.java) 已实现新 Case 的幂等入队、单 worker 领取、PG 时钟续租/过期接管和重复取消回执。提交键由宿主生成，同键不同请求拒绝；取消在同一事务写受控事件并使旧 epoch 失效。它是 Java 内部存储接口，尚未接入网页/API/调度器，不能单独完成迁移调查。暂停、澄清修订、checkpoint 认可、封存及 LangGraph worker 仍待实现；见[运行状态验证](../docs/verification/migration-run-lifecycle-2026-10-02.md)。
+
+[PgMigrationToolStore](src/main/java/io/archlens/storage/PgMigrationToolStore.java) 新增 MIG-T05 的首个真实只读工具 `list_rules`：宿主传入任务和动作身份，先在 PG 登记调用并按请求中的 `allowedTools` 与 `maxToolCalls` 校验，再派发既有 `RuleCatalog`。成功结果原字节及 SHA-256 持久化；重试复用 invocationId 和结果。登记、派发、发布都要求当前 Case 修订及有效 worker 租约，取消/接管后的旧票据不能发布。当前只支持无参规则目录与 64 KiB 以内的 PG 结果，目录 hash 仅代表规则目录快照，不代表代码或业务数据库快照；尚无 JSON Lines 跨进程桥接、通用 Manifest、外部授权登记和调度器。见[工具调用验证](../docs/verification/migration-tool-ledger-2026-10-02.md)。
+
 固定依赖及来源见 [技术基线](../docs/archive/2026-09-29/ArchLensService/docs/technical-baseline.md)。现有 `qa/` 是设计文档制作和排版验证资料，不是产品代码。
 
 C# 项目分析入口、声明范围及边界见 [C# → Java 分析](../docs/archive/2026-09-29/ArchLensService/docs/csharp-java.md)。
