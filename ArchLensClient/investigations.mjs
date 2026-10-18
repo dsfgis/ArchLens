@@ -11,6 +11,8 @@ async function authorizedRoot(value, request, resume=false) {
 }
 import { discoverCSharpProject } from './csharp-project.mjs';
 import { discoverDotnetProject } from './dotnet-project.mjs';
+import { discoverRepository } from './repository.mjs';
+import { renderMarkdownReport } from './report-markdown.mjs';
 import { spawn } from 'node:child_process';
 import { mkdir, readFile, writeFile, realpath, stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +21,14 @@ import path from 'node:path';
 const service = fileURLToPath(new URL('../ArchLensService/', import.meta.url));
 const contexts = path.join(service, '.local', 'web-contexts');
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// 路径即授权范围；未指定文件时由后端发现并封存清单，恢复不重新扩大范围。
+async function resolveFiles(body) {
+  if (body.request && Array.isArray(body.request.files) && body.request.files.length === 0 && body.sourceRoot) {
+    const found = await discoverRepository(body.sourceRoot, body.request.collectionBudget);
+    body.request = {...body.request, files: found.files};
+  }
+}
 
 export function bridge(input, onStarted) {
   return new Promise((resolve, reject) => {
@@ -81,6 +91,12 @@ return async function handleInvestigations(req, res, json) {
     json(res, 403, { error: 'REQUEST_REJECTED' }); return true;
   }
   try {
+    if (url.pathname === '/api/investigations/model-config' && req.method === 'GET') {
+      if (queries >= 6) throw new Error('SERVER_BUSY');
+      queries++;
+      try { json(res, 200, await backend({action:'model-config'})); } finally {queries--;}
+      return true;
+    }
     if (url.pathname === '/api/investigations/example' && req.method === 'GET') {
       // 只发布仓库自带的合成样例路径，不枚举用户工作区或读取业务文件。
       const scenario = url.searchParams.get('scenario') || 'mysql-postgresql';
@@ -90,10 +106,10 @@ return async function handleInvestigations(req, res, json) {
       json(res, 200, { sourceRoot, request });
       return true;
     }
-    if (['/api/investigations/discover-csharp', '/api/investigations/discover-dotnet'].includes(url.pathname) && req.method === 'POST') {
+    if (['/api/investigations/discover-csharp', '/api/investigations/discover-dotnet', '/api/investigations/discover-repository'].includes(url.pathname) && req.method === 'POST') {
       if (queries >= 6) throw new Error('SERVER_BUSY');
       queries++;
-      try { const body = await readBody(req); exact(body, ['sourceRoot']); json(res, 200, await (url.pathname.endsWith('discover-dotnet') ? discoverDotnetProject : discoverCSharpProject)(body.sourceRoot)); }
+      try { const body = await readBody(req); exact(body, ['sourceRoot']); json(res, 200, await (url.pathname.endsWith('discover-repository') ? discoverRepository : url.pathname.endsWith('discover-dotnet') ? discoverDotnetProject : discoverCSharpProject)(body.sourceRoot)); }
       finally { queries--; }
       return true;
     }
@@ -106,6 +122,7 @@ return async function handleInvestigations(req, res, json) {
         const testing=url.pathname.endsWith('test-database');
         let sourceRoot=null;
         if (!testing) {
+          await resolveFiles(body);
           sourceRoot=await authorizedRoot(body.sourceRoot,body.request);
         }
         // 凭据只传本次 Java 子进程；不写磁盘、历史上下文或日志。
@@ -113,37 +130,46 @@ return async function handleInvestigations(req, res, json) {
       } finally {active--;}
       return true;
     }
-    if (url.pathname === '/api/investigations/preview-dotnet' && req.method === 'POST') {
+    if (['/api/investigations/preview-dotnet','/api/investigations/preview-repository'].includes(url.pathname) && req.method === 'POST') {
       // 预览与正式调查共用重任务槽位；不写 web-contexts，不分配假 Run ID。
       if (active >= 2) throw new Error('SERVER_BUSY');
       active++;
       try {
         const body = await readBody(req); exact(body, ['sourceRoot', 'files']);
+        const generic = url.pathname.endsWith('preview-repository');
+        if (generic && Array.isArray(body.files) && !body.files.length) body.files = (await discoverRepository(body.sourceRoot)).files;
         if (typeof body.sourceRoot !== 'string' || !path.isAbsolute(body.sourceRoot)) throw new Error('SOURCE_ROOT_INVALID');
         const sourceRoot = await realpath(body.sourceRoot).catch(() => { throw new Error('SOURCE_ROOT_INVALID'); });
         if (!(await stat(sourceRoot)).isDirectory()) throw new Error('SOURCE_ROOT_INVALID');
         if (!Array.isArray(body.files) || !body.files.length || body.files.length > 1000 || body.files.some(f => typeof f !== 'string' || !f.trim())) throw new Error('INVALID_REQUEST');
-        const request = {schemaVersion:'archlens.agent.v1', objective:'本地 .NET 平台现状预览',
-          target:{scenario:'CURRENT_STATE',sourceProfile:{product:'.NET',version:null},targetProfile:null},
+        const request = {schemaVersion:'archlens.agent.v1', objective:generic?'本地代码库现状预览':'本地 .NET 平台现状预览',
+          target:{scenario:'CURRENT_STATE',sourceProfile:{product:generic?'UNSPECIFIED':'.NET',version:null},targetProfile:null},
           constraints:[],invariants:[],files:body.files,columnRequest:null,
           collectionBudget:{maxFiles:1000,maxBytes:50000000,timeoutMillis:25000},
           agentBudget:{maxModelCalls:1,maxToolCalls:1,timeoutMillis:30000}};
-        json(res, 200, await backend({action:'preview-dotnet',sourceRoot,request}));
+        json(res, 200, await backend({action:generic?'preview-repository':'preview-dotnet',sourceRoot,request}));
       } finally { active--; }
       return true;
     }
-    const match = /^\/api\/investigations(?:\/([0-9a-f-]+)(?:\/(resume|cancel|report))?)?$/.exec(url.pathname);
+    const match = /^\/api\/investigations(?:\/([0-9a-f-]+)(?:\/(resume|cancel|report|report\.md))?)?$/.exec(url.pathname);
     if (!match || !['GET', 'POST'].includes(req.method)) { json(res, 404, { error: 'NOT_FOUND' }); return true; }
     const [, id, operation] = match;
     if (id) validId(id);
     if (req.method === 'GET') {
-      if (operation && operation !== 'report') throw new Error('INVALID_REQUEST');
+      if (operation && !['report','report.md'].includes(operation)) throw new Error('INVALID_REQUEST');
       if (queries >= 6) throw new Error('SERVER_BUSY');
       queries++;
       try {
         let result;
         if (id) {
           result = await backend({ action: 'get', runId: id });
+          if (operation === 'report.md') {
+            if (!result.report) throw new Error('NO_REPORT');
+            res.writeHead(200, {'Content-Type':'text/markdown; charset=utf-8','Content-Disposition':`attachment; filename="archlens-${id}.md"`,
+              'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
+            res.end(renderMarkdownReport(result.report,{runId:id}));
+            return true;
+          }
           if (operation === 'report') {
             if (!result.report && !result.checkpoint) throw new Error('NO_REPORT');
             res.setHeader('Content-Disposition', `attachment; filename="archlens-${id}.json"`);
@@ -168,6 +194,7 @@ return async function handleInvestigations(req, res, json) {
       try {
         const body = await readBody(req);
         exact(body, id ? ['sourceRoot', 'answers', 'connection'] : ['sourceRoot', 'request', 'connection']);
+        if (!id) await resolveFiles(body);
         const sourceRoot = await authorizedRoot(body.sourceRoot,body.request,Boolean(id));
         if (!id && (!body.request || body.request.columnRequest != null || body.request.target?.scenario === 'COLUMN_CHANGE')) throw new Error('COLUMN_WEB_UNSUPPORTED');
         if (id) {

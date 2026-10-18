@@ -161,12 +161,12 @@ function invalidateProposal() {
   $('parse-target').textContent = 'AI 梳理目标';
 }
 const modelErrors = {
-  MODEL_NOT_CONFIGURED: '后端尚未配置 DeepSeek 密钥，请通过 start.ps1 启动服务。',
-  MODEL_AUTH_FAILED: 'DeepSeek 密钥无效或无权限，请检查后端配置。',
-  MODEL_BALANCE_INSUFFICIENT: 'DeepSeek 账户余额不足。',
-  MODEL_RATE_LIMITED: 'DeepSeek 请求频率受限，请稍后重试。',
+  MODEL_NOT_CONFIGURED: '后端尚未配置 模型服务 密钥，请通过 start.ps1 启动服务。',
+  MODEL_AUTH_FAILED: '模型服务 密钥无效或无权限，请检查后端配置。',
+  MODEL_BALANCE_INSUFFICIENT: '模型服务 账户余额不足。',
+  MODEL_RATE_LIMITED: '模型服务 请求频率受限，请稍后重试。',
   MODEL_BUSY: '已有目标正在解析，请稍后重试。',
-  MODEL_TIMEOUT: 'DeepSeek 响应超时，请稍后重试。',
+  MODEL_TIMEOUT: '模型服务 响应超时，请稍后重试。',
   INVALID_MODEL_OUTPUT: '模型返回内容未通过校验，请补充目标描述后重试。',
   MODEL_BACKEND_UNAVAILABLE: '模型后端启动失败，请检查 JDK 21 路径并构建后端。',
 };
@@ -180,7 +180,7 @@ $('parse-target').addEventListener('click', async () => {
   parsingDescription = description;
   $('parse-target').disabled = true;
   $('parse-target').textContent = '正在梳理…';
-  $('ai-status').textContent = 'DeepSeek 正在解析变更描述，通常需要数秒，请稍候。';
+  $('ai-status').textContent = '模型服务 正在解析变更描述，通常需要数秒，请稍候。';
   const timeout = setTimeout(() => controller.abort(), 75000);
   try {
     const response = await fetch('/api/parse-target', {
@@ -199,7 +199,7 @@ $('parse-target').addEventListener('click', async () => {
   } catch (error) {
     if (parseController === controller) $('ai-status').textContent = error.name === 'AbortError'
       ? '解析已超时，可重试。原始描述已保留。'
-      : modelErrors[error.message] || '暂时无法调用 DeepSeek，原始描述已保留，可继续生成请求草稿。';
+      : modelErrors[error.message] || '暂时无法调用 模型服务，原始描述已保留，可继续生成请求草稿。';
   } finally {
     clearTimeout(timeout);
     if (parseController === controller) {

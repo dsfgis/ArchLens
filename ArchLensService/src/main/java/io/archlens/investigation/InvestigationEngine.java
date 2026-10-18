@@ -168,7 +168,12 @@ public final class InvestigationEngine {
         // 规则只分析采集时缓存的原文字节。漂移/取消/超时后撤销发现，仍保留来源和覆盖缺口。
         if(scenarioResult!=null && !unstable)findings.addAll(scenarioResult.findings());
         else if(scenarioResult!=null)gaps.add(new Gap("RULE_RESULTS_WITHHELD","Source drift, cancellation or elapsed budget invalidated rule findings"));
-        if(analysis==null&&findings.isEmpty()) gaps.add(new Gap("CONTENT_INVENTORY_ONLY","No supported semantic findings were published; inspect gaps"));
+        if(analysis==null&&findings.isEmpty()) gaps.add(new Gap("CONTENT_INVENTORY_ONLY",
+                inventory==null?"No supported semantic findings were published; inspect gaps":
+                        "Project assessment is declaration-only; no supported semantic findings were published"));
+        // 现状结论只归纳已采集工程声明，不冒充语义发现或迁移兼容性判断。
+        if(inventory!=null && request.scenario()==InvestigationRequest.Scenario.CURRENT_STATE)
+            findings.addAll(DotnetCurrentStateAssessment.assess(inventory,sources));
         var evidenceIds=sources.stream().map(Source::sourceId).toList();
         var finding=new Finding(Json.hashParts(request.scenario(),evidenceIds),"UNKNOWN",findings.isEmpty()?"no-supported-compatibility-rule":"unassessed-scope",evidenceIds,List.of(),
                 List.of("Unchecked scope remains UNKNOWN; individual rules do not establish whole-project compatibility"));
@@ -177,10 +182,10 @@ public final class InvestigationEngine {
         return new InvestigationReport(association!=null?"archlens.investigation-report.v5":context!=null?"archlens.investigation-report.v4":inventory==null?"archlens.investigation-report.v2":"archlens.investigation-report.v3",VERSION,fingerprint,request,
                 wasCancelled?Status.CANCELLED:Status.PARTIAL,start,Instant.now().toString(),sources,gaps,clarification,findings,
                 request.scenario()==InvestigationRequest.Scenario.LANGUAGE_MIGRATION ? List.of(
-                        "按项目声明划分 Java 模块，逐项确认框架与直接/传递依赖的替代及未采集引用",
+                        "按项目声明梳理目标模块，逐项确认框架与直接/传递依赖的替代及未采集引用",
                         "建立金额精度、舍入、无符号上界、溢出及 JSON 字段/null/日期的输入输出黄金样例",
                         "对异步取消、异常传播、执行顺序、资源释放及平台/UI 能力制定独立回归用例",
-                        "人工在隔离环境比较原实现与迁移实现；本次未生成 Java 代码或执行任何构建/行为验证") : List.of("Review declared coverage and resolve unknown versions before making compatibility decisions",
+                        "人工在隔离环境比较原实现与迁移实现；本次未生成目标语言代码或执行任何构建/行为验证") : List.of("Review declared coverage and resolve unknown versions before making compatibility decisions",
                         "Validate invariants in a user-controlled isolated environment; no verification commands were executed"),
                 "DETERMINISTIC_ONLY_NO_MODEL_ORCHESTRATION",analysis,inventory,database,context==null?null:context.targetEnvironment(),association);
     }

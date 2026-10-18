@@ -16,7 +16,7 @@ async function parseTarget(req, res) {
   if (req.method !== 'POST') return json(res, 405, { error: 'METHOD_NOT_ALLOWED' });
   if (!allowedHosts.has(req.headers.host) || req.headers.origin !== `http://${req.headers.host}`
       || req.headers['content-type']?.split(';')[0] !== 'application/json') return json(res, 403, { error: 'REQUEST_REJECTED' });
-  if (!process.env.DEEPSEEK_API_KEY) return json(res, 503, { error: 'MODEL_NOT_CONFIGURED' });
+
   if (parsing) return json(res, 429, { error: 'MODEL_BUSY' });
   parsing = true;
   let timer;
@@ -63,6 +63,7 @@ const files = new Map([
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/draft.html', ['draft.html', 'text/html; charset=utf-8']],
   ['/workbench.js', ['workbench.js', 'text/javascript; charset=utf-8']],
+  ['/migration-assessment.mjs', ['migration-assessment.mjs', 'text/javascript; charset=utf-8']],
   ['/workbench.css', ['workbench.css', 'text/css; charset=utf-8']],
 ]);
 http.createServer(async (req, res) => {

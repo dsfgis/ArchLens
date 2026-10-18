@@ -15,6 +15,7 @@ const runs=new Map();
 await mkdir(fileURLToPath(new URL('../../ArchLensService/target/',import.meta.url)),{recursive:true});
 const contextDirectory=await mkdtemp(fileURLToPath(new URL('../../ArchLensService/target/web-ui-fixture-',import.meta.url)));
 const handler=createInvestigationHandler({contextDirectory,backend:async(input,onStarted)=>{
+  if(input.action==='model-config')return {configured:false};
   if(input.action==='list')return {runs:[...runs.values()].filter(r=>!input.caseId||r.caseId===input.caseId).reverse().slice(input.offset,input.offset+25).map(r=>({...r,report:undefined,reportStatus:r.report?.status,objective:r.report?.request.objective||'网页回归合成调查',createdAt:'UI fixture',leaseExpired:false}))};
   if(input.action==='get'){const r=runs.get(input.runId);if(!r)throw new Error('RUN_NOT_FOUND');return structuredClone(r);}
   if(input.action==='cancel'){const r=runs.get(input.runId);r.state='CANCELLED';return {cancelled:true};}

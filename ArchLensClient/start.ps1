@@ -5,7 +5,9 @@ if (-not $JdkHome -or -not (Test-Path -LiteralPath (Join-Path $JdkHome 'bin/java
     throw 'Provide a JDK 21 path with -JdkHome or ARCHLENS_JAVA_HOME.'
 }
 $previousJava = $env:ARCHLENS_JAVA_HOME
-$previousKey = $env:DEEPSEEK_API_KEY
+$modelNames = @('ARCHLENS_LLM_DISABLED','ARCHLENS_LLM_PROVIDER','ARCHLENS_LLM_ENDPOINT','ARCHLENS_LLM_MODEL','ARCHLENS_LLM_API_KEY','DEEPSEEK_API_KEY','DEEPSEEK_MODEL')
+$previousModel = @{}
+foreach ($name in $modelNames) { $previousModel[$name] = [Environment]::GetEnvironmentVariable($name,'Process') }
 $storageNames = @('ARCHLENS_PG_URL','ARCHLENS_PG_USER','ARCHLENS_PG_PASSWORD','ARCHLENS_NEO4J_URI','ARCHLENS_NEO4J_USER','ARCHLENS_NEO4J_PASSWORD','ARCHLENS_NEO4J_DATABASE')
 $previousStorage = @{}
 foreach ($name in $storageNames) { $previousStorage[$name] = [Environment]::GetEnvironmentVariable($name,'Process') }
@@ -28,16 +30,18 @@ try {
             if (-not [Environment]::GetEnvironmentVariable($name,'Process')) { [Environment]::SetEnvironmentVariable($name,([PSCredential]::new('storage',$secrets[$key])).GetNetworkCredential().Password,'Process') }
         }
     }
-    if ($Offline) { $env:DEEPSEEK_API_KEY = $null }
-    elseif (-not $env:DEEPSEEK_API_KEY) { $env:DEEPSEEK_API_KEY = [Environment]::GetEnvironmentVariable('DEEPSEEK_API_KEY','User') }
-    if (-not $Offline -and -not $env:DEEPSEEK_API_KEY) {
-        $secureKey = Read-Host 'DeepSeek API key (hidden, kept only for this process)' -AsSecureString
-        $env:DEEPSEEK_API_KEY = [System.Net.NetworkCredential]::new('', $secureKey).Password
+    foreach ($name in $modelNames) {
+        if (-not [Environment]::GetEnvironmentVariable($name,'Process')) { [Environment]::SetEnvironmentVariable($name,[Environment]::GetEnvironmentVariable($name,'User'),'Process') }
+    }
+    if ($Offline) { $env:ARCHLENS_LLM_DISABLED = 'true' }
+    elseif ($env:ARCHLENS_LLM_ENDPOINT -and -not $env:ARCHLENS_LLM_API_KEY -and ([Uri]$env:ARCHLENS_LLM_ENDPOINT).Scheme -eq 'https') {
+        $secureKey = Read-Host 'Model API key (hidden, process only)' -AsSecureString
+        $env:ARCHLENS_LLM_API_KEY = [System.Net.NetworkCredential]::new('', $secureKey).Password
         $secureKey.Dispose()
     }
     & node (Join-Path $PSScriptRoot 'server.mjs')
 } finally {
     $env:ARCHLENS_JAVA_HOME = $previousJava
-    $env:DEEPSEEK_API_KEY = $previousKey
+    foreach ($name in $modelNames) { [Environment]::SetEnvironmentVariable($name,$previousModel[$name],'Process') }
     foreach ($name in $storageNames) { [Environment]::SetEnvironmentVariable($name,$previousStorage[$name],'Process') }
 }

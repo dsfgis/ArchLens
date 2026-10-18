@@ -65,6 +65,25 @@ test('report download returns immutable report body as attachment without source
   assert.equal(response.status,200);assert.match(response.headers.get('content-disposition'),/^attachment;/);
   assert.deepEqual(await response.json(),report);
 });
+test('Markdown download presents readable findings without raw symbol cards or source root',async t=>{
+  const report={schemaVersion:'archlens.agent.v1',status:'PARTIAL',request:{objective:'迁移到 C++ 与 Electron',files:['A.csproj','A.cs']},
+    dotnetSemantics:{status:'PARTIAL',facts:[{kind:'TYPE_DECLARATION',binding:'DECLARED',path:'A.cs',id:'private-fact-id'},
+      {kind:'INVOCATION',binding:'UNRESOLVED',path:'A.cs',id:'private-call-id'}],gaps:['PROJECT_LANGUAGE_VERSION_NOT_EVALUATED','RUNTIME_BEHAVIOR_NOT_VERIFIED']},
+    repositoryInventory:{signals:[{kind:'PROJECT_DECLARATION',product:'WPF'},{kind:'PACKAGE_DECLARATION',product:'SQLCipher'}]},
+    migrationPlan:{status:'UNVERIFIED_PROPOSAL',targetArchitecture:'C++ 核心 + Electron UI',steps:[{phase:'建立基线',action:'记录现有功能',validation:'用样例核对',factIds:['private-fact-id']}],openQuestions:[]}};
+  const {base}=await setup(t,async()=>({report,sourceRoot:'/private/root',state:'PARTIAL'}));
+  const response=await fetch(`${base}/api/investigations/${id}/report.md`);
+  assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/^text\/markdown/);
+  assert.match(response.headers.get('content-disposition'),/\.md"$/);
+  const markdown=await response.text();
+  assert.match(markdown,/迁移方案（待验证）/);assert.match(markdown,/建立基线/);
+  assert.match(markdown,/风险分析/);assert.match(markdown,/桌面界面重写与行为偏差/);
+  assert.match(markdown,/已有数据与加密兼容/);assert.match(markdown,/主要难点/);
+  assert.match(markdown,/成功率评估/);assert.match(markdown,/无法给出可信的成功率百分比/);
+  assert.doesNotMatch(markdown,/成功率\s*[:：]\s*\d+%/);
+  assert.match(markdown,/C# 实际语言版本尚未确认/);
+  assert.doesNotMatch(markdown,/private-fact-id|private-call-id|\/private\/root|TYPE_DECLARATION/);
+});
 test('example is an actual local synthetic source without storage or model dependency',async t=>{
   const {base}=await setup(t,async()=>{throw new Error('must not invoke backend');});
   const response=await fetch(base+'/api/investigations/example');assert.equal(response.status,200);
@@ -176,6 +195,34 @@ test('no source selection is rejected while each valid analysis scope reaches ba
   assert.equal((await post('/api/investigations',{sourceRoot:root,request:code})).status,202);
   assert.equal((await post('/api/investigations',{sourceRoot:null,request:db})).status,202);
   assert.equal((await post('/api/investigations',{sourceRoot:root,request:joint})).status,202);
-  assert.equal((await post('/api/investigations',{sourceRoot:root,request:{...code,files:[]}})).status,400);
+  assert.equal((await post('/api/investigations',{sourceRoot:null,request:{...code,files:[]}})).status,400);
   assert.equal(calls,3);
+});
+
+test('generic path-only submission discovers diverse source files and leaves the goal for the model',async t=>{
+  let received;const {post,contextDirectory}=await setup(t,async(input,started)=>{received=input;await started({runId:id,caseId:id,revision:1});return {};});
+  for(const [name,content] of Object.entries({'pom.xml':'<project/>','Main.java':'class Main {}','main.py':'pass','page.tsx':'const a=1','package.json':'{}','secret.env':'private','unknown.bin':'bytes'}))await writeFile(path.join(contextDirectory,name),content);
+  await mkdir(path.join(contextDirectory,'node_modules'));await writeFile(path.join(contextDirectory,'node_modules','ignored.js'),'ignored');
+  await symlink(path.join(root,'schema.sql'),path.join(contextDirectory,'outside.sql'));
+  const generic={...request,target:null,objective:'分析升级运行时并更换数据库的影响',files:[]};
+  const response=await post('/api/investigations',{sourceRoot:contextDirectory,request:generic});assert.equal(response.status,202);
+  assert.deepEqual(received.request.files,['Main.java','main.py','package.json','page.tsx','pom.xml']);
+  assert.equal(received.request.target,null);assert.equal(received.request.objective,generic.objective);
+  assert.deepEqual(generic.files,[]);
+});
+test('generic discovery keeps explicit scope, fails on limits, and previews without storage',async t=>{
+  let received;const {post,contextDirectory}=await setup(t,async input=>{received=input;return {mode:'LOCAL_REPOSITORY_PREVIEW'};});
+  await writeFile(path.join(contextDirectory,'main.py'),'pass');
+  const d=await post('/api/investigations/discover-repository',{sourceRoot:contextDirectory});assert.equal(d.status,200);assert.deepEqual((await d.json()).files,['main.py']);
+  const result=await post('/api/investigations/preview-repository',{sourceRoot:contextDirectory,files:[]});assert.equal(result.status,200);assert.equal(received.action,'preview-repository');assert.deepEqual(received.request.files,['main.py']);assert.equal(received.request.target.sourceProfile.product,'UNSPECIFIED');
+  const bad={...request,files:[],collectionBudget:{...request.collectionBudget,maxBytes:1}};
+  const limited=await post('/api/investigations',{sourceRoot:contextDirectory,request:bad});assert.equal((await limited.json()).error,'PROJECT_DISCOVERY_LIMIT');
+  assert.equal((await post('/api/investigations/discover-repository',{sourceRoot:contextDirectory},{Origin:'https://elsewhere'})).status,403);
+});
+test('model status exposes only backend metadata and generic page has no fixed scenario controls',async t=>{
+  const {base}=await setup(t,async input=>{assert.equal(input.action,'model-config');return {configured:true,provider:'custom',model:'org/model'};});
+  const response=await fetch(base+'/api/investigations/model-config');assert.deepEqual(await response.json(),{configured:true,provider:'custom',model:'org/model'});
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  for(const id of ['scenario','source-product','source-version','target-product','target-version','dotnet-example','csharp-example'])assert.equal(html.includes(`id="${id}"`),false);
+  assert.match(html,/id="objective" required/);assert.match(html,/id="source-root" required/);assert.doesNotMatch(html,/id="source-files" required/);
 });

@@ -8,7 +8,7 @@ export async function discoverDotnetProject(root) {
   if (!(await lstat(base)).isDirectory()) throw new Error('SOURCE_ROOT_INVALID');
   const files = [], excluded = [], projects = [], solutions = [];
   const ignored = new Set(['bin', 'obj', '.git', '.vs', '.idea', 'node_modules', 'packages']);
-  let entries = 0, bytes = 0;
+  let entries = 0, bytes = 0, xamlFiles = 0;
   const deadline = Date.now() + 10000;
   async function walk(dir, depth) {
     if (depth > 20) throw new Error('PROJECT_DISCOVERY_LIMIT');
@@ -24,6 +24,8 @@ export async function discoverDotnetProject(root) {
         else await walk(candidate, depth + 1);
       } else if (entry.isFile()) {
         const name = entry.name.toLowerCase();
+        // 当前平台清单只解析工程声明；发现 WPF 标记文件时要显式报告未采集范围。
+        if (name.endsWith('.xaml')) xamlFiles++;
         const isProject = /\.(csproj|vbproj|fsproj)$/.test(name), isSolution = /\.(sln|slnx)$/.test(name);
         const supported = isProject || isSolution || /\.(cs|vb|fs|fsx)$/.test(name)
           || /^directory\.(build\.(props|targets)|packages\.props)$/.test(name)
@@ -48,5 +50,6 @@ export async function discoverDotnetProject(root) {
       '候选清单包含 .NET Framework、.NET Core 和现代 .NET 项目；各项目的语言、SDK 与目标框架将分别识别。',
       '不执行 MSBuild、restore 或源码；条件、导入、生成文件、外部引用及运行时行为仍需核实。',
       '配置文件仅用于本地结构识别，连接串和配置值不会加入现状报告或模型请求。',
+      ...(xamlFiles ? [`发现 ${xamlFiles} 个 XAML 文件；当前清单不采集或解析 XAML 界面结构。`] : []),
     ] };
 }

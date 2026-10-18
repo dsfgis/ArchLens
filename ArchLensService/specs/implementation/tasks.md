@@ -1,5 +1,7 @@
 # ArchLens 自主迁移设计 Agent：实施任务
 
+2026-10-13 通用入口增量：用户以代码库路径、可选数据库连接、通用约束及自然语言目的输入；页面不固定场景或技术栈，模型通过后端配置。现有 Java Agent 增加项目声明识别与有界子调查委派，属于旧调查入口的改进，不等同于 LangGraph、MigrationPlan 或完整语义分析验收。实现及本次验证见[通用入口记录](../../../docs/verification/generic-analysis-2026-10-13.md)。
+
 <!-- 2026-09-30：从批准设计重建下一阶段任务；旧任务完成勾选已于 2026-09-29 逐字归档，不复制为新阶段完成状态。 -->
 
 重建完成日期：2026-09-30。配套：[需求](requirements.md)、[设计](design.md)、[验收](check_list.md)。依据：[详细设计](../../../docs/design/ArchLens-自主迁移设计Agent-详细设计-v2.0.md)、[现有项目总结](../../../docs/design/ArchLens-现有项目总结-2026-09-29.md)。历史见[旧任务归档](../../../docs/archive/2026-09-29/ArchLensService/specs/implementation/tasks.md)。
@@ -35,7 +37,7 @@ P0→P1→P2→P3→P4 为阶段依赖。阶段内部可在契约确定后并行
 | MIG-T02 部分实现（Java/Node 契约） | Java 权威引用校验、Node 24/Ajv 2020-12 五 Schema 校验、六组共用 canonical/hash 黄金样例、精确 v1 版本拒绝、可空字段显式约束、Node 原始 JSON 重复键拒绝，以及一份旧 Agent 报告的字节/canonical 回读基线已实现；其余旧版本回读、跨运行导入票据和 checkpoint 版本适配仍待实现。见[契约一致性验证](../../../docs/verification/migration-contract-parity-2026-10-02.md)及[输入与旧报告验证](../../../docs/verification/migration-input-legacy-2026-10-02.md) | T01 | R05、R17 | AC11、20、25、27 |
 | MIG-T03 部分实现（V002–V004） | 已追加 V002 的 migration 业务表与独立 checkpoint schema、V003 提交键表、V004 小型工具结果表、版本校验和及引用/唯一性约束；临时 PG 16 验证升级、旧运行回读、默认权限和漂移拒绝。实际角色授权、legacyRunRef 导入核验与框架 checkpoint 表仍待实现；旧 V001/V002/V003 字节不变。见[存储结构验证](../../../docs/verification/migration-storage-schema-2026-10-02.md)、[运行状态验证](../../../docs/verification/migration-run-lifecycle-2026-10-02.md)和[工具调用验证](../../../docs/verification/migration-tool-ledger-2026-10-02.md) | T01–02 | R10、R17 | AC15、18、25 |
 | MIG-T04 部分实现（入队/租约/取消） | Java PG 存储已实现新 Case 提交键幂等入队、单 worker 领取、PG 时钟续租/过期 epoch 接管、当前修订围栏及重复取消回执与受控事件；临时 PG 并发和迟到负例已验证。暂停/取代、checkpoint 认可、完整工具/封存事务、完成门槛与调度仍待实现。见[运行状态验证](../../../docs/verification/migration-run-lifecycle-2026-10-02.md) | T03 | R04、R10、R14 | AC15–18、26 |
-| MIG-T05 部分实现（规则目录账本） | Java 内部 `list_rules` 工具已用固定版本/无参 Manifest、PG 调用账本和小型结果存储完成登记→派发→发布；校验允许工具、调用次数预算、当前修订与租约 epoch，重放同一动作回读同一产物。临时 PG 验证过期/取消围栏与未授权拒绝。跨进程 JSON Lines、通用能力票据、来源范围/实际快照、更多真实采集工具、崩溃故障注入及完整共享预算仍待实现。见[工具调用验证](../../../docs/verification/migration-tool-ledger-2026-10-02.md) | T02–04 | R05、R06、R11 | AC09、11、16、18 |
+| MIG-T05 部分实现（规则目录账本与桥接） | 固定版本/无参 `list_rules` 已通过 PG 账本及小型结果存储完成登记→派发→发布，校验允许工具、调用次数预算、当前修订与租约 epoch。Java/Node UTF-8 JSON Lines 现有 `REGISTER`/`INSPECT`/`EXECUTE`，Node 接管先对账，完成时回读同一产物。临时 PG 验证登记/派发提交后强制结束子进程和新 epoch 恢复。通用能力票据、来源范围/实际快照、更多真实采集工具、图 checkpoint/调度及完整共享预算仍待实现。见[工具调用验证](../../../docs/verification/migration-tool-ledger-2026-10-02.md)、[跨进程验证](../../../docs/verification/migration-tool-bridge-2026-10-03.md)和[恢复验证](../../../docs/verification/migration-tool-recovery-2026-10-03.md) | T02–04 | R05、R06、R11 | AC09、11、16、18 |
 | MIG-T06 待开发 | 锁定 Node/TS/LangGraph 及持久化包；thread=runId、epoch namespace 的状态导入、checkpoint_link CAS/序号、错误恢复适配 | T03–05 | R03–04、R10 | AC16、18–20、26 |
 | MIG-T07 待开发 | 本机持久调度器、租约心跳、重启对账、共享预算预留/结算；取消旧结果与并发指针倒退负例 | T04–06 | R04、R10、R16 | AC16–21、26 |
 | MIG-T08 待开发 | P0 实际工具/数据库账本/worker 联调、故障注入与旧接口回归；写版本、依赖许可证、恢复实验及阶段记录 | T01–07 | R03、R17–20 | AC09、11、15–20、25–26 |
@@ -66,7 +68,7 @@ P1 允许以现有候选证据形成有明确假设的草案；若用户要求�
 
 | ID / 状态 | 实现及交付 | 依赖 | 需求/设计 | 验收 |
 | --- | --- | --- | --- | --- |
-| MIG-T18 待开发 | Roslyn 独立进程协议、项目/TFM/编译条件、显式引用程序集及符号产物；缺引用不猜绑定；静态模式禁 analyzer/generator/MSBuild | P1、T02、T05 | R05–06、R11 | AC02–03、07、09、11 |
+| MIG-T18 进行中（有限 C# 静态取证） | 已接入独立 Roslyn 进程，按授权 `.csproj` 分组，输出符号/调用绑定及来源哈希、位置；缺项目引用保留缺口，静态模式不运行被分析项目。显式目标 TFM/编译条件/引用程序集、跨项目绑定、VB 及完整覆盖分母仍待开发 | P1、T02、T05 | R05–06、R11 | AC02–03、07、09、11 |
 | MIG-T19 待开发 | 从一个数据访问适配器开始建立 SQL/ORM、参数/实体/事务线索，逐段关联到已采集对象；保存候选与绑定差异 | T10、T18 | R06–07 | AC03、07–08、13 |
 | MIG-T20 待开发 | 指定首例源版本的对象定义/关键配置采集、固定系统查询、产品权限/非原子性覆盖，准备有限定义上下文 | T10–11 | R06、R12 | AC04–05、09–10 |
 | MIG-T21 待开发 | SourceFeature/TargetCapability/MappingRule/PairException，首个明确数据库方向、版本/模式匹配、精度/时间/空值/事务正反例 | T19–20；目标版本已确定 | R07、R13 | AC05–06、13、22 |

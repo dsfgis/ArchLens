@@ -29,37 +29,35 @@ public final class DeepSeekGateway {
     public record Reply(int status, String body) {}
     @FunctionalInterface public interface Transport { Reply send(HttpRequest request) throws Exception; }
     public record Result(String provider, String model, String status, TargetProposal proposal) {}
-    private final String key;
-    private final String model;
+    private final ModelConfig config;
     private final Transport transport;
 
-    public DeepSeekGateway(String key, String model) {
-        this(key, model, request -> {
-            var client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(15))
-                    .followRedirects(HttpClient.Redirect.NEVER).build();
-            var response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return new Reply(response.statusCode(), response.body());
+    public DeepSeekGateway(String key, String model) { this(ModelConfig.legacyDeepSeek(key,model)); }
+    public DeepSeekGateway(ModelConfig config) {
+        this(config,request -> {
+            try(var client=HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(15)).followRedirects(HttpClient.Redirect.NEVER).build()) {
+                var response=client.send(request,HttpResponse.BodyHandlers.ofString());
+                return new Reply(response.statusCode(),response.body());
+            }
         });
     }
-    public DeepSeekGateway(String key, String model, Transport transport) {
-        require(key != null && !key.isBlank() && !key.contains("\r") && !key.contains("\n"),
-                "MODEL_NOT_CONFIGURED", "Set DEEPSEEK_API_KEY on the backend");
-        this.key = key;
-        this.model = model == null || model.isBlank() ? DEFAULT_MODEL : model;
-        require(this.model.matches("[A-Za-z0-9._-]{1,80}"), "INVALID_MODEL_CONFIG", "Invalid model name");
-        this.transport = Objects.requireNonNull(transport);
+    public DeepSeekGateway(String key,String model,Transport transport){this(ModelConfig.legacyDeepSeek(key,model),transport);}
+    private DeepSeekGateway(ModelConfig config,Transport transport){
+        require(config!=null,"MODEL_NOT_CONFIGURED","Configure the backend model");
+        this.config=config;this.transport=Objects.requireNonNull(transport);
     }
     public Result parse(String description) {
         require(description != null && description.strip().length() >= 10 && description.length() <= 4000,
                 "INVALID_TARGET_DESCRIPTION", "Target description must contain 10..4000 characters");
         try {
-            var body = Map.of("model", model, "stream", false, "max_tokens", 1800,
-                    "thinking", Map.of("type", "disabled"), "response_format", Map.of("type", "json_object"),
-                    "messages", List.of(Map.of("role", "system", "content", PROMPT),
-                            Map.of("role", "user", "content", description.strip())));
-            var request = HttpRequest.newBuilder(ENDPOINT).timeout(Duration.ofSeconds(60))
-                    .header("Authorization", "Bearer " + key).header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(Json.MAPPER.writeValueAsString(body))).build();
+            var body=new LinkedHashMap<String,Object>();
+            body.put("model",config.model());body.put("stream",false);body.put("max_tokens",1800);
+            body.put("response_format",Map.of("type","json_object"));
+            if(config.legacyDeepSeek())body.put("thinking",Map.of("type","disabled"));
+            body.put("messages",List.of(Map.of("role","system","content",PROMPT),Map.of("role","user","content",description.strip())));
+            var builder=HttpRequest.newBuilder(config.endpoint()).timeout(Duration.ofSeconds(60)).header("Content-Type","application/json");
+            if(config.apiKey()!=null&&!config.apiKey().isBlank())builder.header("Authorization","Bearer "+config.apiKey());
+            var request=builder.POST(HttpRequest.BodyPublishers.ofString(Json.canonical(body),java.nio.charset.StandardCharsets.UTF_8)).build();
             var response = transport.send(request);
             if (response.status != 200) {
                 String code = switch (response.status) {
@@ -69,7 +67,7 @@ public final class DeepSeekGateway {
                     default -> "MODEL_UNAVAILABLE";
                 };
                 // Never include the remote body, headers or credentials in diagnostics.
-                throw new ContractException(code, "DeepSeek request failed (HTTP " + response.status + ")");
+                throw new ContractException(code, "Model request failed (HTTP " + response.status + ")");
             }
             require(response.body != null && response.body.length() <= 128_000, "INVALID_MODEL_OUTPUT", "Response too large or empty");
             var root = Json.MAPPER.readTree(response.body);
@@ -84,11 +82,11 @@ public final class DeepSeekGateway {
             try { proposal = Json.MAPPER.readValue(content.textValue(), TargetProposal.class); }
             catch (Exception ignored) { throw new ContractException("INVALID_MODEL_OUTPUT", "Model proposal failed schema validation"); }
             require(proposal != null, "INVALID_MODEL_OUTPUT", "Model proposal must be an object");
-            return new Result("deepseek", model, "UNVERIFIED_PROPOSAL", proposal);
+            return new Result(config.provider(), config.model(), "UNVERIFIED_PROPOSAL", proposal);
         } catch (ContractException e) { throw e;
-        } catch (HttpTimeoutException e) { throw new ContractException("MODEL_TIMEOUT", "DeepSeek request timed out");
+        } catch (HttpTimeoutException e) { throw new ContractException("MODEL_TIMEOUT", "Model request timed out");
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); throw new ContractException("MODEL_INTERRUPTED", "DeepSeek request interrupted");
-        } catch (Exception e) { throw new ContractException("MODEL_UNAVAILABLE", "DeepSeek transport or response failed"); }
+            Thread.currentThread().interrupt(); throw new ContractException("MODEL_INTERRUPTED", "Model request interrupted");
+        } catch (Exception e) { throw new ContractException("MODEL_UNAVAILABLE", "Model transport or response failed"); }
     }
 }

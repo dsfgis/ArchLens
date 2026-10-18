@@ -67,11 +67,28 @@ public final class AgentContracts {
             bounded(outcome,30);bounded(explanation,2000);verificationSuggestions=List.copyOf(verificationSuggestions);
             require(verificationSuggestions.size()<=8,"AGENT_EXPLANATION_INVALID","Too many suggestions");verificationSuggestions.forEach(v->bounded(v,500));}
     }
+    public record MigrationStep(String phase,String action,List<String> factIds,String validation) {
+        public MigrationStep {bounded(phase,80);bounded(action,1000);factIds=List.copyOf(factIds);require(factIds.size()<=30,"MIGRATION_PLAN_INVALID","Too many fact references");bounded(validation,500);}
+    }
+    public record MigrationPlan(String status,String targetArchitecture,List<MigrationStep> steps,List<String> openQuestions) {
+        public MigrationPlan {
+            require("UNVERIFIED_PROPOSAL".equals(status),"MIGRATION_PLAN_INVALID","Plan cannot claim verification");
+            bounded(targetArchitecture,500);steps=List.copyOf(steps);openQuestions=List.copyOf(openQuestions);
+            require(!steps.isEmpty()&&steps.size()<=10&&openQuestions.size()<=10,"MIGRATION_PLAN_INVALID","Plan size outside limits");
+            openQuestions.forEach(q->bounded(q,500));
+        }
+    }
     public record Report(String schemaVersion,String engineVersion,String requestHash,Request request,int revision,String parentReportHash,
                          Status status,String orchestration,String startedAt,String finishedAt,Target interpretedTarget,
                          Map<String,String> userAnswers,List<Question> questions,List<Trace> trace,List<String> selectedRuleIds,
-                         InvestigationReport investigation,List<Explanation> explanations,String explanationStatus,List<String> diagnostics,int modelCalls) {
+                         InvestigationReport investigation,List<Explanation> explanations,String explanationStatus,List<String> diagnostics,int modelCalls,
+                         @JsonInclude(JsonInclude.Include.NON_NULL) RepositoryInspector.Inventory repositoryInventory,
+                         @JsonInclude(JsonInclude.Include.NON_EMPTY) List<Report> subtasks,
+                         @JsonInclude(JsonInclude.Include.NON_NULL) io.archlens.investigation.dotnet.DotnetSemantics.Result dotnetSemantics,
+                         @JsonInclude(JsonInclude.Include.NON_NULL) MigrationPlan migrationPlan) {
         public Report {
+            subtasks=subtasks==null?List.of():List.copyOf(subtasks);
+            require(subtasks.size()<=2&&subtasks.stream().allMatch(r->r.subtasks().isEmpty()),"AGENT_REPORT_INVALID","Subtask depth/count exceeded");
             userAnswers=Map.copyOf(userAnswers);questions=List.copyOf(questions);trace=List.copyOf(trace);selectedRuleIds=List.copyOf(selectedRuleIds);
             explanations=List.copyOf(explanations);diagnostics=List.copyOf(diagnostics);
             require(schemaVersion.equals(request.schemaVersion())&&Json.hash(request).equals(requestHash),"AGENT_REPORT_INVALID","Report does not match original request");

@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import static io.archlens.contract.ContractException.require;
 
@@ -18,6 +19,8 @@ public final class PgMigrationToolStore {
 
     public record Registered(UUID invocationId, UUID taskId, String inputHash, String snapshotHash) {}
     public record Result(UUID invocationId, UUID artifactId, String contentHash, String contentUtf8) {}
+    public record InvocationView(UUID invocationId, UUID taskId, String status,
+                                 String inputHash, String snapshotHash, UUID artifactId, String contentHash) {}
 
     /** This manifest is intentionally narrow: no model-selected path, SQL, or arbitrary arguments. */
     public Map<String, Object> manifest() {
@@ -87,13 +90,53 @@ public final class PgMigrationToolStore {
         });
     }
 
-    /** Dispatch is committed before computation; a crash can replay the same pure catalog lookup. */
-    public Result executeRuleCatalog(PgMigrationRunStore.Ticket ticket, UUID invocationId) throws SQLException {
+    /** Read the durable ledger before recovery; never infer completion from a process exit code. */
+    public InvocationView inspectRuleCatalog(PgMigrationRunStore.Ticket ticket, UUID invocationId,
+                                             String expectedSnapshotHash) throws SQLException {
         require(invocationId != null, "MIG_INVOCATION_INVALID", "Invocation ID is required");
-        Result prior = transaction(connection -> {
+        return transaction(connection -> {
             activeContext(connection, ticket);
             Invocation invocation = invocation(connection, ticket, invocationId);
-            if ("SUCCEEDED".equals(invocation.status)) return result(connection, invocationId);
+            require(expectedSnapshotHash == null || expectedSnapshotHash.equals(invocation.snapshotHash),
+                    "MIG_INVOCATION_CONFLICT", "Bridge snapshot differs from registered invocation");
+            require(Set.of("REGISTERED", "DISPATCHED", "SUCCEEDED").contains(invocation.status),
+                    "MIG_INVOCATION_TERMINAL", "Invocation is terminal or needs separate recovery handling");
+            if ("SUCCEEDED".equals(invocation.status)) {
+                Result stored = result(connection, invocationId); // Hash is checked before returning a reference.
+                return new InvocationView(invocationId, invocation.taskId, invocation.status,
+                        invocation.inputHash, invocation.snapshotHash, stored.artifactId, stored.contentHash);
+            }
+            return new InvocationView(invocationId, invocation.taskId, invocation.status,
+                    invocation.inputHash, invocation.snapshotHash, null, null);
+        });
+    }
+
+    /** Dispatch is committed before computation; a crash can replay the same pure catalog lookup. */
+    public Result executeRuleCatalog(PgMigrationRunStore.Ticket ticket, UUID invocationId) throws SQLException {
+        return executeRuleCatalog(ticket, invocationId, null);
+    }
+
+    /** A bridge caller supplies the registered catalog snapshot identity; the ledger remains authoritative. */
+    public Result executeRuleCatalog(PgMigrationRunStore.Ticket ticket, UUID invocationId, String expectedSnapshotHash) throws SQLException {
+        InvocationView dispatched = dispatchRuleCatalog(ticket, invocationId, expectedSnapshotHash);
+        if ("SUCCEEDED".equals(dispatched.status)) return loadResult(invocationId);
+        return completeRuleCatalog(ticket, invocationId, expectedSnapshotHash);
+    }
+
+    /** Separate dispatch commit exposes a real crash window without changing the result transaction. */
+    public InvocationView dispatchRuleCatalog(PgMigrationRunStore.Ticket ticket, UUID invocationId,
+                                              String expectedSnapshotHash) throws SQLException {
+        require(invocationId != null, "MIG_INVOCATION_INVALID", "Invocation ID is required");
+        return transaction(connection -> {
+            activeContext(connection, ticket);
+            Invocation invocation = invocation(connection, ticket, invocationId);
+            require(expectedSnapshotHash == null || expectedSnapshotHash.equals(invocation.snapshotHash),
+                    "MIG_INVOCATION_CONFLICT", "Bridge snapshot differs from registered invocation");
+            if ("SUCCEEDED".equals(invocation.status)) {
+                Result stored = result(connection, invocationId);
+                return new InvocationView(invocationId, invocation.taskId, invocation.status,
+                        invocation.inputHash, invocation.snapshotHash, stored.artifactId, stored.contentHash);
+            }
             require("REGISTERED".equals(invocation.status) || "DISPATCHED".equals(invocation.status),
                     "MIG_INVOCATION_TERMINAL", "Invocation cannot be dispatched");
             try (var update = connection.prepareStatement("UPDATE archlens.tool_invocation SET status='DISPATCHED' WHERE invocation_id=?")) {
@@ -102,16 +145,22 @@ public final class PgMigrationToolStore {
             try (var update = connection.prepareStatement("UPDATE archlens.migration_task SET status='RUNNING',attempts=attempts+1,updated_at=clock_timestamp() WHERE task_id=?")) {
                 update.setObject(1, invocation.taskId); update.executeUpdate();
             }
-            return null;
+            return new InvocationView(invocationId, invocation.taskId, "DISPATCHED",
+                    invocation.inputHash, invocation.snapshotHash, null, null);
         });
-        if (prior != null) return prior;
+    }
 
+    /** Publish only after a live epoch checks the immutable catalog snapshot and result hash. */
+    public Result completeRuleCatalog(PgMigrationRunStore.Ticket ticket, UUID invocationId,
+                                      String expectedSnapshotHash) throws SQLException {
         String content = catalogContent();
         require(content.getBytes(StandardCharsets.UTF_8).length <= 65_536,
                 "MIG_TOOL_RESULT_LIMIT", "Rule catalog exceeds the bounded result limit");
         return transaction(connection -> {
             activeContext(connection, ticket); // A cancelled, expired or replaced epoch cannot publish a result.
             Invocation invocation = invocation(connection, ticket, invocationId);
+            require(expectedSnapshotHash == null || expectedSnapshotHash.equals(invocation.snapshotHash),
+                    "MIG_INVOCATION_CONFLICT", "Bridge snapshot differs from registered invocation");
             if ("SUCCEEDED".equals(invocation.status)) return result(connection, invocationId);
             require("DISPATCHED".equals(invocation.status), "MIG_INVOCATION_TERMINAL", "Invocation is not dispatched");
             require(invocation.snapshotHash.equals(Json.sha256(content.getBytes(StandardCharsets.UTF_8))),
@@ -164,14 +213,14 @@ public final class PgMigrationToolStore {
         }
     }
 
-    private record Invocation(String status, String snapshotHash, UUID taskId) {}
+    private record Invocation(String status, String inputHash, String snapshotHash, UUID taskId) {}
     private Invocation invocation(Connection connection, PgMigrationRunStore.Ticket ticket, UUID invocationId) throws SQLException {
-        try (var query = connection.prepareStatement("SELECT status,snapshot_hash,task_id FROM archlens.tool_invocation WHERE invocation_id=? AND run_id=? AND revision=? AND tool_id=? AND tool_version=?")) {
+        try (var query = connection.prepareStatement("SELECT status,input_hash,snapshot_hash,task_id FROM archlens.tool_invocation WHERE invocation_id=? AND run_id=? AND revision=? AND tool_id=? AND tool_version=?")) {
             query.setObject(1, invocationId); query.setObject(2, ticket.runId());
             query.setInt(3, ticket.revision()); query.setString(4, TOOL_ID); query.setString(5, RuleCatalog.VERSION);
             try (var rows = query.executeQuery()) {
                 require(rows.next(), "MIG_INVOCATION_NOT_FOUND", "Invocation is outside the run or tool version");
-                return new Invocation(rows.getString(1), rows.getString(2), rows.getObject(3, UUID.class));
+                return new Invocation(rows.getString(1), rows.getString(2), rows.getString(3), rows.getObject(4, UUID.class));
             }
         }
     }

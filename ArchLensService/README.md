@@ -4,13 +4,41 @@
 2026-09-26 更新：[业务数据库与目标环境](../docs/archive/2026-09-29/ArchLensService/docs/business-database.md)。已支持 MySQL 8.x 与 Oracle、人大金仓 KingbaseES、达梦 DM 的连接及只读结构采集，并输出代码 SQL 对象名的静态候选关联；后三种数据库仍需厂商 JDBC 驱动及实库验证。目标环境仅记录声明，运行时依赖确认和迁移评估仍待实现。
 当前文档整理完成：2026-09-30；源码总结基线：2026-09-29。[文档导航](../docs/README.md) 汇总两份设计基线、新 specs、运行入口与历史归档。下文指向 `docs/archive/` 的文件为保留原日期的历史说明；历史测试结果不代表本次验证。
 
-下一阶段按 [重建后的迁移设计规格](specs/implementation/requirements.md) 实施。现有基线包含 **0.1 确定性列分析**，以及 **统一调查与自身存储切片**：显式文件清单/列分析 → 证据报告 → PG Case/Run/修订 → Neo4j 图投影。LangGraph、Roslyn 语义、迁移方案和隔离验证尚待开发；当前不能作为生产系统完整扫描或上线审批工具。
+下一阶段按 [重建后的迁移设计规格](specs/implementation/requirements.md) 实施。现有基线包含 **0.1 确定性列分析**，以及 **统一调查与自身存储切片**：显式文件清单/列分析 → 证据报告 → PG Case/Run/修订 → Neo4j 图投影。已加入有限的本地 Roslyn 符号取证与 Agent 迁移草案；完整项目绑定、正式 MigrationPlan v1 封存、LangGraph 和隔离验证尚待开发，当前不能作为生产系统完整扫描或上线审批工具。
 
 新入口、凭据配置、数据库权限、失败恢复和验收命令见 [调查与双存储切片](../docs/archive/2026-09-29/ArchLensService/docs/investigation-storage.md)。本机网页已加入 Agent 提交、澄清、状态、证据报告和历史修订适配，2026-09-20 已实测 MySQL SQL 调查网页闭环、澄清及重启回读，见 [验证记录](../docs/archive/2026-09-29/ArchLensService/docs/verification-web-2026-09-20.md)；运行方法见 [前端说明](../ArchLensClient/README.md)。
 
 现已新增 [多场景兼容规则与调查](../docs/archive/2026-09-29/ArchLensService/docs/scenario-rules.md)：25 条固定版本规则覆盖 MySQL/Oracle → PostgreSQL、C# → Java、Java 重构，以及 Spring Boot/JDK/HttpClient 升级的明确子集。提供七组可运行样例、带原文位置及官方规则依据的 v2 报告，并可在 PG 封存；关键代码含中文注释。
 
 后续目标为“代码来源 + 按需业务数据库连接 + 目标环境 + 自然语言目的”的自主迁移设计，覆盖 .NET Framework/.NET Core/现代 .NET 到 Java、数据库迁移和信创组合改造。现有 .NET 声明盘点、三种分析模式、业务库采集与候选关联纳入复用基线；源码、规则覆盖与真实验证差异见 [项目总结](../docs/design/ArchLens-现有项目总结-2026-09-29.md)。
+
+## 通用模型配置（2026-10-13）
+
+### 本地 C# 语义取证（初版）
+
+先安装 .NET 10 SDK，再从 `ArchLensService/` 运行 `dotnet build analyzers/dotnet/ArchLens.Semantics.csproj -c Release`。Agent 的 `inspect_dotnet_semantics` 只向此本地进程传入本次显式授权的 `.cs` 与 `.csproj` 原文及哈希；工具读取无条件的直接工程引用和 SDK 隐式 using，并按工程使用 Roslyn 绑定类型、方法、调用和对象创建，输出符号、绑定状态及 UTF-8 字节/Unicode 行列位置。不加载解决方案、不还原或构建被分析项目，也不运行其 analyzer、source generator 或脚本。工具本身引用 SDK 自带的 Roslyn 程序集，没有额外 NuGet 包。
+
+默认查找 `analyzers/dotnet/bin/Release/net10.0/ArchLens.Semantics.dll`。部署到其他位置可设 `ARCHLENS_DOTNET_SEMANTIC_TOOL` 为 DLL 绝对路径，`ARCHLENS_DOTNET_HOST` 为 dotnet 可执行文件路径。未安装或未构建时报告 `ROSLYN_TOOL_NOT_BUILT` / `ROSLYN_TOOL_UNAVAILABLE`，不生成虚假的语义事实。条件工程配置、实际编译项、未明确声明的 C# 语言版本和生成代码仍未求值；运行时程序集只提供有限的宿主框架绑定，不能当作项目目标框架或第三方依赖验证。Agent 基于匿名编号组织 `UNVERIFIED_PROPOSAL` 迁移步骤，完整事实仅留在本地报告；该草案不是正式 MigrationPlan v1，也不声称目标兼容。
+
+离线烟测可准备 UTF-8 JSON 数组文件，列出相对项目根目录的 `.csproj` 与 `.cs` 路径，然后在 `ArchLensService/` 运行 `java -cp target/archlens-0.1.0-SNAPSHOT-cli.jar io.archlens.cli.DotnetSemanticsCli <项目根目录> <files.json>`。输出为只读 JSON；它不初始化 PG/Neo4j，也不调用模型。
+
+首页以代码库路径、可选业务数据库连接、文字目的与通用约束提交，`target=null`。Node 自动发现清单；Java 的 `RepositoryInspector` 在本地提取技术声明，`AgentOrchestrator` 根据目标调用工具或委派子 Agent。`repositoryInventory`、`subtasks`、`dotnetSemantics` 和 `migrationPlan` 是报告可选字段，旧报告缺省时不序列化，保持原 canonical 哈希。没有替换或接入规划中的 LangGraph 持久 worker。
+
+设置后端进程环境（密钥用环境注入或启动脚本隐藏输入）：
+
+| 变量 | 含义 |
+| --- | --- |
+| `ARCHLENS_LLM_PROVIDER` | 供应商标签，可省略为 `compatible` |
+| `ARCHLENS_LLM_ENDPOINT` | 完整 Chat Completions URL，例如服务商的 `/v1/chat/completions`；不自动追加路径 |
+| `ARCHLENS_LLM_MODEL` | 该端点提供的模型 ID，支持命名空间与版本标签 |
+| `ARCHLENS_LLM_API_KEY` | 服务端 API 密钥；回环地址的本地模型允许无密钥 |
+| `ARCHLENS_LLM_DISABLED` | `true` 禁用所有模型，便于离线回归 |
+
+要求服务兼容 Chat Completions `messages/tools/tool_calls`；仅支持每轮一个 function 工具调用，不支持任意供应商原生协议。远程地址要求 HTTPS，本机 `localhost/127.0.0.1/::1` 允许 HTTP；拒绝重定向、URL 内凭据、查询参数和 fragment。超时、鉴权、格式错误返回脱敏错误码，不静默切回其他模型。通用配置优先于旧 `DEEPSEEK_API_KEY/DEEPSEEK_MODEL`，旧配置仍通过兼容适配器使用原默认端点及模型。
+
+主循环预算仍最多 16 次模型调用、24 次工具调用、120 秒。模型可以直接分析一个目标，或 `delegate_analysis` 顺序委派最多两项子调查；每项最多 6 次模型调用，不递归委派，合计计入父预算。子报告不代表新增语义分析能力；未知规则、源版本缺口、取消、漂移和澄清状态均保留。前端不配置这些内部流程。
+
+只有白名单技术名称、字面版本、匿名规则摘要及用户目标/约束/回答进入模型。来源路径、源码、项目名称、业务库对象名和连接凭据保留在本地。Maven 仅解析直接声明和一层本地属性；不执行构建、下载父 POM、解析动态 Gradle、推断 C# 默认语言版本，或把混合版本归为统一事实。
 
 ## 运行
 
@@ -54,7 +82,7 @@ catalog 中的标识符必须使用数据库实际大小写，`defaultSchema` �
 
 源码必须为 UTF-8；采集单文件最多 5 MB；路径只能指向输入根目录内的真实文件。旧列分析证据是整文件范围；新规则的 SQL/C# token 和 Java AST 证据有原文 UTF-8 字节及 Unicode 码点行列，XML/比较计划仍为整文件。行列从 1 开始、end 不包含。新规则解析另有更小的文件/token/发现数量限额，详见多场景说明。
 
-风险 B/K/D 都保留来源；业务关键性和恢复信息缺失时使用区间。报告没有生产权限系统，不应通过 HTTP 对外暴露这个 CLI。PG/Neo4j 和 Case/Run 用于 ArchLens 自身存储；业务库采集独立于自身存储，已包含四产品的采集代码，但后三种产品尚待实库验证。尚未提供 Spring Boot API、Vue 界面或生产身份鉴权；当前服务仅限本机单用户场景。DeepSeek 分为旧提议接口与 Agent 工具编排；前者生成 UNVERIFIED_PROPOSAL，后者保存确定性调查和单列的 MODEL_EXPLANATION_UNVERIFIED 解释。
+风险 B/K/D 都保留来源；业务关键性和恢复信息缺失时使用区间。报告没有生产权限系统，不应通过 HTTP 对外暴露这个 CLI。PG/Neo4j 和 Case/Run 用于 ArchLens 自身存储；业务库采集独立于自身存储，已包含四产品的采集代码，但后三种产品尚待实库验证。尚未提供 Spring Boot API、Vue 界面或生产身份鉴权；当前服务仅限本机单用户场景。可配置模型分为旧提议接口与 Agent 工具编排；前者生成 UNVERIFIED_PROPOSAL，后者保存确定性调查和单列的 MODEL_EXPLANATION_UNVERIFIED 解释。
 
 ## 后续实施与验证
 
@@ -72,7 +100,11 @@ P0 存储继续追加 [V002 迁移任务表](src/main/resources/db/V002__migrati
 
 [PgMigrationRunStore](src/main/java/io/archlens/storage/PgMigrationRunStore.java) 已实现新 Case 的幂等入队、单 worker 领取、PG 时钟续租/过期接管和重复取消回执。提交键由宿主生成，同键不同请求拒绝；取消在同一事务写受控事件并使旧 epoch 失效。它是 Java 内部存储接口，尚未接入网页/API/调度器，不能单独完成迁移调查。暂停、澄清修订、checkpoint 认可、封存及 LangGraph worker 仍待实现；见[运行状态验证](../docs/verification/migration-run-lifecycle-2026-10-02.md)。
 
-[PgMigrationToolStore](src/main/java/io/archlens/storage/PgMigrationToolStore.java) 新增 MIG-T05 的首个真实只读工具 `list_rules`：宿主传入任务和动作身份，先在 PG 登记调用并按请求中的 `allowedTools` 与 `maxToolCalls` 校验，再派发既有 `RuleCatalog`。成功结果原字节及 SHA-256 持久化；重试复用 invocationId 和结果。登记、派发、发布都要求当前 Case 修订及有效 worker 租约，取消/接管后的旧票据不能发布。当前只支持无参规则目录与 64 KiB 以内的 PG 结果，目录 hash 仅代表规则目录快照，不代表代码或业务数据库快照；尚无 JSON Lines 跨进程桥接、通用 Manifest、外部授权登记和调度器。见[工具调用验证](../docs/verification/migration-tool-ledger-2026-10-02.md)。
+[PgMigrationToolStore](src/main/java/io/archlens/storage/PgMigrationToolStore.java) 新增 MIG-T05 的首个真实只读工具 `list_rules`：宿主传入任务和动作身份，先在 PG 登记调用并按请求中的 `allowedTools` 与 `maxToolCalls` 校验，再派发既有 `RuleCatalog`。成功结果原字节及 SHA-256 持久化；重试复用 invocationId 和结果。登记、派发、发布都要求当前 Case 修订及有效 worker 租约，取消/接管后的旧票据不能发布。当前只支持无参规则目录与 64 KiB 以内的 PG 结果，目录 hash 仅代表规则目录快照，不代表代码或业务数据库快照；见[工具调用验证](../docs/verification/migration-tool-ledger-2026-10-02.md)。
+
+2026-10-03 新增 [`migration-tool-bridge`](src/main/java/io/archlens/cli/MigrationToolBridgeCli.java) 与 [Node 进程适配器](agent-runtime/src/tool-bridge.ts)：受信任宿主通过 UTF-8 JSON Lines 的 `REGISTER`、`EXECUTE` 两步调用上述固定工具。Java 每次核对请求版本、工具版本、当前租约和账本；成功响应只含 invocationId、哈希和 PG artifact 引用，不向 Node 传规则正文。单条请求和响应各限 16 KiB，Node 子进程超时上限 30 秒、参数数组启动且不使用 shell，错误码和重放分类不附带原始输入。该入口仍需本机 PG 配置和已领取的 run，尚无用户 API、通用能力票据、外部授权登记或调度器；见[跨进程验证](../docs/verification/migration-tool-bridge-2026-10-03.md)。
+
+同日继续增加 `INSPECT` 与 `resumeToolInvocation`：接管 worker 先读取 PG 中的 `REGISTERED`、`DISPATCHED` 或 `SUCCEEDED` 状态；已完成时回读同一 artifact，未完成时才执行固定只读工具。专项测试在登记事务和派发事务分别提交后强制结束子进程，再以新 epoch 恢复；完整图 checkpoint、通用工具与调度仍未实现。见[故障恢复子集验证](../docs/verification/migration-tool-recovery-2026-10-03.md)。
 
 固定依赖及来源见 [技术基线](../docs/archive/2026-09-29/ArchLensService/docs/technical-baseline.md)。现有 `qa/` 是设计文档制作和排版验证资料，不是产品代码。
 
@@ -83,7 +115,7 @@ C# 项目分析入口、声明范围及边界见 [C# → Java 分析](../docs/ar
 - 构建和直接运行 CLI 均从 `ArchLensService` 目录执行；Linux 使用已安装的 JDK 21 / Maven 3.9.x：`mvn --batch-mode --no-transfer-progress -Dmaven.repo.local=.local/m2 verify`。项目已装本地工具链时，可在项目根目录先执行 `source .local/toolchains/activate.sh`。PowerShell 脚本仍按 Windows 工具名运行。
 - 正式网页调查使用后端 `ARCHLENS_PG_URL`、`ARCHLENS_PG_USER`、`ARCHLENS_PG_PASSWORD`，当前配置校验还要求提供 `ARCHLENS_NEO4J_URI`、`ARCHLENS_NEO4J_USER`、`ARCHLENS_NEO4J_PASSWORD`、`ARCHLENS_NEO4J_DATABASE`。无图网页调查可以不连接 Neo4j，但七项配置仍须完整且地址格式合法，否则返回 `STORAGE_CONFIG`。`java -jar target/archlens-0.1.0-SNAPSHOT-cli.jar storage-check` 与 `storage-init` 都是双库命令，会分别检查或初始化 PG 与 Neo4j；不能作为仅 PG 的启动命令。部署者在专用存储准备就绪后执行，启动网页不会自动初始化。
 - Windows 可用 `scripts/configure-storage.ps1` 的隐藏输入保存本机配置；`start.ps1` / `storage.ps1` 读取 `.local/storage.json` 与当前用户 DPAPI 加密的 `.local/storage.credentials.xml`。Linux 使用后端进程环境，不复制 Windows 密文。地址禁止内嵌凭据或查询参数。
-- 模型密钥只由 `DEEPSEEK_API_KEY` 提供；模型名可配置 `DEEPSEEK_MODEL`。网页本地预览无需模型及自身 PG，正式调查需要自身 PG；模型缺失可确定性降级。业务库与厂商驱动配置见 [前端说明](../ArchLensClient/README.md#业务数据库配置补充)。
+- 模型由 `ARCHLENS_LLM_*` 后端配置，兼容旧 `DEEPSEEK_*`。网页本地预览无需模型及自身 PG，正式调查需要自身 PG；模型缺失可确定性降级。业务库与厂商驱动配置见 [前端说明](../ArchLensClient/README.md#业务数据库配置补充)。
 - Java 回归报告现位于 [src/test/resources](src/test/resources/fixtures/agent-20260918/README.md)，不再读取文档归档。
 - 打包后在 Windows 运行 `scripts/record-runtime.ps1` 刷新 [runtime/runtime-dependencies.json](runtime/runtime-dependencies.json)，再运行 `scripts/smoke.ps1 -JdkHome $env:ARCHLENS_JAVA_HOME`。清单维护与第三方通知检查见 [runtime/README.md](runtime/README.md)；烟测写 `target/verification/` 新文件，旧记录留在历史归档。
 

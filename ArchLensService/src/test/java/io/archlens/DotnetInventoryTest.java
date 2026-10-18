@@ -42,6 +42,43 @@ class DotnetInventoryTest {
         assertTrue(p.gaps().contains("DOTNET_MSBUILD_UNEVALUATED"));assertTrue(p.gaps().contains("DOTNET_REPEATED_PROPERTY_DECLARATION"));
         assertTrue(inv.gaps().stream().anyMatch(g->g.code().equals("DOTNET_SHARED_PROPERTIES_NOT_APPLIED")));
     }
+    @Test void utf8BomProjectIsParsedWithoutChangingSourceHash() throws Exception {
+        put("Desktop.csproj","\uFEFF<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0-windows</TargetFramework><UseWPF>true</UseWPF></PropertyGroup></Project>");
+        var report=analyze("Desktop.csproj");var inventory=report.dotnetInventory();
+        assertEquals(1,inventory.coverage().parsedProjects());
+        assertTrue(inventory.projects().getFirst().applicationHints().contains("WPF_DECLARATION"));
+        assertEquals(SourceText.read(temp,"Desktop.csproj").hash(),inventory.projects().getFirst().origin().sourceHash());
+        assertFalse(inventory.gaps().stream().anyMatch(g->g.code().equals("DOTNET_XML_REJECTED")));
+    }
+    @Test void currentStateAssessmentConnectsDesktopAndStorageConclusionsToDeclarations() throws Exception {
+        put("App.csproj","\uFEFF<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0-windows</TargetFramework><UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms></PropertyGroup><ItemGroup><ProjectReference Include=\"Domain.csproj\"/><PackageReference Include=\"Microsoft.Data.Sqlite.Core\" Version=\"9.0.10\"/><PackageReference Include=\"SQLitePCLRaw.bundle_e_sqlcipher\" Version=\"2.1.10\"/></ItemGroup></Project>");
+        put("Domain.csproj","<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>");
+        var report=new InvestigationEngine().investigate(temp,new InvestigationRequest(VERSION,Scenario.CURRENT_STATE,
+                new Profile(".NET",null),null,"现状调查",List.of(),List.of(),List.of("App.csproj","Domain.csproj"),null,Budget.defaults()),()->false);
+        var findings=report.findings().stream().filter(f->f.ruleRef().startsWith("dotnet-current-state.")).toList();
+        assertEquals(4,findings.size());
+        assertTrue(findings.stream().anyMatch(f->f.summary().contains("1 个工程直接声明 WPF")));
+        assertTrue(findings.stream().anyMatch(f->f.summary().contains("SQLCipher")));
+        assertTrue(findings.stream().anyMatch(f->f.summary().contains("Windows 目标框架")));
+        assertTrue(findings.stream().noneMatch(f->(f.summary()+f.unknownReasons()+f.recommendations()).contains("Java")));
+        for(var finding:findings) {
+            assertEquals("UNKNOWN",finding.outcome());
+            assertFalse(finding.evidenceIds().isEmpty());
+            assertTrue(report.sources().stream().map(InvestigationReport.Source::sourceId).toList().containsAll(finding.evidenceIds()));
+            assertEquals(finding.evidenceIds().size(),finding.evidence().size());
+        }
+        assertTrue(report.coverageGaps().stream().anyMatch(g->g.code().equals("CONTENT_INVENTORY_ONLY")));
+        assertFalse(Json.canonical(report).contains("Java"),"Target-neutral current-state assessment must not suggest Java");
+        assertEquals(Json.hash(report),Json.hash(Json.MAPPER.readValue(Json.canonical(report),InvestigationReport.class)));
+    }
+    @Test void cppMigrationDoesNotReceiveJavaSpecificGuidance() throws Exception {
+        put("App.csproj","<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0-windows</TargetFramework><UseWPF>true</UseWPF></PropertyGroup></Project>");
+        var report=new InvestigationEngine().investigate(temp,new InvestigationRequest(VERSION,Scenario.LANGUAGE_MIGRATION,
+                new Profile(".NET",null),new Profile("C++","23"),"将 .NET 桌面程序迁移到 C++",
+                List.of(),List.of(),List.of("App.csproj"),null,Budget.defaults()),()->false);
+        assertFalse(Json.canonical(report).contains("Java"),"C++ migration must not contain Java guidance");
+        assertTrue(report.coverageGaps().stream().anyMatch(g->g.code().equals("DOTNET_COMPATIBILITY_UNASSESSED")));
+    }
     @Test void projectAndSolutionReferencesAreDeclarationsOnlyAndNeverFollowed() throws Exception {
         put("src/App.vbproj","<Project><ItemGroup><ProjectReference Include=\"..\\Shared.fsproj\"/><ProjectReference Include=\"../../outside.csproj\"/><ProjectReference Include=\"missing.csproj\"/></ItemGroup></Project>");
         put("Shared.fsproj","<Project><PropertyGroup><TargetFramework>net8.0</TargetFramework></PropertyGroup></Project>");

@@ -29,6 +29,7 @@ public final class ArchLensCli {
         return new Report(VERSION,"OFFLINE_DEVELOPER_ANALYSIS",requestHash,Map.copyOf(hashes),Json.hash(document),document,change,result);
     }
     public static int run(String[] args,PrintStream out,PrintStream err) {
+        if(args.length>0 && args[0].equals("migration-tool-bridge")) return MigrationToolBridgeCli.run(args,System.in,out,err,System.getenv());
         if(args.length>0 && args[0].equals("migration-request-check")) return MigrationRequestCli.run(args,out,err);
         if(args.length>0 && args[0].equals("migration-plan-check")) return MigrationPlanCli.run(args,out,err);
         if(args.length>0 && !args[0].equals("analyze")) return InvestigationCli.run(args,out,err);

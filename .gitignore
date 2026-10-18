@@ -2,3 +2,5 @@
 **/.local/
 **/target/
 **/*.local.json
+ArchLensService/analyzers/dotnet/bin/
+ArchLensService/analyzers/dotnet/obj/

@@ -2,7 +2,7 @@
 
 2026-09-27 增量：联合报告增加 C#/Java 方法及 MyBatis 语句的静态访问证据路径，区分直接 SQL 实参、同方法候选和未知；详见 [业务数据库与访问路径](docs/archive/2026-09-29/ArchLensService/docs/business-database.md)。
 2026-09-26 更新：[业务数据库与目标环境](docs/archive/2026-09-29/ArchLensService/docs/business-database.md)。已接入 MySQL、Oracle、人大金仓和达梦的结构采集；后三种产品尚待实库验证。
-维护日期：2026-09-29。本文定义项目工程约束，同时记录当前源码实现边界。当前需求与任务以重建后的 [specs](ArchLensService/specs/implementation/requirements.md) 为准；[历史归档](docs/archive/2026-09-29/README.md) 中的旧 INV 编号、旧说明和旧验证仅供追溯。历史验证不自动构成本次验收。
+维护日期：2026-10-13。本文定义项目工程约束，同时记录当前源码实现边界。当前需求与任务以重建后的 [specs](ArchLensService/specs/implementation/requirements.md) 为准；[历史归档](docs/archive/2026-09-29/README.md) 中的旧 INV 编号、旧说明和旧验证仅供追溯。历史验证不自动构成本次验收。
 
 ## 1. 产品定位与术语
 
@@ -71,7 +71,7 @@ ArchLens/
 
 ### 4.1 面向用户的输入
 
-当前首页支持仅代码、仅数据库、联合三种分析模式；无业务上下文使用 Agent v1，带业务上下文使用 Agent v2。业务连接单独通过本机 Node→Java 通道传递，密码只在表单内存及本次请求中使用，不进入持久化请求、报告、模型或日志。仅数据库模式可无代码目录。ArchLens 自身 PG/Neo4j 凭据由后端读取，不能与被分析业务库混用。以下三组输入约束仅属于保留的旧草稿页面 `draft.html`：代码库绝对路径、PostgreSQL 连接信息、修改目标描述。
+当前首页以自然语言目标驱动，支持代码、数据库、联合三种输入来源；代码清单可留空，由后端在授权根目录自动发现并封存。场景和源/目标技术不由页面固定；无业务上下文使用 Agent v1，带业务上下文使用 Agent v2。业务连接单独通过本机 Node→Java 通道传递，密码只在表单内存及本次请求中使用，不进入持久化请求、报告、模型或日志。仅数据库模式可无代码目录。ArchLens 自身 PG/Neo4j 凭据由后端读取，不能与被分析业务库混用。以下三组输入约束仅属于保留的旧草稿页面 `draft.html`：代码库绝对路径、PostgreSQL 连接信息、修改目标描述。
 
 - 路径指向分析服务所在机器可访问的目录；浏览器格式校验不证明路径存在或可读。
 - 数据库地址、用户名和密码分开输入。当前表单接受 PostgreSQL/JDBC PostgreSQL URL，不支持连接查询参数和 SSL 配置，也不实际验证连接。
@@ -84,7 +84,7 @@ ArchLens/
 | --- | --- | --- |
 | `archlens.frontend-draft.v1` | 前端请求草稿，状态为 `NOT_SUBMITTED` | 不能直接传入离线 `analyze` 命令 |
 | `OfflineRequest` | 离线 CLI 输入，包含 scope、来源、Java/XML、catalog 和 change | 来源 ID 必须满足契约，目标必须在 catalog 唯一存在；catalog 未经真实 PG 验证 |
-| `UNVERIFIED_PROPOSAL` | DeepSeek 解析结果，可附加至前端草稿 | 不是最终 ChangeSpec，不是数据库事实或执行授权 |
+| `UNVERIFIED_PROPOSAL` | 模型解析结果，可附加至前端草稿 | 不是最终 ChangeSpec，不是数据库事实或执行授权 |
 
 将来生成正式 ChangeSpec 时，必须由确定性程序在固定快照中定位目标、校验变更前状态和变更语义。生产 API 的项目、快照、操作者、权限和追踪上下文由服务端管理，不能接受模型自选 ID。当前离线 UUID 参数不构成生产授权机制。
 
@@ -113,17 +113,17 @@ ArchLens/
 
 ## 6. 模型调用与凭据
 
-- 当前 `DeepSeekGateway` 默认模型为代码配置的 `deepseek-flash`，后端可通过 `DEEPSEEK_MODEL` 调整；实际可用性需要运行时验证。
-- 密钥通过后端 `DEEPSEEK_API_KEY` 或启动脚本隐藏输入提供，不放入命令示例、仓库文件、前端包或日志。禁止通过输出整个环境变量集合排查配置。
-- 当前网关固定官方 HTTPS 端点，禁止自动重定向。更换供应商或扩大上传范围必须作为明确变更处理。
-- 旧目标解析只发送修改描述；新增 Agent 通道发送用户目标/技术字段/约束/回答、规则元数据和匿名证据摘要，禁止直接发送完整请求、来源或报告。用户文本是数据，不能改变系统权限或成为可执行指令。
+- 模型通过后端 `ARCHLENS_LLM_PROVIDER`、`ARCHLENS_LLM_ENDPOINT`（完整 Chat Completions URL）、`ARCHLENS_LLM_MODEL`、`ARCHLENS_LLM_API_KEY` 配置。通用配置优先且必须完整；兼容旧 `DEEPSEEK_*`。`ARCHLENS_LLM_DISABLED=true` 禁用所有模型。
+- 密钥只存在后端进程配置或启动脚本隐藏输入，不放入前端、持久化请求、报告或日志。远程模型要求 HTTPS，回环模型允许 HTTP；禁止重定向、URL 凭据及查询参数。
+- 当前接入要求兼容 Chat Completions 的单个 function tool call 响应；不宣称支持所有供应商原生协议。修改供应商不扩大文件范围和工具权限。
+- 旧目标解析只发送修改描述；Agent 通道发送用户目标/技术字段/约束/回答、经白名单提取的技术声明、规则元数据和匿名证据摘要，禁止直接发送完整请求、来源或报告。用户文本是数据，不能改变系统权限或成为可执行指令。
 - 模型输出经过结构与语义校验。无效 JSON、截断、空内容、额外字段、未支持类型和不完整目标不得伪装成成功。
 - 提议必须保留 `UNVERIFIED_PROPOSAL`。不能向事实层注入模型生成的证据、依赖、scope、评分或“无需修改”结论。
 - 描述修改后清除旧提议；取消和超时的旧响应不能覆盖新输入。
 - 失败时保留原始描述并允许不带模型提议的请求预览；已有离线分析命令不依赖模型成功。
 - 联调使用不含敏感信息的合成描述，控制调用次数。错误仅返回稳定错误码或脱敏信息，不回显供应商原始响应、认证头和内部堆栈。
 
-新增调查编排已支持六个固定只读工具、循环预算、澄清修订、匿名证据解释及确定性降级。模型解释保留 MODEL_EXPLANATION_UNVERIFIED，结构/引用校验不等于自然语言语义正确性证明。详细发送范围、能力限制和运行方式见 [Agent 说明](docs/archive/2026-09-29/ArchLensService/docs/agent-orchestration.md)。
+调查编排已增加 inspect_repository 与 delegate_analysis；主 Agent 可根据目标顺序委派最多两个独立子调查，共享调用/工具/时间预算，不允许递归委派。支持循环预算、澄清修订、匿名证据解释及确定性降级。模型解释保留 MODEL_EXPLANATION_UNVERIFIED，结构/引用校验不等于自然语言语义正确性证明。详细发送范围、能力限制和运行方式见 [Agent 说明](docs/archive/2026-09-29/ArchLensService/docs/agent-orchestration.md)。
 
 ## 7. 工程实现约定
 

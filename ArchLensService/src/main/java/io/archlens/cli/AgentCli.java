@@ -54,7 +54,7 @@ public final class AgentCli {
         }catch(Exception e){try{store.fail(ticket);}catch(Exception ignored){}throw e;}
     }
     private static AgentModel model(){
-        String key=System.getenv("DEEPSEEK_API_KEY");return key==null||key.isBlank()?null:new DeepSeekAgentModel(key,System.getenv("DEEPSEEK_MODEL"));
+        return ConfiguredAgentModel.fromEnvironment(System.getenv());
     }
     private static <T>T read(Path path,Class<T> type)throws IOException {
         return Json.MAPPER.readValue(SourceText.read(path.getParent(),path.getFileName().toString()).text(),type);

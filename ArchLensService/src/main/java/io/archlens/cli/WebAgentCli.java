@@ -23,10 +23,9 @@ public final class WebAgentCli {
             require(bytes.length<=262144,"INPUT_LIMIT","Web input too large");
             var input=Json.MAPPER.readValue(bytes,Input.class);
             // 本地现状预览不初始化存储、不创建模型客户端或历史记录。
-            if(input!=null&&Set.of("preview-dotnet","preview-joint","test-database").contains(input.action())) {execute(input,null,null,System.out);return;}
+            if(input!=null&&Set.of("preview-dotnet","preview-repository","preview-joint","test-database","model-config").contains(input.action())) {execute(input,null,null,System.out);return;}
             var config=new StorageConfig(System.getenv());
-            String key=System.getenv("DEEPSEEK_API_KEY");
-            AgentModel model=key==null||key.isBlank()?null:new DeepSeekAgentModel(key,System.getenv("DEEPSEEK_MODEL"));
+            AgentModel model=input!=null&&Set.of("start","resume").contains(input.action())?ConfiguredAgentModel.fromEnvironment(System.getenv()):null;
             execute(input,new PgInvestigationStore(config),model,System.out);
         } catch(Exception e) {
             Throwable cause=e;while(cause.getCause()!=null)cause=cause.getCause();
@@ -42,6 +41,11 @@ public final class WebAgentCli {
         switch(in.action()) {
             case "preview-joint", "test-database" -> businessPreview(in,out);
             case "preview-dotnet" -> previewDotnet(in,out);
+            case "preview-repository" -> previewRepository(in,out);
+            case "model-config" -> {
+                var config=io.archlens.llm.ModelConfig.fromEnvironment(System.getenv());
+                emit(out,"result",config==null?Map.of("configured",false):Map.of("configured",true,"provider",config.provider(),"model",config.model()));
+            }
             case "list" -> {
                 require(in.sourceRoot()==null&&in.request()==null&&in.runId()==null&&in.answers()==null,"INVALID_REQUEST","Invalid list fields");
                 emit(out,"result",Map.of("runs",store.listAgentRuns(in.caseId(),in.offset()==null?0:in.offset())));
@@ -82,6 +86,16 @@ public final class WebAgentCli {
         var report=new InvestigationEngine(in.connection()).investigate(root,r,()->false,sources->{},null,request.businessContext());
         emit(out,"result",Map.of("mode",request.files().isEmpty()?"LOCAL_DATABASE_PREVIEW":"LOCAL_JOINT_PREVIEW",
                 "persisted",false,"report",report,"reportHash",Json.hash(report)));
+    }
+    private static void previewRepository(Input in,PrintStream out)throws Exception {
+        require(in.request()!=null&&in.runId()==null&&in.answers()==null&&in.caseId()==null&&in.offset()==null,"INVALID_REQUEST","Invalid preview fields");
+        var request=in.request();require(request.columnRequest()==null,"COLUMN_WEB_UNSUPPORTED","No column adapter in preview");
+        Path root=sourceRoot(in.sourceRoot(),request);var budget=request.collectionBudget();long deadline=System.nanoTime()+25_000_000_000L;
+        var inventory=RepositoryInspector.inspect(root,request,()->Thread.currentThread().isInterrupted(),System.nanoTime()+10_000_000_000L);
+        var r=new InvestigationRequest(InvestigationRequest.VERSION,InvestigationRequest.Scenario.CURRENT_STATE,
+                new InvestigationRequest.Profile("UNSPECIFIED",null),null,request.objective(),request.constraints(),request.invariants(),request.files(),null,new InvestigationRequest.Budget(budget.maxFiles(),budget.maxBytes(),Math.max(1,Math.min(budget.timeoutMillis(),(deadline-System.nanoTime())/1_000_000))));
+        var report=new InvestigationEngine().investigate(root,r,()->Thread.currentThread().isInterrupted());
+        emit(out,"result",Map.of("mode","LOCAL_REPOSITORY_PREVIEW","persisted",false,"report",report,"reportHash",Json.hash(report),"repositoryInventory",inventory));
     }
     private static void previewDotnet(Input in,PrintStream out)throws Exception {
         require(in.sourceRoot()!=null&&Path.of(in.sourceRoot()).isAbsolute()&&in.request()!=null

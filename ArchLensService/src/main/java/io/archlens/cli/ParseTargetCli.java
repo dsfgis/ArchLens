@@ -16,7 +16,7 @@ public final class ParseTargetCli {
             byte[] input = System.in.readNBytes(24001);
             ContractException.require(input.length <= 24000, "INVALID_TARGET_DESCRIPTION", "Input exceeds limit");
             var request = Json.MAPPER.readValue(input, Request.class);
-            var gateway = new DeepSeekGateway(System.getenv("DEEPSEEK_API_KEY"), System.getenv("DEEPSEEK_MODEL"));
+            var gateway = new DeepSeekGateway(io.archlens.llm.ModelConfig.fromEnvironment(System.getenv()));
             output.println(Json.MAPPER.writeValueAsString(gateway.parse(request.description())));
         } catch (Exception e) {
             String code = e instanceof ContractException c ? c.code() : "INVALID_REQUEST";

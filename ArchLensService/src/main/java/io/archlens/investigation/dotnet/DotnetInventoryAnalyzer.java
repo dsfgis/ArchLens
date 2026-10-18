@@ -58,7 +58,7 @@ public final class DotnetInventoryAnalyzer {
         }
         gap("DOTNET_DECLARATIONS_ONLY","Imports, conditions, SDK defaults and effective build configuration are not evaluated");
         gap("DOTNET_SEMANTIC_BINDING_UNAVAILABLE","Source code is collected but symbols, calls and runtime behavior are not bound");
-        gap("DOTNET_COMPATIBILITY_UNASSESSED","Platform inventory does not establish Java or target-environment compatibility");
+        gap("DOTNET_COMPATIBILITY_UNASSESSED","Platform inventory does not establish target-technology or target-environment compatibility");
         check();
         return new DotnetInventory(VERSION,projects,solutions,support,
                 new Coverage(submittedFiles,sources.size(),projectCount,projects.size(),solutionCount,solutions.size(),codeCount,0),gaps);
@@ -244,7 +244,9 @@ public final class DotnetInventoryAnalyzer {
             f.setFeature("http://xml.org/sax/features/external-parameter-entities",false);
             f.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD,"");f.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA,"");
             var b=f.newDocumentBuilder();b.setErrorHandler(new org.xml.sax.helpers.DefaultHandler());
-            Element e=b.parse(new InputSource(new StringReader(s.text()))).getDocumentElement();
+            // StringReader 不会像 XML 字节流解析器那样消费 UTF-8 BOM；仅从解析视图移除它，来源哈希仍基于原字节。
+            String xml=s.text().startsWith("\uFEFF")?s.text().substring(1):s.text();
+            Element e=b.parse(new InputSource(new StringReader(xml))).getDocumentElement();
             if(!name(e).equals(expected)||e.getNamespaceURI()!=null&&!e.getNamespaceURI().equals("http://schemas.microsoft.com/developer/msbuild/2003"))throw error("DOTNET_XML_REJECTED");
             return e;
         }catch(Exception e){throw error("DOTNET_XML_REJECTED");}

@@ -1,5 +1,7 @@
 # ArchLens 自主迁移设计 Agent：实施设计
 
+2026-10-13 通用入口增量：用户以代码库路径、可选数据库连接、通用约束及自然语言目的输入；页面不固定场景或技术栈，模型通过后端配置。现有 Java Agent 增加项目声明识别与有界子调查委派，属于旧调查入口的改进，不等同于 LangGraph、MigrationPlan 或完整语义分析验收。实现及本次验证见[通用入口记录](../../../docs/verification/generic-analysis-2026-10-13.md)。
+
 <!-- 2026-09-30：按批准的目标设计重建；旧设计原字节保存在 2026-09-29 归档。新协议、表和目录均待实现。 -->
 
 重建完成日期：2026-09-30。依据：[详细设计 v2.0](../../../docs/design/ArchLens-自主迁移设计Agent-详细设计-v2.0.md)、[现有项目总结](../../../docs/design/ArchLens-现有项目总结-2026-09-29.md)。配套：[需求](requirements.md)、[任务](tasks.md)、[验收](check_list.md)。[旧设计归档](../../../docs/archive/2026-09-29/ArchLensService/specs/implementation/design.md)保留原接口、日期和实现记录。

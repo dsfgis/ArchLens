@@ -6,3 +6,7 @@
 .workbench .page-heading{flex-wrap:wrap;gap:12px}.workbench .page-heading>div{flex:1 1 360px}.workbench .page-heading>.button{flex-shrink:0}
 
 .workbench fieldset{border:1px solid #e8e4f0;border-radius:8px;margin:12px 0;padding:12px;min-width:0}.workbench fieldset label{margin-top:12px}.workbench .check-label{display:flex;align-items:center;gap:8px}.workbench .check-label input{width:auto}.workbench #database-status{font-size:12px;overflow-wrap:anywhere}
+
+/* Long diagnostics and repository paths must remain readable on narrow screens. */
+.workbench .report-block,.workbench .field-help{overflow-wrap:anywhere}
+.workbench .report-block ul{padding-left:22px}

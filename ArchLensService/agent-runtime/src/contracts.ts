@@ -46,6 +46,10 @@ export function parseJsonFile(path: string): unknown {
   let text: string;
   try { text = new TextDecoder("utf-8", { fatal: true }).decode(bytes); }
   catch { throw new ContractError("MIG_INPUT_ENCODING_INVALID"); }
+  return parseJsonText(text);
+}
+
+export function parseJsonText(text: string): unknown {
   let value: unknown;
   try { value = JSON.parse(text) as unknown; }
   catch { throw new ContractError("MIG_JSON_INVALID"); }
