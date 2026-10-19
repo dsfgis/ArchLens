@@ -4,7 +4,7 @@
 2026-09-26 更新：[业务数据库与目标环境](../docs/archive/2026-09-29/ArchLensService/docs/business-database.md)。已支持 MySQL 8.x 与 Oracle、人大金仓 KingbaseES、达梦 DM 的连接及只读结构采集，并输出代码 SQL 对象名的静态候选关联；后三种数据库仍需厂商 JDBC 驱动及实库验证。目标环境仅记录声明，运行时依赖确认和迁移评估仍待实现。
 当前文档整理完成：2026-09-30；源码总结基线：2026-09-29。[文档导航](../docs/README.md) 汇总两份设计基线、新 specs、运行入口与历史归档。下文指向 `docs/archive/` 的文件为保留原日期的历史说明；历史测试结果不代表本次验证。
 
-下一阶段按 [重建后的迁移设计规格](specs/implementation/requirements.md) 实施。现有基线包含 **0.1 确定性列分析**，以及 **统一调查与自身存储切片**：显式文件清单/列分析 → 证据报告 → PG Case/Run/修订 → Neo4j 图投影。已加入有限的本地 Roslyn 符号取证与 Agent 迁移草案；完整项目绑定、正式 MigrationPlan v1 封存、LangGraph 和隔离验证尚待开发，当前不能作为生产系统完整扫描或上线审批工具。
+下一阶段按 [重建后的迁移设计规格](specs/implementation/requirements.md) 实施。现有基线包含 **0.1 确定性列分析**，以及 **统一调查与自身存储切片**：显式文件清单/列分析 → 证据报告 → PG Case/Run/修订 → Neo4j 图投影。已加入有限的本地 Roslyn 符号取证与 Agent 迁移草案；完整项目绑定、正式 MigrationPlan v1 封存和隔离验证尚待开发；LangGraph 已交付固定只读工具 P0 原型，当前不能作为生产系统完整扫描或上线审批工具。
 
 新入口、凭据配置、数据库权限、失败恢复和验收命令见 [调查与双存储切片](../docs/archive/2026-09-29/ArchLensService/docs/investigation-storage.md)。本机网页已加入 Agent 提交、澄清、状态、证据报告和历史修订适配，2026-09-20 已实测 MySQL SQL 调查网页闭环、澄清及重启回读，见 [验证记录](../docs/archive/2026-09-29/ArchLensService/docs/verification-web-2026-09-20.md)；运行方法见 [前端说明](../ArchLensClient/README.md)。
 
@@ -22,7 +22,7 @@
 
 离线烟测可准备 UTF-8 JSON 数组文件，列出相对项目根目录的 `.csproj` 与 `.cs` 路径，然后在 `ArchLensService/` 运行 `java -cp target/archlens-0.1.0-SNAPSHOT-cli.jar io.archlens.cli.DotnetSemanticsCli <项目根目录> <files.json>`。输出为只读 JSON；它不初始化 PG/Neo4j，也不调用模型。
 
-首页以代码库路径、可选业务数据库连接、文字目的与通用约束提交，`target=null`。Node 自动发现清单；Java 的 `RepositoryInspector` 在本地提取技术声明，`AgentOrchestrator` 根据目标调用工具或委派子 Agent。`repositoryInventory`、`subtasks`、`dotnetSemantics` 和 `migrationPlan` 是报告可选字段，旧报告缺省时不序列化，保持原 canonical 哈希。没有替换或接入规划中的 LangGraph 持久 worker。
+首页以代码库路径、可选业务数据库连接、文字目的与通用约束提交，`target=null`。Node 自动发现清单；Java 的 `RepositoryInspector` 在本地提取技术声明，`AgentOrchestrator` 根据目标调用工具或委派子 Agent。`repositoryInventory`、`subtasks`、`dotnetSemantics` 和 `migrationPlan` 是报告可选字段，旧报告缺省时不序列化，保持原 canonical 哈希。旧入口继续使用 Java Agent；独立 P0 LangGraph worker 通过 CLI 显式入队，尚未接入网页。
 
 设置后端进程环境（密钥用环境注入或启动脚本隐藏输入）：
 
@@ -92,13 +92,13 @@ catalog 中的标识符必须使用数据库实际大小写，`defaultSchema` �
 
 同日继续新增 [方案 v1 Schema](src/main/resources/schema/archlens.migration-plan.v1.schema.json)、证据、验证记录与事件 Schema，以及只读命令：`java -jar target/archlens-0.1.0-SNAPSHOT-cli.jar migration-plan-check examples/migration/request-code-only.json examples/migration/evidence-code-only.json examples/migration/plan-code-only.json`。命令检查请求 hash、同一 run/revision/snapshot 的证据、来源范围、计划引用、工作项依赖和必填结构，输出 `STRUCTURE_VALID` 与内容哈希。`planHash` 对方案 JSON 内容计算，不是方案内部可伪造字段。示例证据/计划是合成输入，工具尚未核实其来源真实性；结构通过不等于方案完整、V1/V2/V3 已通过或真实迁移可行。验证记录的 `NOT_RUN` 与外部导入状态保持单独表示。完整错误目录、来源/凭据登记、迁移 API、封存门槛仍待开发。
 
-P0 的 [TypeScript 契约运行时](agent-runtime/README.md) 已补齐五份 Schema 的 Node 校验和与 Java 共用的六组黄金哈希。它单独要求 Node 24+，从 `ArchLensService/agent-runtime` 执行 `npm ci --ignore-scripts && npm test`；当前只做形状/版本与 canonical 哈希，不负责跨文件真实性或调度。Java 仍负责权威引用校验。完整错误目录、来源/凭据登记、迁移 API、封存门槛和 LangGraph 调度仍待开发。
+P0 的 [TypeScript 契约运行时](agent-runtime/README.md) 已补齐五份 Schema 的 Node 校验和与 Java 共用的六组黄金哈希。它单独要求 Node 24+，从 `ArchLensService/agent-runtime` 执行 `npm ci --ignore-scripts && npm test`；同时提供固定 list_rules 的持久化 worker；跨文件真实性及权威引用校验仍由 Java 负责。完整错误目录、来源/凭据登记、迁移 API、正式方案封存门槛仍待开发；P0 调度及 PARTIAL 回执已实现。
 
 同日继续为 Node 文件输入加入重复 JSON 键拒绝（包含转义后同名），并固定一份历史 Agent 报告的原字节与 canonical 哈希回读基线；见[输入边界与旧报告验证](../docs/verification/migration-input-legacy-2026-10-02.md)。该基线只覆盖一个历史样例，尚不代表所有旧版本报告/API/CLI 的部署回归。
 
-P0 存储继续追加 [V002 迁移任务表](src/main/resources/db/V002__migration_runtime.sql)：独立 migration Case/Run、任务/调用/产物/事件/澄清/验证作业/认可 checkpoint 表和独立 `archlens_checkpoint` schema。`PgInvestigationStore.initialize()` 在同一个事务及 advisory lock 下核对 V001，并依次安装或核对 V002、[V003 提交键表](src/main/resources/db/V003__migration_submission.sql)和[V004 小型工具结果表](src/main/resources/db/V004__migration_tool_result.sql)；运行 `storage-init` 需要有创建这些对象的数据库权限。V001/V002/V003 原文件与旧 investigation 表未修改。存储结构验证见[临时 PostgreSQL 记录](../docs/verification/migration-storage-schema-2026-10-02.md)。
+P0 存储继续追加 [V002 迁移任务表](src/main/resources/db/V002__migration_runtime.sql)：独立 migration Case/Run、任务/调用/产物/事件/澄清/验证作业/认可 checkpoint 表和独立 `archlens_checkpoint` schema。`PgInvestigationStore.initialize()` 在同一个事务及 advisory lock 下核对 V001，并依次安装或核对 V002、[V003 提交键表](src/main/resources/db/V003__migration_submission.sql)、[V004 小型工具结果表](src/main/resources/db/V004__migration_tool_result.sql)和[V005 worker/预算表](src/main/resources/db/V005__migration_worker.sql)；运行 `storage-init` 需要有创建这些对象的数据库权限。V001–V004 原文件与旧 investigation 表未修改。存储结构验证见[临时 PostgreSQL 记录](../docs/verification/migration-storage-schema-2026-10-02.md)。
 
-[PgMigrationRunStore](src/main/java/io/archlens/storage/PgMigrationRunStore.java) 已实现新 Case 的幂等入队、单 worker 领取、PG 时钟续租/过期接管和重复取消回执。提交键由宿主生成，同键不同请求拒绝；取消在同一事务写受控事件并使旧 epoch 失效。它是 Java 内部存储接口，尚未接入网页/API/调度器，不能单独完成迁移调查。暂停、澄清修订、checkpoint 认可、封存及 LangGraph worker 仍待实现；见[运行状态验证](../docs/verification/migration-run-lifecycle-2026-10-02.md)。
+[PgMigrationRunStore](src/main/java/io/archlens/storage/PgMigrationRunStore.java) 已实现新 Case 的幂等入队、单 worker 领取、PG 时钟续租/过期接管和重复取消回执。提交键由宿主生成，同键不同请求拒绝；取消在同一事务写受控事件并使旧 epoch 失效。它已通过本机运行桥接接入 P0 worker，尚未接入新网页/API，不能单独完成迁移调查。P0 checkpoint 认可和 PARTIAL 封存已实现；暂停、澄清修订和正式方案封存仍待实现；见[运行状态验证](../docs/verification/migration-run-lifecycle-2026-10-02.md)。
 
 [PgMigrationToolStore](src/main/java/io/archlens/storage/PgMigrationToolStore.java) 新增 MIG-T05 的首个真实只读工具 `list_rules`：宿主传入任务和动作身份，先在 PG 登记调用并按请求中的 `allowedTools` 与 `maxToolCalls` 校验，再派发既有 `RuleCatalog`。成功结果原字节及 SHA-256 持久化；重试复用 invocationId 和结果。登记、派发、发布都要求当前 Case 修订及有效 worker 租约，取消/接管后的旧票据不能发布。当前只支持无参规则目录与 64 KiB 以内的 PG 结果，目录 hash 仅代表规则目录快照，不代表代码或业务数据库快照；见[工具调用验证](../docs/verification/migration-tool-ledger-2026-10-02.md)。
 
@@ -120,3 +120,7 @@ C# 项目分析入口、声明范围及边界见 [C# → Java 分析](../docs/ar
 - 打包后在 Windows 运行 `scripts/record-runtime.ps1` 刷新 [runtime/runtime-dependencies.json](runtime/runtime-dependencies.json)，再运行 `scripts/smoke.ps1 -JdkHome $env:ARCHLENS_JAVA_HOME`。清单维护与第三方通知检查见 [runtime/README.md](runtime/README.md)；烟测写 `target/verification/` 新文件，旧记录留在历史归档。
 
 测试命令 `mvn verify` 默认跳过需要显式开启的外部集成测试；不能据此宣称 PG、Neo4j、业务库或模型实测通过。当前依赖版本以 `pom.xml` 与本次构建清单为准，历史技术基线仅供追溯。
+
+### 2026-10-19：P0 持久 worker
+
+[运行说明](agent-runtime/README.md)包含版本、独立 checkpoint 角色、显式初始化/入队、调度与恢复步骤。[本轮验证](../docs/verification/p0-worker-2026-10-19.md)记录真实 PG、四个进程崩溃窗口、认可指针 CAS、预算、取消和不可变回执。成功仅表示 `PARTIAL / P0_SCOPE_ONLY`，不代表生成迁移方案或访问了请求中的来源引用。

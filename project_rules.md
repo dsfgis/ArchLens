@@ -2,7 +2,7 @@
 
 2026-09-27 增量：联合报告增加 C#/Java 方法及 MyBatis 语句的静态访问证据路径，区分直接 SQL 实参、同方法候选和未知；详见 [业务数据库与访问路径](docs/archive/2026-09-29/ArchLensService/docs/business-database.md)。
 2026-09-26 更新：[业务数据库与目标环境](docs/archive/2026-09-29/ArchLensService/docs/business-database.md)。已接入 MySQL、Oracle、人大金仓和达梦的结构采集；后三种产品尚待实库验证。
-维护日期：2026-10-13。本文定义项目工程约束，同时记录当前源码实现边界。当前需求与任务以重建后的 [specs](ArchLensService/specs/implementation/requirements.md) 为准；[历史归档](docs/archive/2026-09-29/README.md) 中的旧 INV 编号、旧说明和旧验证仅供追溯。历史验证不自动构成本次验收。
+维护日期：2026-10-19。本文定义项目工程约束，同时记录当前源码实现边界。当前需求与任务以重建后的 [specs](ArchLensService/specs/implementation/requirements.md) 为准；[历史归档](docs/archive/2026-09-29/README.md) 中的旧 INV 编号、旧说明和旧验证仅供追溯。历史验证不自动构成本次验收。
 
 ## 1. 产品定位与术语
 
@@ -29,6 +29,7 @@ ArchLens 用于理解源码与数据库结构之间的依赖，基于证据分�
 | 确定性后端 | Java 21/Maven，版本化 IR、不可变图、有限 Java/MyBatis 解析、列变更传播与风险区间、离线 CLI；MySQL/Oracle/KingbaseES/DM 只读结构采集代码 | 全项目语义、跨语言完整字段链；后三种业务库的真实产品联调 |
 | 模型 | 旧描述解析；新增原生工具循环，目标/规则选择、工具调用、可恢复澄清和匿名证据解释 | 联网规则研究、完整自主采集与人工审阅工作台 |
 | 调查与存储 | 统一调查及 Agent CLI、显式来源清单、PG Case/Run/澄清修订及报告封存、Neo4j 幂等投影代码 | 生产 Spring Boot API、跨查询一致业务元数据快照、完整兼容规则；OIDC 鉴权经 2026-09-21 用户决策本版本不实施，仅限本机单用户场景使用 |
+| P0 持久编排 | 独立 LangGraph 固定 list_rules worker、PG 认可 checkpoint、跨 epoch 导入、预算与 PARTIAL 回执；见[运行说明](ArchLensService/agent-runtime/README.md) | 来源登记、模型调查 DAG、正式计划封存、澄清和外部作业恢复 |
 | 场景规则 | 25 条版本限定规则、SQL/C# 特征、Java AST 重构/升级；报告 v2–v5 逐步加入 .NET 声明、业务结构与静态候选访问路径 | 完整 .NET 语义、目标能力与有方向迁移规则、信创组合、结构化迁移方案及行为验证 |
 
 “已实现”只对应上述有限范围，不代表总体设计验收完成。实现以源码和验证证据判断；预期行为以已确认需求和设计判断。二者冲突时明确记录差异，不静默选择有利表述。

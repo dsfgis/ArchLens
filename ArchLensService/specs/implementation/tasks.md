@@ -22,7 +22,7 @@ P0→P1→P2→P3→P4 为阶段依赖。阶段内部可在契约确定后并行
 | .NET 声明、四产品采集 | investigation/dotnet、investigation/database | Roslyn 绑定、四产品同等元数据或实库验收 |
 | 代码/对象候选与访问路径 | CodeDatabaseAssociation、CodeAccessPathAnalyzer | 跨方法值流、运行时调用证明 |
 | 旧六工具及模型网关 | agent、llm | 长任务 DAG、完整 MigrationPlan、中间工具故障恢复 |
-| PG 修订/封存与投影 | PgInvestigationStore、Neo4jProjection、V001 | 新 migration 状态、自动续租、LangGraph checkpoint |
+| PG 修订/封存与投影 | PgInvestigationStore、Neo4jProjection、V001 | 完整迁移方案门槛、澄清修订与外部作业恢复（P0 自动续租/checkpoint 已实现） |
 | 原生工作台/Node bridge | ArchLensClient | 新方案面板、持久队列、生产身份体系 |
 
 现有测试数与真实联调结果按原日期引用归档，本表没有新增通过声明。
@@ -34,15 +34,15 @@ P0→P1→P2→P3→P4 为阶段依赖。阶段内部可在契约确定后并行
 | ID / 状态 | 实现及交付 | 依赖 | 需求/设计 | 验收 |
 | --- | --- | --- | --- | --- |
 | MIG-T01 部分实现（五类契约） | 已有 Request/Plan/Evidence/Validation/Event v1 Java 契约及 JSON Schema、合成样例、结构/引用/DAG/验证身份检查和只读 CLI。错误目录、完整计划语义、来源登记/真实性仍待补齐；TS 形状与哈希子集见 T02。见[请求验证](../../../docs/verification/migration-request-contract-2026-10-02.md)和[产物验证](../../../docs/verification/migration-artifacts-2026-10-02.md) | 基线核对 | R01–05、R08、R13、R20 | AC01、11–12、23–24 |
-| MIG-T02 部分实现（Java/Node 契约） | Java 权威引用校验、Node 24/Ajv 2020-12 五 Schema 校验、六组共用 canonical/hash 黄金样例、精确 v1 版本拒绝、可空字段显式约束、Node 原始 JSON 重复键拒绝，以及一份旧 Agent 报告的字节/canonical 回读基线已实现；其余旧版本回读、跨运行导入票据和 checkpoint 版本适配仍待实现。见[契约一致性验证](../../../docs/verification/migration-contract-parity-2026-10-02.md)及[输入与旧报告验证](../../../docs/verification/migration-input-legacy-2026-10-02.md) | T01 | R05、R17 | AC11、20、25、27 |
-| MIG-T03 部分实现（V002–V004） | 已追加 V002 的 migration 业务表与独立 checkpoint schema、V003 提交键表、V004 小型工具结果表、版本校验和及引用/唯一性约束；临时 PG 16 验证升级、旧运行回读、默认权限和漂移拒绝。实际角色授权、legacyRunRef 导入核验与框架 checkpoint 表仍待实现；旧 V001/V002/V003 字节不变。见[存储结构验证](../../../docs/verification/migration-storage-schema-2026-10-02.md)、[运行状态验证](../../../docs/verification/migration-run-lifecycle-2026-10-02.md)和[工具调用验证](../../../docs/verification/migration-tool-ledger-2026-10-02.md) | T01–02 | R10、R17 | AC15、18、25 |
-| MIG-T04 部分实现（入队/租约/取消） | Java PG 存储已实现新 Case 提交键幂等入队、单 worker 领取、PG 时钟续租/过期 epoch 接管、当前修订围栏及重复取消回执与受控事件；临时 PG 并发和迟到负例已验证。暂停/取代、checkpoint 认可、完整工具/封存事务、完成门槛与调度仍待实现。见[运行状态验证](../../../docs/verification/migration-run-lifecycle-2026-10-02.md) | T03 | R04、R10、R14 | AC15–18、26 |
-| MIG-T05 部分实现（规则目录账本与桥接） | 固定版本/无参 `list_rules` 已通过 PG 账本及小型结果存储完成登记→派发→发布，校验允许工具、调用次数预算、当前修订与租约 epoch。Java/Node UTF-8 JSON Lines 现有 `REGISTER`/`INSPECT`/`EXECUTE`，Node 接管先对账，完成时回读同一产物。临时 PG 验证登记/派发提交后强制结束子进程和新 epoch 恢复。通用能力票据、来源范围/实际快照、更多真实采集工具、图 checkpoint/调度及完整共享预算仍待实现。见[工具调用验证](../../../docs/verification/migration-tool-ledger-2026-10-02.md)、[跨进程验证](../../../docs/verification/migration-tool-bridge-2026-10-03.md)和[恢复验证](../../../docs/verification/migration-tool-recovery-2026-10-03.md) | T02–04 | R05、R06、R11 | AC09、11、16、18 |
-| MIG-T06 待开发 | 锁定 Node/TS/LangGraph 及持久化包；thread=runId、epoch namespace 的状态导入、checkpoint_link CAS/序号、错误恢复适配 | T03–05 | R03–04、R10 | AC16、18–20、26 |
-| MIG-T07 待开发 | 本机持久调度器、租约心跳、重启对账、共享预算预留/结算；取消旧结果与并发指针倒退负例 | T04–06 | R04、R10、R16 | AC16–21、26 |
-| MIG-T08 待开发 | P0 实际工具/数据库账本/worker 联调、故障注入与旧接口回归；写版本、依赖许可证、恢复实验及阶段记录 | T01–07 | R03、R17–20 | AC09、11、15–20、25–26 |
+| MIG-T02 部分实现（Java/Node 契约） | Java 权威引用校验、Node 24/Ajv 2020-12 五 Schema 校验、六组共用 canonical/hash 黄金样例、精确 v1 版本拒绝、可空字段显式约束、Node 原始 JSON 重复键拒绝，以及一份旧 Agent 报告的字节/canonical 回读基线已实现；其余旧版本回读、跨运行导入票据和跨版本 checkpoint 转换仍待实现；P0 已实现同版本跨 epoch 导入与不兼容拒绝。见[契约一致性验证](../../../docs/verification/migration-contract-parity-2026-10-02.md)及[输入与旧报告验证](../../../docs/verification/migration-input-legacy-2026-10-02.md)；本轮补充见[P0 验证](../../../docs/verification/p0-worker-2026-10-19.md) | T01 | R05、R17 | AC11、20、25、27 |
+| MIG-T03 部分实现（V002–V005） | 已追加 V002 的 migration 业务表与独立 checkpoint schema、V003 提交键表、V004 小型工具结果表、版本校验和及引用/唯一性约束；临时 PG 16 验证升级、旧运行回读、默认权限和漂移拒绝。2026-10-19 补齐 V005 预算/起算时间/显式入队、原生 checkpoint 表和受限角色实测；legacyRunRef 导入核验仍待实现，旧 V001–V004 字节不变。见[存储结构验证](../../../docs/verification/migration-storage-schema-2026-10-02.md)、[运行状态验证](../../../docs/verification/migration-run-lifecycle-2026-10-02.md)和[工具调用验证](../../../docs/verification/migration-tool-ledger-2026-10-02.md)；本轮补充见[P0 验证](../../../docs/verification/p0-worker-2026-10-19.md) | T01–02 | R10、R17 | AC15、18、25 |
+| MIG-T04 部分实现（入队/租约/取消） | Java PG 存储已实现新 Case 提交键幂等入队、单 worker 领取、PG 时钟续租/过期 epoch 接管、当前修订围栏及重复取消回执与受控事件；临时 PG 并发和迟到负例已验证。2026-10-19 补齐 P0 checkpoint 认可、固定工具 PARTIAL 回执和调度；暂停/取代、正式方案完成门槛与完整工具事务仍待实现。见[运行状态验证](../../../docs/verification/migration-run-lifecycle-2026-10-02.md)；本轮补充见[P0 验证](../../../docs/verification/p0-worker-2026-10-19.md) | T03 | R04、R10、R14 | AC15–18、26 |
+| MIG-T05 部分实现（规则目录账本与桥接） | 固定版本/无参 `list_rules` 已通过 PG 账本及小型结果存储完成登记→派发→发布，校验允许工具、调用次数预算、当前修订与租约 epoch。Java/Node UTF-8 JSON Lines 现有 `REGISTER`/`INSPECT`/`EXECUTE`，Node 接管先对账，完成时回读同一产物。临时 PG 验证登记/派发提交后强制结束子进程和新 epoch 恢复。2026-10-19 补齐图 checkpoint/调度、逻辑 TOOL/MODEL 预留结算及时间预算；通用能力票据、来源范围/实际快照、更多采集工具和 token/file/object/validation 预算仍待实现。见[工具调用验证](../../../docs/verification/migration-tool-ledger-2026-10-02.md)、[跨进程验证](../../../docs/verification/migration-tool-bridge-2026-10-03.md)和[恢复验证](../../../docs/verification/migration-tool-recovery-2026-10-03.md)；本轮补充见[P0 验证](../../../docs/verification/p0-worker-2026-10-19.md) | T02–04 | R05、R06、R11 | AC09、11、16、18 |
+| MIG-T06 P0 固定工具范围已实现并验证 | 锁定 LangGraph 1.5.1 / PostgresSaver 1.1.0；thread=runId、epoch namespace、Java 认可状态导入、CAS/单调序号和版本/数据漂移拒绝。见[本轮验证](../../../docs/verification/p0-worker-2026-10-19.md) | T03–05 | R03–04、R10 | AC16、18–20、26 |
+| MIG-T07 P0 固定工具范围已实现并验证 | 本机持久轮询、180 秒租约/20 秒心跳、重启对账、TOOL/MODEL 预留结算、跨重启累计时间、取消围栏与幂等 PARTIAL 封存。模型实际调用和其他预算类型未接入。见[本轮验证](../../../docs/verification/p0-worker-2026-10-19.md) | T04–06 | R04、R10、R16 | AC16–21、26 |
+| MIG-T08 P0 固定工具范围验证通过 | 真实 PG/原生 saver/Java list_rules、四个 SIGKILL 窗口、孤儿 checkpoint、并发/倒序/旧 epoch、版本/字节漂移、取消及旧接口回归；依赖许可证与复现命令已记录。完整跨版本、澄清/外部作业验收留在对应阶段。见[本轮验证](../../../docs/verification/p0-worker-2026-10-19.md) | T01–07 | R03、R17–20 | AC09、11、15–20、25–26 |
 
-P0 阻塞项：依赖版本须实测后锁定；checkpoint 状态跨 epoch 导入必须跑通，不能只写配置或把来源清单当框架恢复。测试可用固定模型桩验证调度，但不计真实模型或 A1 设计验收。
+2026-10-19：版本锁定、原生 checkpoint 跨 epoch 导入、固定工具恢复出口已实测通过；T03–T05 的必要存储/认可/预算/回执缺口已补齐。阶段声明仅为可恢复框架原型，28 项产品验收未整体通过。后续优先补齐 T01/T09 来源与授权/凭据引用登记，再推进 T10–T14 的实际画像、模型调查和正式方案门槛；T15 澄清修订、完整历史兼容与外部作业分别继续跟踪。
 
 ## 4. P1：结构化迁移设计草案闭环
 
@@ -68,7 +68,7 @@ P1 允许以现有候选证据形成有明确假设的草案；若用户要求�
 
 | ID / 状态 | 实现及交付 | 依赖 | 需求/设计 | 验收 |
 | --- | --- | --- | --- | --- |
-| MIG-T18 进行中（有限 C# 静态取证） | 已接入独立 Roslyn 进程，按授权 `.csproj` 分组，输出符号/调用绑定及来源哈希、位置；缺项目引用保留缺口，静态模式不运行被分析项目。显式目标 TFM/编译条件/引用程序集、跨项目绑定、VB 及完整覆盖分母仍待开发 | P1、T02、T05 | R05–06、R11 | AC02–03、07、09、11 |
+| MIG-T18 进行中（有限 C# 静态取证） | 已接入独立 Roslyn 进程，按授权 `.csproj` 分组，输出符号/调用绑定及来源哈希、位置；缺项目引用保留缺口，静态模式不运行被分析项目。无条件直接 ProjectReference 和 SDK 隐式 using 已实现；显式目标 TFM/编译条件/引用程序集、复杂工程绑定、VB 及完整覆盖分母仍待开发 | P1、T02、T05 | R05–06、R11 | AC02–03、07、09、11 |
 | MIG-T19 待开发 | 从一个数据访问适配器开始建立 SQL/ORM、参数/实体/事务线索，逐段关联到已采集对象；保存候选与绑定差异 | T10、T18 | R06–07 | AC03、07–08、13 |
 | MIG-T20 待开发 | 指定首例源版本的对象定义/关键配置采集、固定系统查询、产品权限/非原子性覆盖，准备有限定义上下文 | T10–11 | R06、R12 | AC04–05、09–10 |
 | MIG-T21 待开发 | SourceFeature/TargetCapability/MappingRule/PairException，首个明确数据库方向、版本/模式匹配、精度/时间/空值/事务正反例 | T19–20；目标版本已确定 | R07、R13 | AC05–06、13、22 |

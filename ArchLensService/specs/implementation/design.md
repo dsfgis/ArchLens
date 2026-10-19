@@ -265,3 +265,16 @@ P0 契约/框架恢复原型，P1 草案闭环，P2 语义与方向规则，P3 �
 ## MIG-D20 追踪与变更管理
 
 MIG-Rxx→MIG-Dxx 对应同编号 MD-Dxx；任务编号与验收编号建立显式多对多映射。旧 INV/TASK/历史测试计数只在归档保留，新的完成状态必须有新日期、代码基线、环境和证据。仅文档重建不构成新框架或产品能力通过；本轮测试资源迁移回归独立记录。改变范围、上下文策略或执行模式时同步需求、设计、任务、验收和工程约束。
+
+## 2026-10-18 P0 实现决策
+
+- 独立 `agent-runtime/src/worker-cli.ts` 提供显式初始化、入队、查询、取消、一次调度和常驻调度。只有标记 `P0_RULES_V1` 的运行可被该调度器发现；原有请求和网页调查不会自动被新图接管。Java 租约 180 秒，worker 默认每 20 秒续租；失去租约即停止推进，实际派发、认可和封存仍由 Java 围栏。
+- 固定 LangGraph 1.5.1、PostgresSaver 1.1.0、core 1.2.18、pg 8.23.1、Node 24+、TS 7.0.2，传递依赖由 lockfile 固定。参考 [LangGraph 持久化](https://docs.langchain.com/oss/javascript/langgraph/persistence) 和 [PostgresSaver API](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-postgres/index)，以本机真实恢复实验作为采用依据。
+- `EpochSaver` 将根图的虚拟空 namespace 映射为 `archlens.p0-rules.v1/epoch-N`，所有读写使用该映射；`thread_id=runId`。图使用 `durability: sync`，保存和 Java 认可完成后才能执行下一节点。
+- Native checkpoint 同一事务附带 `archlens_export`：版本、run/revision/request/catalog 身份、epoch、递增 sequence、三阶段状态及任务/调用/结果引用。它不含用户目标、来源、凭据、连接或模型响应。Java 从实际 checkpoint 行读取 export，严格反序列化，检查状态 hash、同运行任务/调用/产物及结果原字节；在 Case→Run 锁下以预期 sequence/hash 认可并分配事件游标。
+- 恢复只读取 `checkpoint_link` 指定的 export；无指针从入口重建。跨 epoch 通过真实 `graph.updateState(..., asNode=bootstrap)` 在新 namespace 生成 checkpoint，按白名单 phase 重建下一节点，再调用图。工具操作先对账、已完成结果回读；不把旧框架待执行队列或未认可的 latest checkpoint 直接反序列化恢复。状态版本未知直接失败，暂无跨版本转换器。
+- V005 追加 runtime_profile、首次启动时刻及共享预算预留表，并保守回填已有 migration 调用预算。V001～V004 原字节不变。Java 锁定 Case 后重新读取 Run，防止等锁前的联表快照漏掉刚发生的取消。
+- P0 封存仅支持固定 `PARTIAL` 回执；正常结束必须认可当前 epoch 的 SUCCEEDED checkpoint 并核验结果。预算结束为 PARTIAL；版本、数据漂移等不可恢复错误为 FAILED。重复同一终态内容返回原 hash，冲突拒绝，事务内只产生一次封存事件。正式 MigrationPlan、澄清/取代及外部等待事务仍属于后续任务。
+- checkpoint 使用独立连接配置和仅限独立 schema 的数据库角色；worker 常规运行不执行 DDL。Java 子进程使用宿主自身 PG 配置。本机 OS 用户及 Java 启动器是受信任边界；数据库角色隔离不声称能阻止同一 OS 用户读取宿主环境。云 tracing 在本图强制关闭。
+
+2026-10-19 落地与实际验证见 [P0 worker 记录](../../../docs/verification/p0-worker-2026-10-19.md)；本增量仅适用于固定只读工具原型，剩余产品门槛按任务表继续跟踪。
