@@ -79,6 +79,7 @@ public final class PgMigrationToolStore {
                 }
             }
             UUID invocationId = UUID.randomUUID();
+            PgMigrationRuntimeStore.reserve(connection, ticket.runId(), invocationId + ":1", "TOOL");
             try (var insert = connection.prepareStatement("INSERT INTO archlens.tool_invocation(invocation_id,run_id,revision,task_id,task_version,action_key,tool_id,tool_version,input_hash,snapshot_hash,status) VALUES(?,?,?,?,1,?,?,?,?,?,'REGISTERED')")) {
                 insert.setObject(1, invocationId); insert.setObject(2, ticket.runId());
                 insert.setInt(3, ticket.revision()); insert.setObject(4, taskId);
@@ -139,6 +140,16 @@ public final class PgMigrationToolStore {
             }
             require("REGISTERED".equals(invocation.status) || "DISPATCHED".equals(invocation.status),
                     "MIG_INVOCATION_TERMINAL", "Invocation cannot be dispatched");
+            PgMigrationRuntimeStore.ensureTime(connection, ticket.runId());
+            int attempt;
+            try (var query = connection.prepareStatement("SELECT attempts FROM archlens.migration_task WHERE task_id=?")) {
+                query.setObject(1, invocation.taskId);
+                try (var rows = query.executeQuery()) { rows.next(); attempt = rows.getInt(1) + 1; }
+            }
+            require(attempt <= 3, "MIG_TOOL_RETRY_BUDGET", "At most three dispatch attempts per invocation");
+            String reservation = invocationId + ":1";
+            PgMigrationRuntimeStore.reserve(connection, ticket.runId(), reservation, "TOOL");
+            PgMigrationRuntimeStore.settle(connection, ticket.runId(), reservation, "TOOL");
             try (var update = connection.prepareStatement("UPDATE archlens.tool_invocation SET status='DISPATCHED' WHERE invocation_id=?")) {
                 update.setObject(1, invocationId); update.executeUpdate();
             }
@@ -194,22 +205,14 @@ public final class PgMigrationToolStore {
     private static String catalogContent() {
         return Json.canonical(Map.of("ruleCatalogVersion", RuleCatalog.VERSION, "rules", RuleCatalog.all()));
     }
-    private static String catalogHash() { return Json.sha256(catalogContent().getBytes(StandardCharsets.UTF_8)); }
+    public static String catalogHash() { return Json.sha256(catalogContent().getBytes(StandardCharsets.UTF_8)); }
 
     private record Context(boolean allowed, int maxToolCalls) {}
     private Context activeContext(Connection connection, PgMigrationRunStore.Ticket ticket) throws SQLException {
-        require(ticket != null, "STALE_RUN", "Worker ticket is required");
-        // Lock the Case for all ledger writes, using the same order as claim/cancel/renew.
-        try (var query = connection.prepareStatement("SELECT r.revision,c.latest_revision,r.request_hash,r.worker_id,r.epoch,r.execution_state,r.lease_until>clock_timestamp(),(r.request_json #> '{policyRefs,allowedTools}') @> '[\"list_rules\"]'::jsonb,(r.request_json #>> '{budget,maxToolCalls}')::integer FROM archlens.migration_run r JOIN archlens.migration_case c ON c.case_id=r.case_id WHERE r.run_id=? AND r.case_id=? FOR UPDATE OF c")) {
-            query.setObject(1, ticket.runId()); query.setObject(2, ticket.caseId());
-            try (var rows = query.executeQuery()) {
-                require(rows.next() && rows.getInt(1) == ticket.revision() && rows.getInt(2) == ticket.revision()
-                                && rows.getString(3).equals(ticket.requestHash())
-                                && ticket.workerId().equals(rows.getString(4)) && rows.getLong(5) == ticket.epoch()
-                                && "RUNNING".equals(rows.getString(6)) && rows.getBoolean(7),
-                        "STALE_RUN", "Worker lease expired or was fenced");
-                return new Context(rows.getBoolean(8), rows.getInt(9));
-            }
+        PgMigrationRuntimeStore.active(connection, ticket);
+        try (var query = connection.prepareStatement("SELECT (request_json #> '{policyRefs,allowedTools}') @> '[\"list_rules\"]'::jsonb,(request_json #>> '{budget,maxToolCalls}')::integer FROM archlens.migration_run WHERE run_id=?")) {
+            query.setObject(1, ticket.runId());
+            try (var rows = query.executeQuery()) { rows.next(); return new Context(rows.getBoolean(1), rows.getInt(2)); }
         }
     }
 

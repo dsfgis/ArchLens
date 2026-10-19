@@ -81,7 +81,7 @@ public final class PgMigrationRunStore {
         return transaction(connection -> {
             Current current = lockCase(connection, runId);
             require(current.revision == current.latestRevision, "STALE_RUN", "Run is not the latest revision");
-            try (var update = connection.prepareStatement("UPDATE archlens.migration_run SET execution_state='RUNNING',worker_id=?,epoch=epoch+1,lease_until=clock_timestamp()+interval '180 seconds' WHERE run_id=? AND request_hash=? AND orchestration_type='LANGGRAPH' AND (execution_state='QUEUED' OR (execution_state='RUNNING' AND lease_until<=clock_timestamp())) RETURNING epoch,lease_until")) {
+            try (var update = connection.prepareStatement("UPDATE archlens.migration_run SET execution_state='RUNNING',started_at=COALESCE(started_at,clock_timestamp()),worker_id=?,epoch=epoch+1,lease_until=clock_timestamp()+interval '180 seconds' WHERE run_id=? AND request_hash=? AND orchestration_type='LANGGRAPH' AND (execution_state='QUEUED' OR (execution_state='RUNNING' AND lease_until<=clock_timestamp())) RETURNING epoch,lease_until")) {
                 update.setString(1, workerId);
                 update.setObject(2, runId);
                 update.setString(3, current.requestHash);

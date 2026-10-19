@@ -16,6 +16,7 @@ final class PgMigrationSchema {
         installVersion(connection, statement, 2, "/db/V002__migration_runtime.sql");
         installVersion(connection, statement, 3, "/db/V003__migration_submission.sql");
         installVersion(connection, statement, 4, "/db/V004__migration_tool_result.sql");
+        installVersion(connection, statement, 5, "/db/V005__migration_worker.sql");
     }
 
     private static void installVersion(Connection connection, Statement statement, int version, String resourceName)

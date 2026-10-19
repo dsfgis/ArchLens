@@ -40,11 +40,12 @@ class MigrationSchemaIntegrationTest {
                     case 2 -> "V002__migration_runtime.sql";
                     case 3 -> "V003__migration_submission.sql";
                     case 4 -> "V004__migration_tool_result.sql";
+                    case 5 -> "V005__migration_worker.sql";
                     default -> throw new AssertionError("Unexpected schema version: " + version);
                 };
                 assertEquals(Json.sha256(Files.readAllBytes(db.resolve(name))), versions.getString(2));
             }
-            assertEquals(List.of(1, 2, 3, 4), numbers);
+            assertEquals(List.of(1, 2, 3, 4, 5), numbers);
         }
         try (var connection = config.connect();
              var query = connection.createStatement();
@@ -112,7 +113,7 @@ class MigrationSchemaIntegrationTest {
         }).getSQLState());
 
         // Every additive migration rejects checksum drift independently.
-        for (int version : List.of(2, 3, 4)) {
+        for (int version : List.of(2, 3, 4, 5)) {
             try (var connection = config.connect();
                  var statement = connection.prepareStatement("UPDATE archlens.schema_version SET checksum=? WHERE version=?")) {
                 statement.setString(1, "0".repeat(64));
@@ -126,7 +127,8 @@ class MigrationSchemaIntegrationTest {
                 String name = switch (version) {
                     case 2 -> "V002__migration_runtime.sql";
                     case 3 -> "V003__migration_submission.sql";
-                    default -> "V004__migration_tool_result.sql";
+                    case 4 -> "V004__migration_tool_result.sql";
+                    default -> "V005__migration_worker.sql";
                 };
                 try (var connection = config.connect();
                      var statement = connection.prepareStatement("UPDATE archlens.schema_version SET checksum=? WHERE version=?")) {
