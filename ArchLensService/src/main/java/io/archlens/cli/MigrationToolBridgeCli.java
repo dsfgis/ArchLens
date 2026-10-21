@@ -77,7 +77,8 @@ public final class MigrationToolBridgeCli {
             write(out, new Response(VERSION, requestId, "ERROR", null, null, null,
                     List.of(), List.of(), 0, "MIG_BRIDGE_STORAGE_ERROR".equals(code) ? "REPLAY" : "NEVER",
                     elapsed(started), code));
-            err.println(code);
+            // stderr is diagnostic text, not part of the JSON-line protocol; keep it byte-stable on Windows.
+            err.print(code + "\n");
             return 2;
         }
     }

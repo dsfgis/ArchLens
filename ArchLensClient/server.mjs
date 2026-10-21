@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { handleInvestigations } from './investigations.mjs';
+import { handleMigrations } from './migrations.mjs';
 
 const port = Number(process.env.ARCHLENS_CLIENT_PORT || 4173);
 const allowedHosts = new Set([`127.0.0.1:${port}`, `localhost:${port}`]);
@@ -64,10 +65,12 @@ const files = new Map([
   ['/draft.html', ['draft.html', 'text/html; charset=utf-8']],
   ['/workbench.js', ['workbench.js', 'text/javascript; charset=utf-8']],
   ['/migration-assessment.mjs', ['migration-assessment.mjs', 'text/javascript; charset=utf-8']],
+  ['/database-assessment.mjs', ['database-assessment.mjs', 'text/javascript; charset=utf-8']],
   ['/workbench.css', ['workbench.css', 'text/css; charset=utf-8']],
 ]);
 http.createServer(async (req, res) => {
   if (!allowedHosts.has(req.headers.host)) { res.writeHead(403); res.end('Forbidden'); return; }
+  if (await handleMigrations(req, res, json)) return;
   if (await handleInvestigations(req, res, json)) return;
   if (new URL(req.url, 'http://localhost').pathname === '/api/parse-target') return parseTarget(req, res);
   const file = files.get(new URL(req.url, 'http://localhost').pathname);

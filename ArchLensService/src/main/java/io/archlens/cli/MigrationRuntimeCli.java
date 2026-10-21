@@ -56,7 +56,7 @@ public final class MigrationRuntimeCli {
         }catch(Exception e){
             Throwable cause=e;while(cause.getCause()!=null)cause=cause.getCause();
             String code=cause instanceof ContractException ce?ce.code():cause instanceof SQLException?"MIG_RUNTIME_STORAGE":"MIG_RUNTIME_INVALID";
-            write(out,new Response(VERSION,id,"ERROR",null,code));err.println(code);return 2;
+            write(out,new Response(VERSION,id,"ERROR",null,code));err.print(code+"\n");return 2;
         }
     }
     private static PgMigrationRunStore.Ticket ticket(Map<String,JsonNode>a){return convert(a,"ticket",Identity.class).ticket();}

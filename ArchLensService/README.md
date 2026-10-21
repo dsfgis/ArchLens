@@ -71,6 +71,7 @@ java -jar target/archlens-0.1.0-SNAPSHOT-cli.jar analyze examples/column-rename/
 - `agent`：目标解析、规则选择、受限工具执行、澄清恢复、证据解释；模型不能直接生成或修改事实结论。
 - `investigation/rules`：明确来源清单、版本限定规则、覆盖缺口和 v2 证据发现报告；`investigation/dotnet` 提供带来源哈希的 v3 平台声明清单。
 - `storage`：ArchLens 自身 PG Case/Run/修订、租约和不可变封存；存在已绑定事实图时投影 Neo4j。
+- `migration` / `migration-web`：本地来源登记（相对清单、SHA-256、授权/凭据引用、基础画像观测）及迁移运行创建/查询/取消 API；当前运行保持 `QUEUED`，尚未接入取证 worker 或模型。
 
 示例的 `event_id → global_id` 是物理列改名，真实 XML 仍读取 `event_id`，因此 Mapper 为 `YES`。没有源码字段映射的对象上游只能是 `UNKNOWN`。拟议兼容条件只可形成 `UNKNOWN + conditionedOutcome=NO`；当前尚无验证快照引擎，`VERIFIED` 和 `APPLIED` 输入会明确拒绝。
 

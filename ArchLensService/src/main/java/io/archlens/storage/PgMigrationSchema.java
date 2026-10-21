@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Locale;
 import static io.archlens.contract.ContractException.require;
 
 /** Installs additive Migration Agent schemas inside the V001 initializer's advisory-locked transaction. */
@@ -41,13 +42,29 @@ final class PgMigrationSchema {
         for (String line : new String(bytes, StandardCharsets.UTF_8).split("\\R", -1)) {
             if (!line.stripLeading().startsWith("--")) commands.append(line).append('\n');
         }
+        // V002 owns the checkpoint schema. A deployment may pre-create it as the
+        // database owner (the application role intentionally lacks database CREATE).
+        boolean checkpointExists = version == 2 && schemaExists(connection, "archlens_checkpoint");
         for (String command : commands.toString().split(";")) {
-            if (!command.isBlank()) statement.execute(command);
+            if (command.isBlank()) continue;
+            String normalized = command.stripLeading().toLowerCase(Locale.ROOT);
+            if (checkpointExists && normalized.matches("(?s)create\\s+schema\\s+archlens_checkpoint\\b.*")) continue;
+            statement.execute(command);
         }
         try (var insert = connection.prepareStatement("INSERT INTO archlens.schema_version(version,checksum) VALUES(?,?)")) {
             insert.setInt(1, version);
             insert.setString(2, checksum);
             insert.executeUpdate();
+        }
+    }
+
+    private static boolean schemaExists(Connection connection, String schema) throws SQLException {
+        try (var query = connection.prepareStatement("SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname=?)")) {
+            query.setString(1, schema);
+            try (var rows = query.executeQuery()) {
+                rows.next();
+                return rows.getBoolean(1);
+            }
         }
     }
 }
