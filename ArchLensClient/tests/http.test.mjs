@@ -5,6 +5,7 @@ import { mkdtemp, readFile, mkdir, writeFile, symlink } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { createInvestigationHandler } from '../investigations.mjs';
+import { createMigrationHandler } from '../migrations.mjs';
 
 const root=fileURLToPath(new URL('../../ArchLensService/examples/scenarios/mysql-postgresql/',import.meta.url));
 const request=JSON.parse(await readFile(path.join(root,'agent-clarify.json'),'utf8'));
@@ -19,6 +20,36 @@ async function setup(t,backend) {
   const post=(route,body,headers={})=>fetch(base+route,{method:'POST',headers:{Origin:base,'Content-Type':'application/json',...headers},body:JSON.stringify(body)});
   return {base,post,contextDirectory};
 }
+
+async function migrationSetup(t, backend) {
+  const handler=createMigrationHandler({backend});
+  const server=http.createServer((req,res)=>handler(req,res,(r,status,body)=>{
+    r.writeHead(status,{'Content-Type':'application/json'});r.end(JSON.stringify(body));
+  }));
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  t.after(()=>{server.closeAllConnections();server.close();});
+  const base=`http://127.0.0.1:${server.address().port}`;
+  const post=(route,body,headers={})=>fetch(base+route,{method:'POST',
+    headers:{Origin:base,'Content-Type':'application/json',...headers},body:JSON.stringify(body)});
+  return {base,post};
+}
+
+const migrationRequest={
+  schemaVersion:'archlens.migration-request.v1',analysisMode:'CODE_ONLY',
+  objective:'分析订单模块迁移设计',
+  sourceRefs:[{sourceRef:'orders-code',kind:'LOCAL_CODE',locatorRef:'locator-orders-code',
+    credentialRef:null,declaredProduct:'.NET Framework',declaredVersion:'4.8',offlineUnverified:false}],
+  targetEnvironment:{runtime:{product:'Java',version:'21',compatibilityMode:null},
+    database:null,operatingSystem:null,architecture:null},
+  constraints:[{id:'api',description:'保持接口兼容'}],
+  invariants:[{id:'rounding',description:'保持金额舍入'}],
+  acceptanceScope:{level:'A1',requiredSourceRefs:['orders-code'],requiredSubjects:['module'],
+    requiredPaths:['path'],requiredConstraintIds:['api'],requiredInvariantIds:['rounding'],
+    requiredValidationLevels:['V1'],acceptedUnknowns:[]},
+  policyRefs:{authorizationRef:'auth-orders',modelConfigRef:null,dataPolicy:'SUMMARY_ONLY',
+    executionPolicy:'READ_ONLY',allowedTools:['list_rules']},
+  budget:{maxToolCalls:4,maxModelCalls:0,maxElapsedMillis:10000},unresolvedFields:[]
+};
 test('cross-origin writes and malformed identifiers are rejected before backend invocation',async t=>{
   let calls=0;const {base,post}=await setup(t,async()=>{calls++;});
   assert.equal((await post('/api/investigations',{}, {Origin:'https://untrusted.example'})).status,403);
@@ -122,7 +153,12 @@ test('.NET discovery supports mixed languages and solutions without following li
   for(const name of ['App.csproj','Lib.vbproj','Worker.fsproj','Mixed.slnx','App.cs','Lib.vb','Worker.fs','Directory.Build.props','global.json','web.config','appsettings.Development.json'])await writeFile(path.join(contextDirectory,name),'synthetic');
   await mkdir(path.join(contextDirectory,'obj'));await writeFile(path.join(contextDirectory,'obj','Generated.cs'),'excluded');
   await writeFile(path.join(contextDirectory,'secret.json'),'excluded');
-  await symlink('/definitely-missing-archlens-path',path.join(contextDirectory,'linked.csproj'));
+  try {
+    await symlink('/definitely-missing-archlens-path',path.join(contextDirectory,'linked.csproj'));
+  } catch (error) {
+    if (['EPERM', 'EACCES'].includes(error.code)) { t.skip('symlink requires Windows developer mode or elevated privileges'); return; }
+    throw error;
+  }
   const r=await post('/api/investigations/discover-dotnet',{sourceRoot:contextDirectory});assert.equal(r.status,200);
   const result=await r.json();assert.equal(result.projects.length,3);assert.equal(result.solutions.length,1);
   assert.ok(result.files.includes('Lib.vb'));assert.ok(result.files.includes('Worker.fs'));assert.ok(result.files.includes('appsettings.Development.json'));
@@ -203,7 +239,12 @@ test('generic path-only submission discovers diverse source files and leaves the
   let received;const {post,contextDirectory}=await setup(t,async(input,started)=>{received=input;await started({runId:id,caseId:id,revision:1});return {};});
   for(const [name,content] of Object.entries({'pom.xml':'<project/>','Main.java':'class Main {}','main.py':'pass','page.tsx':'const a=1','package.json':'{}','secret.env':'private','unknown.bin':'bytes'}))await writeFile(path.join(contextDirectory,name),content);
   await mkdir(path.join(contextDirectory,'node_modules'));await writeFile(path.join(contextDirectory,'node_modules','ignored.js'),'ignored');
-  await symlink(path.join(root,'schema.sql'),path.join(contextDirectory,'outside.sql'));
+  try {
+    await symlink(path.join(root,'schema.sql'),path.join(contextDirectory,'outside.sql'));
+  } catch (error) {
+    if (['EPERM', 'EACCES'].includes(error.code)) { t.skip('symlink requires Windows developer mode or elevated privileges'); return; }
+    throw error;
+  }
   const generic={...request,target:null,objective:'分析升级运行时并更换数据库的影响',files:[]};
   const response=await post('/api/investigations',{sourceRoot:contextDirectory,request:generic});assert.equal(response.status,202);
   assert.deepEqual(received.request.files,['Main.java','main.py','package.json','page.tsx','pom.xml']);
@@ -225,4 +266,47 @@ test('model status exposes only backend metadata and generic page has no fixed s
   const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
   for(const id of ['scenario','source-product','source-version','target-product','target-version','dotnet-example','csharp-example'])assert.equal(html.includes(`id="${id}"`),false);
   assert.match(html,/id="objective" required/);assert.match(html,/id="source-root" required/);assert.doesNotMatch(html,/id="source-files" required/);
+});
+
+test('migration source registration and start keep locator and credentials out of the request',async t=>{
+  const calls=[];
+  const {post}=await migrationSetup(t,async input=>{
+    calls.push(input);
+    if(input.action==='register')return {sourceRef:'orders-code',kind:'LOCAL_CODE',
+      manifestHash:'a'.repeat(64),fileCount:2,bytes:20,declaredProduct:'.NET Framework',
+      declaredVersion:'4.8',observedProfiles:[]};
+    return {caseId:id,runId:id,revision:1,requestHash:'b'.repeat(64)};
+  });
+  const registered=await post('/api/migrations/sources',{sourceRef:'orders-code',kind:'LOCAL_CODE',
+    sourceRoot:root,files:['agent-clarify.json'],declaredProduct:'.NET Framework',
+    declaredVersion:'4.8',authorizationRef:'auth-orders',credentialRef:null});
+  assert.equal(registered.status,201);
+  const start=await post('/api/migrations',{submissionKey:'submission-one',request:migrationRequest});
+  assert.equal(start.status,202);
+  assert.deepEqual(calls.map(call=>call.action),['register','start']);
+  assert.equal(calls[0].sourceRoot,root);
+  assert.equal(calls[1].sourceRoot,null);
+  assert.equal(JSON.stringify(calls[1].request).includes(root),false);
+  assert.equal(calls[1].submissionKey,'submission-one');
+  assert.equal((await post('/api/migrations',{submissionKey:'submission-one',request:migrationRequest})).status,202);
+  assert.equal(calls[2].submissionKey,'submission-one');
+});
+
+test('migration API rejects malformed scopes and keeps query/cancel lifecycle',async t=>{
+  let calls=0;
+  const {base,post}=await migrationSetup(t,async input=>{
+    calls++;return input.action==='cancel'?{runId:id,epoch:2,cancelledAt:'2026-10-19T00:00:00Z'}:{runId:id,state:'QUEUED'};
+  });
+  assert.equal((await post('/api/migrations',{request:migrationRequest})).status,400);
+  assert.equal((await post('/api/migrations',{submissionKey:'key',request:migrationRequest,sourceRoot:root})).status,400);
+  assert.equal((await post('/api/migrations/sources',{sourceRef:'orders-code',kind:'LOCAL_CODE',
+    sourceRoot:'relative',authorizationRef:'auth'})).status,400);
+  assert.equal((await post('/api/migrations/sources',{sourceRef:'orders-code',kind:'LOCAL_CODE',
+    sourceRoot:root,authorizationRef:'auth',password:'synthetic'})).status,400);
+  assert.equal(calls,0);
+  assert.equal((await fetch(`${base}/api/migrations/${id}`)).status,200);
+  assert.equal((await fetch(`${base}/api/migrations/not-a-uuid`)).status,400);
+  assert.equal((await post(`/api/migrations/${id}/cancel`,{})).status,200);
+  assert.equal((await post(`/api/migrations/${id}/cancel`,{extra:true})).status,400);
+  assert.equal(calls,2);
 });
