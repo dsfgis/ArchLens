@@ -110,3 +110,51 @@
 2026-09-30 的[文档整理验证](../../../docs/verification/document-rebuild-2026-09-30.md)记录四份规格、101 个历史文件归档、链接检查和测试资源迁移回归。它不计为上表 MD-AC 的产品验收。
 
 后续入口顺序为 requirements → design → tasks → check_list；设计意图与源码冲突时分别记录期望和实际，再安排实现任务。`docs/archive/` 中旧 INV、T/TASK、CHECK 勾选与历史测试数字不得回填本清单。
+
+## 2026-10-19 T09 来源登记与迁移入口（部分）
+
+详细证据：[T09 验证记录](../../../docs/verification/t09-source-registry-2026-10-19.md)。
+
+- [x] 本地来源登记：显式相对文件清单、SHA-256、字节预算、越界/重复/未注册来源拒绝；绝对根目录只保存在本机来源上下文，不进入 `MigrationRequest`。
+- [x] 授权与凭据引用：请求必须匹配已登记 `authorizationRef` 和 `credentialRef`；业务库凭据只从后端环境解析，登记文件和报告不保存秘密值。
+- [x] 基础画像检查：解析 `.csproj`/`pom.xml` 的显式目标框架或语言版本，与声明冲突时拒绝；无法观测时保留缺口。
+- [x] Node `/api/migrations/sources`、`POST /api/migrations`、`GET /api/migrations/:runId`、`POST /api/migrations/:runId/cancel` 的 Origin、JSON 类型、字段白名单、UUID 和重复提交键透传测试。
+- [x] Java 单元测试：`MigrationSourceRegistryTest` 5 项通过；来源清单、授权不匹配、来源漂移、凭据缺失/存在、路径越界和画像冲突均有负例。
+- [x] 本地进程烟测：打包 CLI 登记 `LegacyWeb.csproj` + `Payment.cs`，输出 `.NET Framework 4.8` 与 C# 7.3 观测，未输出绝对根目录。
+- [x] 当前 Windows 验证：Java `mvn verify` 213 项，0 失败/错误、38 跳过；Node HTTP 22 项，20 通过、2 项因 Windows 符号链接权限跳过。
+- [x] 真实 PG 创建/查询/取消：切换到同实例由 `appuser` 拥有的 `archlens` 数据库后安装 V001–V005；创建 Run `3b1f9d95-60fa-43e9-b3ef-6ca5f1e9654d` 返回 `QUEUED`，取消后读回 `CANCELLED`；同一提交键重复提交返回同一 Run，修改请求返回 `MIG_SUBMISSION_CONFLICT`。
+- [ ] T10 实际取证工具、来源快照/覆盖分母和崩溃复用：待实现，不能由本次 T09 骨架替代。
+
+## 2026-10-19 .NET WPF → C++/Electron 真实草案
+
+详细证据：[验证记录](../../../docs/verification/dotnet-cpp-electron-2026-10-19.md)。
+
+- [x] 真实项目发现清单审阅：127 个文件，其中 120 个 C#、6 个项目；WPF/SQLite/SQLCipher/.NET 10.0 声明可见。
+- [x] 真实 Roslyn 取证：5,259 条事实，1,676 条源码绑定、1,805 条宿主引用绑定、850 条未解析；报告保留解析缺口。
+- [x] 真实 Agent 草案：Run `72e12f2d-ceb5-44ca-a063-06f737433da8`，`MODEL_TOOL_LOOP`、5 次模型调用、9 阶段 `UNVERIFIED_PROPOSAL`、`PARTIAL`。
+- [x] Windows UTF-8/分析器路径修复：修复后 `mvn verify` 213 项、0 失败/错误、33 跳过；`DotnetSemanticsTest` 5 项通过。
+- [ ] XAML 结构、实际 MSBuild 编译项/生成源、850 条未解析事实和宿主引用逐组归属：未完成。
+- [ ] 旧系统行为基线、C++/Electron 端到端样例、迁移后回归、正式 MigrationPlan/A1：未完成。
+
+## 2026-10-19 两个比赛演示入口
+
+- [x] 首页增加 `.NET → C++/Electron` 与 `Java 信创：MySQL → 金仓` 两个目标预设；代码路径、MySQL 连接和目标版本仍由用户填写。
+- [x] 增加“业务关联主键/字段变更”文本框，并随目标提交；不执行数据库变更。
+- [x] 增加数据库迁移可行性初筛：可见表/字段/主外键、静态代码关联、目标兼容性 `UNKNOWN/CONDITIONAL`、工作量区间、风险和 Go/No-Go 门槛；Web 与 Markdown 同源展示。
+- [x] Node 测试：25 项，23 通过、2 项 Windows 符号链接跳过，0 失败；Java `mvn verify` 214 项，0 失败/错误、33 跳过。
+- [ ] Java 示例的真实 MySQL → KingbaseES 联调：需要演示环境提供 MySQL 只读连接和金仓版本；当前没有 KingbaseES 专用规则包，不能验收兼容性。
+
+## 2026-10-19 完全自主 Agent 目标验收
+
+以下条目是新目标的增量验收，不替代 MD-AC01–28 的完整范围。
+
+详细证据：[自主目标增量验证](../../../docs/verification/autonomy-2026-10-19.md)。
+
+- [x] 自由文本输入路径：页面目标、代码路径、数据库连接和业务主键变更均可由用户输入；预置按钮只填入可修改文本。
+- [x] 模型工具循环：实际 .NET Run 轨迹包含 `inspect_repository`、`propose_target`、`inspect_dotnet_semantics`、`list_rules`、`run_analysis`、`read_evidence`；模型调用 5 次，报告 `MODEL_TOOL_LOOP`。
+- [x] 工具结果可见：页面新增实际工具调用顺序、结果码和耗时；“模型选择动作，确定性工具执行”与事实/解释分离。
+- [x] 通用可行性方案：新增 `draft_feasibility_plan` 工具和 `FeasibilityPlan` 契约；只能 `UNVERIFIED_PROPOSAL`，决策限制为 `CONDITIONAL_GO/NO_GO/UNKNOWN`，必须引用已读取 finding。
+- [x] 脚本模型负例/正例：`GenericAgentTest` 验证数据库方案引用证据、条件化决策和空解释 finish；未验证真实模型在任意自由文本上的路由准确性。
+- [ ] 两个自由文本目标均由真实模型独立解析并产生不同工具序列：.NET 目标已有真实 Run；Java/MySQL→KingbaseES 仍需真实数据库和模型联调。
+- [ ] 自动补查、两轮无进展停止、DecisionRecord 持久化和跨修订重规划：待 AUTO-T04。
+- [ ] 完整自主边界：当前工具集、目标枚举和证据参数仍由 Java 固定；不能把“模型选择工具”表述为任意自主执行或生产级自治。

@@ -1,5 +1,6 @@
 // Reader-facing projection of a sealed report. Raw fact IDs and hashes remain in JSON.
 import { assessMigration } from './migration-assessment.mjs';
+import { assessDatabaseMigration } from './database-assessment.mjs';
 const gapText={
   PROJECT_REFERENCES_NOT_RESOLVED:'部分工程引用尚未绑定，跨工程调用可能缺失。',
   PROJECT_COMPILE_ITEMS_NOT_EVALUATED:'尚未执行工程的实际编译项求值，条件包含或排除的源码待核对。',
@@ -57,6 +58,25 @@ export function renderMarkdownReport(report,{runId=null}={}){
       sections.push(`### ${i+1}. ${line(phase)}`,'',prose(step.action),'',`**如何验证：** ${prose(step.validation)}`,'');
     }
   }
+  const feasibility=report.feasibilityPlan;
+  if(feasibility){
+    sections.push('## 模型可行性方案（未经验证）','',prose(feasibility.targetArchitecture),
+      `- **决策：** ${line(feasibility.decision)}；**置信度：** ${line(feasibility.confidence)}`,
+      `- **初步工作量：** ${feasibility.workload.lowMonths}–${feasibility.workload.highMonths} 人月（${line(feasibility.workload.confidence)}）`,'');
+    if(feasibility.workload.drivers?.length){
+      sections.push('**工作量驱动：**','');for(const driver of feasibility.workload.drivers)sections.push(`- ${line(driver)}`);sections.push('');
+    }
+    for(const [i,step] of (feasibility.steps||[]).entries()){
+      sections.push(`### ${i+1}. ${line(step.phase)}`,'',prose(step.action),'',`**如何验证：** ${prose(step.validation)}`,'');
+    }
+    for(const risk of feasibility.risks||[]){
+      sections.push(`### ${line(risk.title)}（${line(risk.severity)}风险）`,'',
+        `- **依据：** ${line(risk.evidence)}`,`- **处理：** ${line(risk.mitigation)}`,'');
+    }
+    if(feasibility.openQuestions?.length){
+      sections.push('**待确认问题：**','');for(const question of feasibility.openQuestions)sections.push(`- ${prose(question)}`);sections.push('');
+    }
+  }
   const assessment=assessMigration(report);
   if(assessment){
     sections.push('## 风险分析','',assessment.evidenceNote,'');
@@ -68,6 +88,26 @@ export function renderMarkdownReport(report,{runId=null}={}){
       '**可量化前需完成：**','');
     for(const gate of assessment.gates)sections.push(`- ${line(gate)}`);
     sections.push('');
+  }
+  const databaseAssessment=assessDatabaseMigration(report);
+  if(databaseAssessment){
+    sections.push('## 信创迁移可行性初筛','',
+      `- **目标：** ${line(databaseAssessment.targetProduct)} ${line(databaseAssessment.targetVersion)}`,
+      `- **决策：** ${line(databaseAssessment.decision)}；**目标兼容性：** ${line(databaseAssessment.compatibility)}；**综合风险：** ${line(databaseAssessment.riskLevel)}`,
+      `- **可见范围：** ${databaseAssessment.metrics.tables} 张表、${databaseAssessment.metrics.columns} 个字段、${databaseAssessment.metrics.primaryKeys} 个主键、${databaseAssessment.metrics.foreignKeys} 个外键、${databaseAssessment.metrics.codeAssociations} 条静态代码关联。`,
+      `- **初步工作量：** ${databaseAssessment.workload.low}–${databaseAssessment.workload.high} ${databaseAssessment.workload.unit}（置信度 ${line(databaseAssessment.workload.confidence)}）。${line(databaseAssessment.workload.basis)}`,'');
+    if(databaseAssessment.changeImpact){
+      sections.push('### 业务主键变更影响候选','',line(databaseAssessment.changeImpact.requested),'');
+      for(const item of databaseAssessment.changeImpact.likelyPrimaryKeys)sections.push(`- 主键：${line(item.table)}.${line(item.column)}${item.inferred?'（由 id 推断）':''}`);
+      for(const item of databaseAssessment.changeImpact.likelyForeignKeys)sections.push(`- 外键：${line(item.table)}.${line(item.column)}${item.referencedTable?` → ${line(item.referencedTable)}.${line(item.referencedColumn||'?')}`:''}`);
+      for(const item of databaseAssessment.changeImpact.codeCandidates)sections.push(`- 代码候选：${line(item.sourcePath)}:${item.line} · ${line(item.operation)} ${line(item.token)}`);
+      sections.push('');
+    }
+    for(const risk of databaseAssessment.risks)sections.push(`### ${line(risk.title)}（${line(risk.level)}风险）`,'',
+      `- **依据：** ${line(risk.evidence)}`,`- **可能影响：** ${line(risk.impact)}`,`- **处理与验证：** ${line(risk.response)}`,'');
+    sections.push('### 可行性门槛','');
+    for(const gate of databaseAssessment.gates)sections.push(`- ${line(gate)}`);
+    sections.push('',databaseAssessment.method,'');
   }
   const gaps=semantics?.gaps||[];
   if(gaps.length){sections.push('## 尚未闭环的证据','');for(const gap of gaps)sections.push(`- ${gapText[gap]||line(gap)}`);sections.push('');}

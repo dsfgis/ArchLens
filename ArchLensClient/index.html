@@ -5,11 +5,13 @@
 <header class="workbench-header"><a class="logo" href="/">ArchLens<span>.</span></a><span>调查工作台</span></header>
 <main>
   <div class="page-heading"><div><p class="eyebrow">GOAL-DRIVEN ANALYSIS</p><h1>描述目标，理解系统<span>。</span></h1><p class="page-description">提供代码库与可选的数据库连接，系统结合项目现状和你的目标安排分析。</p></div></div>
+  <div class="demo-presets"><span>填入可修改示例目标</span><button id="demo-dotnet" class="button secondary" type="button">.NET 示例目标</button><button id="demo-java-kingbase" class="button secondary" type="button">Java 信创示例目标</button></div>
   <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
   <div class="workbench-grid">
     <section class="form-card"><div class="card-heading"><div><h2>新建分析</h2><p>技术识别与分析任务由后台安排</p></div></div>
       <form id="investigation-form" class="card-body">
         <label for="objective">你希望完成什么？</label><textarea id="objective" required minlength="5" maxlength="4000" rows="5" placeholder="用自己的话描述改造、升级或排查目标，以及需要保留的业务行为。系统会结合项目现状分析；缺少关键信息时会继续询问。"></textarea>
+        <label for="business-change">业务关联主键/字段变更（可选）</label><textarea id="business-change" rows="2" maxlength="2000" placeholder="例如：将 gxgl_ledger.id 改为 event_id，并将 gxgl_attachment.ledger_id 及外键同步改为 event_id；保持业务关联和 API 语义不变。"></textarea><p class="field-help">这里填写需要分析的字段/主键变更；它会作为调查目标的一部分，不直接执行数据库变更。</p>
         <label for="source-root">代码库路径</label><input id="source-root" required placeholder="/path/to/your-project 或 D:\work\your-project" autocomplete="off"><p class="field-help">填写运行 ArchLens 的机器可访问的项目文件夹，不是单个源码、.sln 或 .csproj 文件。提交后自动发现源码和项目声明，不运行项目或构建脚本。</p>
         <label for="analysis-mode">输入来源</label><select id="analysis-mode"><option value="code">代码库</option><option value="joint">代码库与数据库</option><option value="database">仅数据库</option></select>
         <p id="mode-hint" class="field-help" role="status"></p>

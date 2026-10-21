@@ -115,8 +115,12 @@ public final class DotnetSemantics {
         finally {if(process!=null&&process.isAlive())process.destroyForcibly();}
     }
     private static Path defaultDll(){
-        Path local=Path.of("analyzers/dotnet/bin/Release/net10.0/ArchLens.Semantics.dll");
-        return Files.isRegularFile(local)?local:Path.of("ArchLensService").resolve(local);
+        Path local = Path.of("analyzers/dotnet/bin/Release/net10.0/ArchLens.Semantics.dll");
+        for (Path candidate : List.of(local, Path.of("ArchLensService").resolve(local),
+                Path.of("..", "ArchLensService").resolve(local))) {
+            if (Files.isRegularFile(candidate)) return candidate.toAbsolutePath().normalize();
+        }
+        return local;
     }
     private static String defaultHost(){
         for(var candidate:List.of(Path.of(".local/toolchains/dotnet/dotnet"),Path.of("../.local/toolchains/dotnet/dotnet")))

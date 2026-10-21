@@ -178,4 +178,38 @@ class GenericAgentTest {
         var changed=new AgentOrchestrator((m,t,time)->{int i=n.getAndIncrement();if(i==0)return AgentTest.call(i,"inspect_repository",Map.of());Files.writeString(root.resolve("pom.xml"),"<project/>");return AgentTest.call(i,"ask_clarification",Map.of("questions",List.of(Map.of("field","context","prompt","请确认升级约束"))));}).investigate(root,req,()->false);
         assertNull(changed.repositoryInventory());assertTrue(changed.diagnostics().contains("AGENT_SOURCE_DRIFT"));
     }
+
+    @Test void databaseFeasibilityPlanUsesInspectedEvidenceAndStaysConditional() throws Exception {
+        Files.writeString(root.resolve("ledger.sql"),
+                "CREATE TABLE ledger (id INT UNSIGNED PRIMARY KEY, value INT); SELECT IFNULL(value,0) FROM ledger;");
+        var req=request("调查 MySQL 8.0.36 到 PostgreSQL 16 的数据库迁移，评估类型和 SQL 兼容性。",
+                List.of("ledger.sql"));
+        Target target=new Target(Scenario.DATABASE_MIGRATION,new Profile("MySQL","8.0.36"),new Profile("PostgreSQL","16"));
+        var step=new AtomicInteger();
+        var report=new AgentOrchestrator((messages,tools,time)->{
+            int current=step.getAndIncrement();
+            return switch(current){
+                case 0->AgentTest.call(current,"propose_target",target);
+                case 1->AgentTest.call(current,"list_rules",Map.of());
+                case 2->{var ids=new ArrayList<String>();AgentTest.last(messages).path("rules").forEach(r->ids.add(r.path("ruleId").asText()));yield AgentTest.call(current,"run_analysis",Map.of("ruleIds",ids));}
+                case 3->AgentTest.call(current,"read_evidence",Map.of("findingIds",List.of(AgentTest.last(messages).path("findings").get(0).path("findingId").asText())));
+                case 4->{String id=AgentTest.last(messages).path("findings").get(0).path("findingId").asText();
+                    yield AgentTest.call(current,"draft_feasibility_plan",Map.of(
+                            "status","UNVERIFIED_PROPOSAL","targetArchitecture","PostgreSQL 16 迁移设计",
+                            "decision","CONDITIONAL_GO","confidence","LOW",
+                            "steps",List.of(Map.of("phase","兼容性核实","action","核对 MySQL 类型和 SQL 语法","validation","在隔离测试库执行正反例","evidenceRefs",List.of(id))),
+                            "risks",List.of(Map.of("title","规则覆盖不足","severity","高","evidence","当前只有有限规则","mitigation","补充目标库实测")),
+                            "openQuestions",List.of("确认目标库扩展和排序规则"),
+                            "workload",Map.of("lowMonths",1,"highMonths",3,"confidence","LOW","drivers",List.of("规则和 SQL 覆盖"))));}
+                default->AgentTest.call(current,"finish",Map.of("explanations",List.of()));
+            };
+        }).investigate(root,req,()->false);
+        assertEquals("MODEL_TOOL_LOOP",report.orchestration());
+        assertEquals(Status.PARTIAL,report.status());
+        assertNotNull(report.feasibilityPlan());
+        assertEquals("CONDITIONAL_GO",report.feasibilityPlan().decision());
+        assertEquals(3,report.feasibilityPlan().workload().highMonths());
+        assertTrue(report.trace().stream().anyMatch(t->t.tool().equals("draft_feasibility_plan")&&t.resultCode().equals("OK")));
+        assertEquals(report,Json.MAPPER.readValue(Json.canonical(report),Report.class));
+    }
 }

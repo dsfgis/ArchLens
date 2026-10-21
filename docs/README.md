@@ -14,6 +14,7 @@
 | 验收要求 | [check_list.md](../ArchLensService/specs/implementation/check_list.md) | MD-AC 条目、证据与完成判定 |
 | 运行现有系统 | [后端说明](../ArchLensService/README.md)、[前端说明](../ArchLensClient/README.md) | 当前原生网页 / Node / Java CLI 的运行方式 |
 | 工程约束 | [AGENTS.md](../AGENTS.md)、[project_rules.md](../project_rules.md) | 开发入口、事实与模型边界、验证约定 |
+| 迁移可行性分析方案 | [ArchLens 迁移可行性分析方案](design/ArchLens-迁移可行性分析方案-2026-10-19.md) | 评级、工作量区间、Go/No-Go 门槛和比赛演示结构；不执行实际迁移 |
 
 当前源码已有受限调查 Agent、有限 Roslyn C# 语义取证（含无条件直接工程引用）和未经验证的迁移草案。正式 MigrationPlan 封存、完整语义与隔离验证尚未完成；P0 固定只读工具持久编排已实现并通过恢复验证。重建 specs 不改变旧报告版本或已有运行记录。
 
@@ -31,3 +32,4 @@
 
 - [2026-10-19 P0 worker 交付与恢复验证](verification/p0-worker-2026-10-19.md)
 - [2026-10-18 成果基线与 P0 推进](verification/p0-baseline-2026-10-18.md)
+- [2026-10-19 .NET WPF → C++/Electron 真实草案验证](verification/dotnet-cpp-electron-2026-10-19.md)

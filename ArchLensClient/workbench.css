@@ -10,3 +10,5 @@
 /* Long diagnostics and repository paths must remain readable on narrow screens. */
 .workbench .report-block,.workbench .field-help{overflow-wrap:anywhere}
 .workbench .report-block ul{padding-left:22px}
+
+.workbench .demo-presets{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 18px;font-size:11px;color:#8b8fa1}

@@ -78,6 +78,45 @@ public final class AgentContracts {
             openQuestions.forEach(q->bounded(q,500));
         }
     }
+    /** Generic feasibility draft for database/language migrations; never a verified execution plan. */
+    public record FeasibilityPlan(String status,String targetArchitecture,String decision,String confidence,
+                                  List<FeasibilityStep> steps,List<FeasibilityRisk> risks,
+                                  List<String> openQuestions,Workload workload) {
+        public FeasibilityPlan {
+            require("UNVERIFIED_PROPOSAL".equals(status),"FEASIBILITY_PLAN_INVALID","Plan cannot claim verification");
+            bounded(targetArchitecture,500);
+            require(Set.of("CONDITIONAL_GO","NO_GO","UNKNOWN").contains(decision),
+                    "FEASIBILITY_PLAN_INVALID","Decision must remain conditional or unknown");
+            require(Set.of("LOW","MEDIUM","HIGH").contains(confidence),"FEASIBILITY_PLAN_INVALID","Invalid confidence");
+            steps=List.copyOf(steps);risks=List.copyOf(risks);openQuestions=List.copyOf(openQuestions);
+            require(!steps.isEmpty()&&steps.size()<=10,"FEASIBILITY_PLAN_INVALID","Plan needs 1..10 steps");
+            require(!risks.isEmpty()&&risks.size()<=12,"FEASIBILITY_PLAN_INVALID","Plan needs 1..12 risks");
+            require(openQuestions.size()<=10,"FEASIBILITY_PLAN_INVALID","Too many open questions");
+            openQuestions.forEach(q->bounded(q,500));
+            require(workload!=null,"FEASIBILITY_PLAN_INVALID","Workload estimate is required");
+        }
+    }
+    public record FeasibilityStep(String phase,String action,String validation,List<String> evidenceRefs) {
+        public FeasibilityStep {
+            bounded(phase,120);bounded(action,1200);bounded(validation,800);
+            evidenceRefs=List.copyOf(evidenceRefs);
+            require(evidenceRefs.size()<=64,"FEASIBILITY_PLAN_INVALID","Too many evidence references");
+        }
+    }
+    public record FeasibilityRisk(String title,String severity,String evidence,String mitigation) {
+        public FeasibilityRisk {
+            bounded(title,160);bounded(severity,40);bounded(evidence,1200);bounded(mitigation,800);
+        }
+    }
+    public record Workload(Integer lowMonths,Integer highMonths,String confidence,List<String> drivers) {
+        public Workload {
+            require(lowMonths!=null&&highMonths!=null&&lowMonths>=0&&highMonths>=lowMonths&&highMonths<=1200,
+                    "FEASIBILITY_PLAN_INVALID","Invalid workload range");
+            require(Set.of("LOW","MEDIUM","HIGH").contains(confidence),"FEASIBILITY_PLAN_INVALID","Invalid workload confidence");
+            drivers=List.copyOf(drivers);require(drivers.size()<=20,"FEASIBILITY_PLAN_INVALID","Too many workload drivers");
+            drivers.forEach(d->bounded(d,500));
+        }
+    }
     public record Report(String schemaVersion,String engineVersion,String requestHash,Request request,int revision,String parentReportHash,
                          Status status,String orchestration,String startedAt,String finishedAt,Target interpretedTarget,
                          Map<String,String> userAnswers,List<Question> questions,List<Trace> trace,List<String> selectedRuleIds,
@@ -85,7 +124,8 @@ public final class AgentContracts {
                          @JsonInclude(JsonInclude.Include.NON_NULL) RepositoryInspector.Inventory repositoryInventory,
                          @JsonInclude(JsonInclude.Include.NON_EMPTY) List<Report> subtasks,
                          @JsonInclude(JsonInclude.Include.NON_NULL) io.archlens.investigation.dotnet.DotnetSemantics.Result dotnetSemantics,
-                         @JsonInclude(JsonInclude.Include.NON_NULL) MigrationPlan migrationPlan) {
+                         @JsonInclude(JsonInclude.Include.NON_NULL) MigrationPlan migrationPlan,
+                         @JsonInclude(JsonInclude.Include.NON_NULL) FeasibilityPlan feasibilityPlan) {
         public Report {
             subtasks=subtasks==null?List.of():List.copyOf(subtasks);
             require(subtasks.size()<=2&&subtasks.stream().allMatch(r->r.subtasks().isEmpty()),"AGENT_REPORT_INVALID","Subtask depth/count exceeded");

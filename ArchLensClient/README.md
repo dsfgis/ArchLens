@@ -38,6 +38,15 @@ $env:ARCHLENS_JAVA_HOME = '你的 JDK 21 目录'
 
 模型在后端配置，页面仅显示供应商标签与模型标识，见[通用模型配置](../ArchLensService/README.md#通用模型配置2026-10-13)。密钥不进入浏览器。业务数据库密码通过本次独立连接通道传输，不进入报告、模型或浏览器存储。
 
+### 两个比赛演示
+
+页面顶部提供两项目标预设；代码库路径和数据库连接仍由演示者在表单输入，预设不连接数据库、不执行迁移。
+
+- **.NET → C++/Electron**：点击“填入 .NET 示例目标”，填写 .NET 项目目录（本机示例 `D:\study\code\aitraining\wechatDashboard`），提交后查看语义事实、迁移草案、风险和覆盖缺口。只做静态分析，不运行项目。
+- **Java 信创：MySQL → KingbaseES**：点击“填入 Java 信创示例目标”，填写 Java 项目目录（本机示例 `D:\study\code\AI\changeline`），选择“代码库与数据库”，填写 MySQL 只读连接，确认目标数据库为 `KingbaseES`（版本示例 `V9`，按现场修改）。在“业务关联主键/字段变更”文本框填写 `Id → eventId` 及关联外键变更，测试连接后提交。
+
+当前规则目录没有 KingbaseES 专用正反例，Java 示例会把目标兼容性保持为 `UNKNOWN`，并显示 `RULE_MATRIX_UNSUPPORTED_OR_VERSION_UNKNOWN`。页面会基于可见表/字段/外键和静态代码关联给出 `CONDITIONAL_GO`、工作量区间和风险初筛，但不证明金仓兼容，也不执行主键改名。`changeline` 的可见结构包含 `gxgl_ledger.id` 和 `gxgl_attachment.ledger_id` 外键。
+
 ## 接口与持久化
 
 | 接口 | 行为 |
@@ -56,10 +65,16 @@ $env:ARCHLENS_JAVA_HOME = '你的 JDK 21 目录'
 | `POST /api/investigations/:runId/resume` | `{sourceRoot, answers, connection}`；原始 request 从 PG 父报告恢复，业务连接需要重新提供 |
 | `POST /api/investigations/:runId/cancel` | `{}`；PG 取消并隔离迟到结果 |
 | `GET /api/investigations/:runId/report` | 封存报告或明确标注的不完整检查点附件 |
+| `POST /api/migrations/sources` | `{sourceRef, kind, sourceRoot, files, declaredProduct, declaredVersion, authorizationRef, credentialRef}`；登记本机来源清单，根目录不进入迁移请求 |
+| `POST /api/migrations` | `{submissionKey, request}`；校验来源引用后创建迁移运行并返回 202；同一提交键复用原运行 |
+| `GET /api/migrations/:runId` | PG 迁移运行状态、修订、租约与回执；不返回来源根目录或凭据 |
+| `POST /api/migrations/:runId/cancel` | `{}`；取消排队或运行中的迁移，重复取消返回同一回执 |
 
 工作台默认呈现范围、缺口、迁移步骤、风险、难点与成功率评估条件；逐条语义符号、工程配置和技术声明清单折叠在“供技术核查”区域。报告可下载易读 Markdown 或完整原始 JSON。风险评估由封存证据确定性生成；在缺少运行基线和迁移后回归结果时，成功率显示为不可可信量化，不伪造百分比。Markdown 是封存 JSON 的可读投影，不改变原报告状态，也不将 `PARTIAL` 草案升级为验证结论。
 
 Java 入口为 `io.archlens.cli.WebAgentCli`，stdin/JSON 行输出均 UTF-8。报告和修订由 PG 管理；`.local/web-contexts/<runId>.json` 只保存本机授权根目录以便重启后恢复，不含凭据、不进入模型、不会作为静态文件发布。不要把该目录提交到仓库。没有另造浏览器历史数据库。
+
+迁移入口的 Java 协议为 `io.archlens.cli.MigrationWebCli`。来源登记保存在本机 `.local/migration-sources/`，只保存授权根目录、相对文件清单、哈希和凭据引用；`MigrationRequest` 只携带 `sourceRef`。业务库凭据通过后端环境或独立凭据通道解析，不进入登记文件、请求、checkpoint 或报告。当前迁移运行尚未接入 worker/model，创建后的运行保持 `QUEUED`；T10 接入取证工具后才进入真实调查。
 
 POST 校验同源 Origin/Host 和 JSON 类型；拒绝额外字段、路径越界、超大请求及任意命令。最多并行两次调查、六次查询；子进程参数不用 shell 拼接。业务库密码仅保留在当前表单内存和本次 Node→Java 的独立连接通道，不写 localStorage、报告、持久化请求或模型上下文。ArchLens 自身存储密码仍由后端配置；旧草稿页不传密码。模型只接收白名单摘要，当前边界见 [项目规则](../project_rules.md#6-模型调用与凭据)。
 
@@ -99,7 +114,7 @@ WPF 工程中的 `UseWPF`、目标框架和项目引用可由 `.csproj` 声明�
 
 现状预览现在先显示带工程来源的“现状分析（工程声明）”：目标框架分层、WPF/WinForms、SQLite/SQLCipher 依赖和项目引用，并在下载 JSON 的 `findings` 中保留每条结论的证据引用、待核实范围和建议。它是确定性声明归纳，不是源码语义分析或任何目标技术的迁移方案；见[分析内容验证](../docs/verification/dotnet-current-state-assessment-2026-10-03.md)。
 
-2026-10-14 修正了现状盘点和通用语言迁移建议中的固定 Java 字样；新报告用与目标技术无关的措辞。已封存的旧报告保持原文，页面会标出不匹配的旧模板文案。`DETERMINISTIC_FALLBACK` 表示模型调查因诊断错误或预算等原因未完成；页面保留静态事实和澄清结果，不代表迁移方案已形成。当前不提供 .NET → C++/Electron 的完整语义迁移评估。
+2026-10-14 修正了现状盘点和通用语言迁移建议中的固定 Java 字样；新报告用与目标技术无关的措辞。已封存的旧报告保持原文，页面会标出不匹配的旧模板文案。`DETERMINISTIC_FALLBACK` 表示模型调查因诊断错误或预算等原因未完成；页面保留静态事实和澄清结果，不代表迁移方案已形成。当前提供有限的 Roslyn 静态取证和 `UNVERIFIED_PROPOSAL` 草案，但不提供 .NET → C++/Electron 的完整语义迁移评估或行为等价证明。
 
 回归夹具可用 `ARCHLENS_UI_FIXTURE_REPORT` 指定本地 CLI 已生成的 Agent 报告；它仍模拟存储，只用于展示回归。本地预览完整链路应使用 `node server.mjs` 验证。
 

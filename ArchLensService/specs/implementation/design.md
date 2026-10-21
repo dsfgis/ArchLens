@@ -2,6 +2,27 @@
 
 2026-10-13 通用入口增量：用户以代码库路径、可选数据库连接、通用约束及自然语言目的输入；页面不固定场景或技术栈，模型通过后端配置。现有 Java Agent 增加项目声明识别与有界子调查委派，属于旧调查入口的改进，不等同于 LangGraph、MigrationPlan 或完整语义分析验收。实现及本次验证见[通用入口记录](../../../docs/verification/generic-analysis-2026-10-13.md)。
 
+## 2026-10-19 目标修订：自主调查循环
+
+前端只负责收集代码路径、可选数据库连接、目标文本和业务字段变更；不得用预置按钮决定执行路径。实际路由由模型根据目标文本、已发现的仓库声明和可用的数据库上下文选择。
+
+当前编排采用“模型逐轮选择一个工具、Java 校验参数与状态”的循环：
+
+```text
+用户目标
+  → inspect_repository（声明/版本/授权清单）
+  → propose_target（场景、源/目标、版本；Java 校验）
+  → list_rules / run_analysis（确定性规则与来源）
+  → inspect_dotnet_semantics（适用时读取 C# 语义）
+  → read_evidence（证据编号与缺口）
+  → draft_migration_plan 或 draft_feasibility_plan
+  → finish（保存工具轨迹、未知项和最终草案）
+```
+
+工具顺序由模型根据返回结果选择；Java 只拒绝越权、越界、未知引用、伪造事实和不合法的完成状态。`draft_feasibility_plan` 是数据库/信创/字段变更场景的通用方案工具，必须引用最近 `read_evidence` 返回的 finding；决策只能 `CONDITIONAL_GO` / `NO_GO` / `UNKNOWN`，不能生成 `GO`。
+
+“完全自主”的目标等级是：模型自主选择工具、补查和重规划，Java 保留事实、授权、预算和封存边界。当前实现尚未完成后台持久 DAG、无进展停止和真实数据库端到端；这些必须继续按 T12–T14 和验收项实现，不能仅靠提示词宣称完成。
+
 <!-- 2026-09-30：按批准的目标设计重建；旧设计原字节保存在 2026-09-29 归档。新协议、表和目录均待实现。 -->
 
 重建完成日期：2026-09-30。依据：[详细设计 v2.0](../../../docs/design/ArchLens-自主迁移设计Agent-详细设计-v2.0.md)、[现有项目总结](../../../docs/design/ArchLens-现有项目总结-2026-09-29.md)。配套：[需求](requirements.md)、[任务](tasks.md)、[验收](check_list.md)。[旧设计归档](../../../docs/archive/2026-09-29/ArchLensService/specs/implementation/design.md)保留原接口、日期和实现记录。

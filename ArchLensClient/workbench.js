@@ -1,4 +1,5 @@
 import { assessMigration } from './migration-assessment.mjs';
+import { assessDatabaseMigration } from './database-assessment.mjs';
 
 const $ = id => document.getElementById(id);
 const lines = id => $(id).value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
@@ -62,6 +63,61 @@ function listBlock(parent,title,items) { if(!items?.length)return; const block=e
 function raw(parent,title,data) {const d=el('details'),pre=el('pre');d.append(el('summary',title),pre);
   d.addEventListener('toggle',()=>{if(d.open&&!pre.dataset.loaded){pre.textContent=JSON.stringify(data,null,2);pre.dataset.loaded='true';}});parent.append(d);}
 function scopeLabel(report){const code=report.sources?.length>0,db=Boolean(report.databaseInventory);return code&&db?'代码＋数据库':db?'仅数据库':'仅代码';}
+function renderDatabaseAssessment(parent,assessment){
+  const block=el('section',null,'report-block');
+  block.append(el('h3','信创迁移可行性初筛'),
+    el('p',`目标：${assessment.targetProduct} ${assessment.targetVersion} · 决策：${assessment.decision} · 目标兼容性：${assessment.compatibility} · 综合风险：${assessment.riskLevel}`),
+    el('p',`${assessment.metrics.tables} 张表、${assessment.metrics.columns} 个字段、${assessment.metrics.primaryKeys} 个主键、${assessment.metrics.foreignKeys} 个外键、${assessment.metrics.codeAssociations} 条静态代码关联、${assessment.metrics.gaps} 项覆盖缺口。`,'meta'),
+    el('p',`初步工作量区间：${assessment.workload.low}–${assessment.workload.high} ${assessment.workload.unit}（置信度 ${assessment.workload.confidence}）。${assessment.workload.basis}`,'report-warning'));
+  if(assessment.changeImpact){
+    const impact=assessment.changeImpact;
+    block.append(el('h4','业务主键变更影响候选'));
+    block.append(el('p',impact.requested));
+    listBlock(block,'可见主键候选',impact.likelyPrimaryKeys.map(x=>`${x.table}.${x.column}${x.inferred?'（由 id 列推断）':''}`));
+    listBlock(block,'可见外键/关联候选',impact.likelyForeignKeys.map(x=>`${x.table}.${x.column}${x.referencedTable?` → ${x.referencedTable}.${x.referencedColumn||'?'}`:''}`));
+    listBlock(block,'静态代码候选（需人工核对）',impact.codeCandidates.map(x=>`${x.sourcePath}:${x.line} · ${x.operation} ${x.token}${x.databaseObject?` → ${x.databaseObject}`:''}`));
+  }
+  for(const risk of assessment.risks){
+    const card=el('article',null,'finding');
+    card.append(el('h4',`${risk.title} · ${risk.level}风险`),
+      el('p',`依据：${risk.evidence}`),el('p',`可能影响：${risk.impact}`),el('p',`处理与验证：${risk.response}`));
+    block.append(card);
+  }
+  listBlock(block,'可行性门槛',assessment.gates);
+  block.append(el('p',assessment.method,'meta'));
+  parent.append(block);
+}
+function renderFeasibilityPlan(parent,plan){
+  const block=el('section',null,'report-block');
+  block.append(el('h3','模型可行性方案（未经验证）'),
+    el('p',plan.targetArchitecture),
+    el('p',`决策：${plan.decision} · 置信度：${plan.confidence} · 工作量初筛：${plan.workload.lowMonths}–${plan.workload.highMonths} 人月（${plan.workload.confidence}）`,'report-warning'));
+  if(plan.workload.drivers?.length)listBlock(block,'工作量驱动',plan.workload.drivers);
+  for(const [index,step] of (plan.steps||[]).entries()){
+    const card=el('article',null,'finding');
+    card.append(el('h4',`${index+1}. ${step.phase}`),el('p',step.action),el('p',`验证：${step.validation}`,'meta'));
+    if(step.evidenceRefs?.length)raw(card,'引用的调查发现',step.evidenceRefs);
+    block.append(card);
+  }
+  for(const risk of plan.risks||[]){
+    const card=el('article',null,'finding');
+    card.append(el('h4',`${risk.title} · ${risk.severity}风险`),el('p',`依据：${risk.evidence}`),el('p',`处理：${risk.mitigation}`));
+    block.append(card);
+  }
+  listBlock(block,'待确认问题',plan.openQuestions);
+  parent.append(block);
+}
+function renderAgentTrace(parent,trace){
+  if(!trace?.length)return;
+  const block=el('section',null,'report-block');
+  block.append(el('h3','Agent 调查过程'),el('p','模型选择动作，确定性工具执行；以下是实际工具调用顺序和结果状态。','meta'));
+  for(const item of trace){
+    const card=el('article',null,'finding');
+    card.append(el('h4',`步骤 ${item.step} · ${item.tool}`),el('p',`结果：${item.resultCode} · ${item.elapsedMillis} ms`,'meta'));
+    block.append(card);
+  }
+  parent.append(block);
+}
 function renderRun(run) {
   $('run-heading').textContent=`调查详情 · 修订 ${run.revision}`;$('run-status').textContent=status(run);
   $('run-meta').replaceChildren(el('p',`Case ${run.caseId}\nRun ${run.runId}`,'meta'),el('p',`${run.latestRevision?'当前最新修订':'历史修订：不作为当前结论'} · 图投影 ${run.projectionState}`,'meta'));
@@ -108,7 +164,10 @@ function renderRun(run) {
     for(const step of p.steps){const card=el('article',null,'finding');card.append(el('h4',step.phase),el('p',step.action),el('p',`验证：${step.validation}`));raw(card,'引用的本地语义事实',step.factIds);block.append(card);}
     listBlock(block,'待确认问题',p.openQuestions);$('report').append(block);
   }
+  if(r.feasibilityPlan)renderFeasibilityPlan($('report'),r.feasibilityPlan);
   const assessment=assessMigration(r);
+  const databaseAssessment=assessDatabaseMigration(r);
+  if(databaseAssessment)renderDatabaseAssessment($('report'),databaseAssessment);
   if(assessment){
     const block=el('section',null,'report-block');
     block.append(el('h3','风险分析'),el('p',assessment.evidenceNote,'meta'));
@@ -155,6 +214,7 @@ function renderRun(run) {
       raw(card,'子任务证据、来源与工具审计',task);$('report').append(card);
     }
   }
+  renderAgentTrace($('report'),r.trace);
   raw($('report'),'工具调用审计',r.trace);raw($('report'),'完整报告',r);
 }
 function schedule(){clearTimeout(timer);timer=setTimeout(async()=>{if(!selectedId||submitting){schedule();return;}try{await openRun(selectedId,true);await loadHistory();}catch(e){fail(e);}schedule();},polling?3000:15000);}
@@ -166,12 +226,17 @@ $('investigation-form').addEventListener('submit',async event=>{
   event.preventDefault();if(submitting)return;submitting=true;$('submit').disabled=true;$('submit').textContent='正在提交…';
   submissionStatus('正在检查输入并提交分析，请稍候…');
   try {const target=null;
-    const request={schemaVersion:'archlens.agent.v1',objective:$('objective').value.trim(),target,constraints:lines('constraints'),invariants:lines('invariants'),files:scopedFiles(),columnRequest:null,collectionBudget:{maxFiles:1000,maxBytes:50000000,timeoutMillis:30000},agentBudget:{maxModelCalls:16,maxToolCalls:24,timeoutMillis:120000}};
+    const request={schemaVersion:'archlens.agent.v1',objective:objectiveText(),target,constraints:lines('constraints'),invariants:lines('invariants'),files:scopedFiles(),columnRequest:null,collectionBudget:{maxFiles:1000,maxBytes:50000000,timeoutMillis:30000},agentBudget:{maxModelCalls:16,maxToolCalls:24,timeoutMillis:120000}};
     const business=readBusiness();if(business.businessContext){request.schemaVersion='archlens.agent.v2';request.businessContext=business.businessContext;}
     const ticket=await api('/api/investigations',{sourceRoot:scopedRoot(),request,connection:business.connection});filterCase=ticket.caseId;offset=0;notice('调查已提交。运行状态和结果会自动更新。');submissionStatus('分析已提交，正在读取运行状态…');await openRun(ticket.runId);submissionStatus('分析已提交，运行状态和结果会自动更新。');$('run-panel').scrollIntoView({block:'start'});
   }catch(e){fail(e);submissionStatus($('notice').textContent,true);}finally{submitting=false;$('submit').disabled=false;$('submit').textContent='开始分析';}
 });
 function optional(id){return $(id).value.trim()||null;}
+function objectiveText(){
+  const base=$('objective').value.trim();
+  const change=$('business-change')?.value.trim();
+  return [base,change?`业务关联主键/字段变更：${change}`:''].filter(Boolean).join('\n\n');
+}
 function envProfile(product,version){if(!optional(product)&&optional(version))throw Error('DATASOURCE_CONFIG_INVALID');return optional(product)?{product:optional(product),version:optional(version)}:null;}
 function analysisMode(){return $('analysis-mode').value;}
 function scopedFiles(){return analysisMode()==='database'?[]:lines('source-files');}
@@ -195,7 +260,7 @@ function readBusiness(){
 }
 function jointInput(testOnly=false){
   const business=readBusiness();if(!business.businessContext?.source)throw Error('DATASOURCE_CONFIG_INVALID');
-  return {sourceRoot:testOnly?null:scopedRoot(),connection:business.connection,request:{schemaVersion:'archlens.agent.v2',objective:optional('objective')||'代码与业务数据库结构现状调查',target:{scenario:'CURRENT_STATE',sourceProfile:{product:'UNSPECIFIED',version:null},targetProfile:null},constraints:lines('constraints'),invariants:lines('invariants'),files:testOnly?[]:scopedFiles(),columnRequest:null,collectionBudget:{maxFiles:1000,maxBytes:50000000,timeoutMillis:25000},agentBudget:{maxModelCalls:1,maxToolCalls:1,timeoutMillis:30000},businessContext:business.businessContext}};
+  return {sourceRoot:testOnly?null:scopedRoot(),connection:business.connection,request:{schemaVersion:'archlens.agent.v2',objective:objectiveText()||'代码与业务数据库结构现状调查',target:{scenario:'CURRENT_STATE',sourceProfile:{product:'UNSPECIFIED',version:null},targetProfile:null},constraints:lines('constraints'),invariants:lines('invariants'),files:testOnly?[]:scopedFiles(),columnRequest:null,collectionBudget:{maxFiles:1000,maxBytes:50000000,timeoutMillis:25000},agentBudget:{maxModelCalls:1,maxToolCalls:1,timeoutMillis:30000},businessContext:business.businessContext}};
 }
 function renderBusinessInventory(parent,report){
   if(report.targetEnvironment){raw(parent,'目标环境（用户声明，兼容性未评估）',report.targetEnvironment);}
@@ -253,7 +318,7 @@ $('preview-joint').addEventListener('click',async()=>{
   }catch(e){if(seq===previewGeneration)$('preview-status').textContent=errors[e.message]||`联合预览失败：${e.message}`;}finally{button.disabled=false;}
 });
 let previewResult=null,previewGeneration=0;
-for(const id of ['objective','constraints','invariants'])$(id).addEventListener('input',invalidatePreview);
+for(const id of ['objective','business-change','constraints','invariants'])$(id).addEventListener('input',invalidatePreview);
 function previewKey(){return JSON.stringify({sourceRoot:$('source-root').value.trim(),files:lines('source-files')});}
 function invalidatePreview(){
   previewGeneration++;previewResult=null;$('export-preview').hidden=true;
@@ -352,5 +417,31 @@ $('export-markdown').addEventListener('click',()=>{if(!selected?.report)return;c
 api('/api/investigations/model-config').then(config=>{
   $('model-status').textContent=config.configured?`分析模型：${config.provider} / ${config.model}（后端配置）`:'尚未配置分析模型。请在后端设置 ARCHLENS_LLM_ENDPOINT、ARCHLENS_LLM_MODEL 和密钥；未配置时只能生成本地现状。';
 }).catch(()=>{$('model-status').textContent='无法读取模型配置，请检查后端配置和构建状态。';});
+function fillDotnetDemo(){
+  setAnalysisMode('code');
+  $('objective').value='将现有 .NET WPF 桌面项目迁移到 C++20 核心与 Electron 最新稳定版界面，保持业务功能、数据与用户操作行为一致，目标平台为 Windows、macOS 和 Linux。';
+  $('business-change').value='';
+  $('constraints').value='只读分析，不修改现有项目\n不执行被分析项目的构建或运行';
+  $('invariants').value='消息采集与待办处理行为不变\n本地数据读取和事务语义不丢失\n界面关键操作与提醒行为保持一致';
+  $('env-runtime').value='C++';$('env-runtime-version').value='C++20';
+  $('env-os').value='Windows/macOS/Linux';$('env-database').value='';$('env-db-version').value='';$('env-mode').value='';
+  notice('已填入 .NET → C++/Electron 演示目标；请填写代码库路径。');
+  $('source-root').focus();
+}
+function fillJavaKingbaseDemo(){
+  setAnalysisMode('joint');
+  $('db-product').value='MySQL';updateDatabaseProduct();
+  $('objective').value='对现有 Java Spring Boot/MyBatis-Plus 项目进行信创改造可行性分析：数据库从 MySQL 迁移到人大金仓 KingbaseES，评估类型、SQL/ORM、事务、数据迁移和回滚风险，不执行实际迁移。';
+  $('business-change').value='将 gxgl_ledger.id 改为 event_id，并将 gxgl_attachment.ledger_id 及外键同步改为 event_id；保持业务关联、API 字段和事务语义不变。';
+  $('constraints').value='只读分析，不执行数据库变更\n不连接生产业务库';
+  $('invariants').value='保持业务关联和外键完整性\n保持现有 API 字段兼容\n保持现有事务和异常行为';
+  $('env-database').value='KingbaseES';$('env-db-version').value='V9';
+  $('env-runtime').value='Java';$('env-runtime-version').value='';
+  $('env-os').value='';$('env-mode').value='';$('env-arch').value='';
+  notice('已填入 Java 信创演示目标；请填写 Java 代码库路径、MySQL 只读连接和金仓目标版本（示例 V9 可修改）。');
+  $('source-root').focus();
+}
+$('demo-dotnet').addEventListener('click',fillDotnetDemo);
+$('demo-java-kingbase').addEventListener('click',fillJavaKingbaseDemo);
 updateSourceRequirements();loadHistory().catch(fail);
 const initial=/^#run=([0-9a-f-]{36})$/.exec(location.hash);if(initial)openRun(initial[1]).catch(fail);else schedule();

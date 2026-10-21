@@ -6,6 +6,7 @@ import java.util.*;
 public final class AgentTools {
     private AgentTools() {}
     static Map<String,Object> string(){return Map.of("type","string");}
+    static Map<String,Object> integer(){return Map.of("type","integer");}
     static Map<String,Object> nullableString(){return Map.of("type",List.of("string","null"));}
     static Map<String,Object> array(Map<String,Object> item){return Map.of("type","array","items",item);}
     static Map<String,Object> boundedArray(Map<String,Object> item,int max){return Map.of("type","array","items",item,"minItems",1,"maxItems",max);}
@@ -16,6 +17,19 @@ public final class AgentTools {
         var profileOrNull=new HashMap<String,Object>(profile());profileOrNull.put("type",List.of("object","null"));
         var target=object(Map.of("scenario",Map.of("type","string","enum",List.of("CURRENT_STATE","COLUMN_CHANGE","DATABASE_MIGRATION","LANGUAGE_MIGRATION","REFACTORING","DEPENDENCY_UPGRADE")),
                 "sourceProfile",profile(),"targetProfile",profileOrNull));
+        var feasibilityStep=object(Map.of("phase",string(),"action",string(),"validation",string(),"evidenceRefs",array(string())));
+        var feasibilityRisk=object(Map.of("title",string(),"severity",string(),"evidence",string(),"mitigation",string()));
+        var feasibilityWorkload=object(Map.of("lowMonths",integer(),"highMonths",integer(),
+                "confidence",Map.of("type","string","enum",List.of("LOW","MEDIUM","HIGH")),"drivers",array(string())));
+        var feasibilityPlan=object(Map.of(
+                "status",Map.of("type","string","enum",List.of("UNVERIFIED_PROPOSAL")),
+                "targetArchitecture",string(),
+                "decision",Map.of("type","string","enum",List.of("CONDITIONAL_GO","NO_GO","UNKNOWN")),
+                "confidence",Map.of("type","string","enum",List.of("LOW","MEDIUM","HIGH")),
+                "steps",boundedArray(feasibilityStep,10),
+                "risks",boundedArray(feasibilityRisk,12),
+                "openQuestions",array(string()),
+                "workload",feasibilityWorkload));
         return List.of(
                 tool("inspect_repository","读取授权代码库的技术栈与版本声明，并在提供数据库连接时读取实际数据库版本。先检查事实，再解释用户目标；不返回源码、路径、业务对象或凭据。",object(Map.of())),
                 tool("propose_target","从用户目标解析调查场景与源/目标产品版本。源产品及版本可来自 inspect_repository 的事实；目标版本只能来自用户文字，不得编造。",target),
@@ -28,6 +42,7 @@ public final class AgentTools {
                         object(Map.of("status",Map.of("type","string","enum",List.of("UNVERIFIED_PROPOSAL")),"targetArchitecture",string(),
                                 "steps",boundedArray(object(Map.of("phase",string(),"action",string(),"factIds",array(string()),"validation",string())),10),
                                 "openQuestions",array(string())))),
+                tool("draft_feasibility_plan","数据库/信创/字段变更等场景在 read_evidence 后生成待验证可行性方案。决策只能 CONDITIONAL_GO/NO_GO/UNKNOWN，必须引用已读取 findingId；不得把模型判断冒充兼容性证明。",feasibilityPlan),
                 tool("ask_clarification","缺少技术信息时保存澄清问题并暂停本轮；field 只允许 scenario、sourceProfile.product/version、targetProfile.product/version、context。",
                         object(Map.of("questions",array(object(Map.of("field",string(),"prompt",string())))))),
                 tool("finish","调查后提交 1 至 6 条证据解释。先 read_evidence；outcome 原样引用。已形成语义迁移草案或子 Agent 调查时允许空 explanations。",
@@ -44,11 +59,13 @@ public final class AgentTools {
             inspect_dotnet_semantics 分别返回 authorizedFileCount（所有授权文件）和 authorizedCsharpFileCount（其中的 .cs 文件），写数量时严格区分，不得把所有授权文件称为 C# 文件。SOURCE_BOUND 仅表示引用可定位到授权源码；它可能是 UI、测试、基础设施或业务逻辑，不意味着更适合迁入 C++ 核心。草案中先写“待按职责筛选”，不把绑定类别直接映射为迁移职责。
             语义迁移草案的验证步骤引用本地报告的 factIds、项目声明及人工/回归检查；不要建议调用 read_evidence 来核对项目声明，因为该工具只读取规则调查的 findingIds。
             对明确的 .NET → C++ 核心、Electron UI 目标，propose_target 使用 LANGUAGE_MIGRATION、sourceProfile={product:".NET",version:null}、targetProfile={product:"C++",version:null}（除非用户已给出真实版本）。不要把 Electron 当成源语言或 targetProfile，也不要在草案前追问 C++ 标准、Electron/Node 版本；将它们列入 openQuestions。
+            数据库/信创/字段变更等没有专用草案工具的场景，先 inspect_repository、run_analysis、read_evidence，再调用 draft_feasibility_plan。决策只能 CONDITIONAL_GO/NO_GO/UNKNOWN，必须引用最近 read_evidence 返回的 findingId；不得生成 GO、实际 SQL、DDL 或代码修改。
             没有适用的迁移兼容规则时，run_analysis(ruleIds=[]) 可保留 UNKNOWN；不得把项目声明或 Roslyn 部分绑定说成迁移已验证。
             单一目标可直接执行工具。复合目标可按需要 delegate_analysis 委派最多两项独立子 Agent；子 Agent 共享本轮调用/时间预算，不能递归委派。
             不预设固定子 Agent 名单或迁移目标。子任务返回 PARTIAL/澄清时必须保留状态；需要用户决策时用 context 提问。全部子报告已返回可 finish(explanations=[])。
             前端不指定场景或技术栈。由你判断语言迁移、数据库替换、运行时/框架/依赖升级、重构或现状分析，不得默认 .NET、C# 或任何目标技术。
             目标环境是用户声明，可作为目标产品和目标版本的依据；它不是已验证的兼容性结论。
+            数据库迁移的 source/target 产品和版本必须来自用户声明、目标原文或已采集结构；人大金仓 KingbaseES 不能自动映射为 PostgreSQL，也不能用 PostgreSQL 规则替代金仓规则。
             源产品及源版本允许来自 inspect_repository 返回的同一个产品/版本声明；项目声明不等于运行环境事实，多个版本不可合并成单一事实。
             inspect_repository 中的 TARGET_FRAMEWORK_DECLARATION 是项目声明。若有具体值，方案可写“声明 netX”，但不得写成“目标框架未声明”或“运行时已验证”；仍应核实实际编译配置。
             用户明确指定的源字段优先；目标版本只能来自用户目标/回答。升级目标产品可沿用已识别的源产品。普通规则分析缺少必需版本或存在冲突时用自然语言 ask_clarification；语义迁移草案可保留目标版本 null。

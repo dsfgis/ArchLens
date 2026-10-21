@@ -12,7 +12,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 const int MaxFacts = 20000;
 try
 {
-    string input = Console.In.ReadToEnd();
+    // Protocol input is UTF-8 bytes regardless of the Windows console code page.
+    var utf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+    using var stdin = Console.OpenStandardInput();
+    using var reader = new StreamReader(stdin, utf8, detectEncodingFromByteOrderMarks: true);
+    string input = reader.ReadToEnd();
     var request = JsonSerializer.Deserialize<Request>(input, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
                   ?? throw new InvalidDataException("Missing request");
     if (request.Sources is null || request.Sources.Count is < 1 or > 1000)
@@ -166,12 +170,18 @@ try
           gaps.Add("COMPILATION_ERRORS_OR_MISSING_REFERENCES");
       if (facts.Count >= MaxFacts) break;
     }
-    Console.Write(JsonSerializer.Serialize(new Result("archlens.dotnet-semantics.v1", "PARTIAL", facts, gaps.Distinct().ToList()),
+    using var stdout = Console.OpenStandardOutput();
+    using var writer = new StreamWriter(stdout, utf8);
+    writer.Write(JsonSerializer.Serialize(new Result("archlens.dotnet-semantics.v1", "PARTIAL", facts, gaps.Distinct().ToList()),
                                        new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+    writer.Flush();
 }
-catch (Exception)
+catch (Exception ex)
 {
-    Console.Error.Write("ROSLYN_FAILED");
+    // Stable type-only diagnostics; never echo source text or filesystem paths.
+    string detail = ex.Message.Replace('\r', ' ').Replace('\n', ' ');
+    if (detail.Length > 300) detail = detail[..300];
+    Console.Error.Write("ROSLYN_FAILED " + ex.GetType().Name + " " + detail);
     Environment.ExitCode = 2;
 }
 

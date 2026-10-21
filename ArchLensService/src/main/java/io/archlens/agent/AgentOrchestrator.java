@@ -21,7 +21,7 @@ import static io.archlens.investigation.InvestigationRequest.*;
 /** 有限、可恢复的模型调查循环。模型选择动作，事实、文件范围、结果引用和终止条件由本地控制。 */
 public final class AgentOrchestrator {
     public static final String ENGINE="archlens-agent-0.3";
-    private static final Set<String> TOOLS=Set.of("inspect_repository","delegate_analysis","propose_target","list_rules","run_analysis","inspect_dotnet_semantics","read_evidence","draft_migration_plan","ask_clarification","finish");
+    private static final Set<String> TOOLS=Set.of("inspect_repository","delegate_analysis","propose_target","list_rules","run_analysis","inspect_dotnet_semantics","read_evidence","draft_migration_plan","draft_feasibility_plan","ask_clarification","finish");
     private static final Set<String> FIELDS=Set.of("scenario","sourceProfile.product","sourceProfile.version","targetProfile.product","targetProfile.version","context");
     private final AgentModel model;
     private final BusinessConnection businessConnection;
@@ -93,7 +93,7 @@ public final class AgentOrchestrator {
         final Map<String,String> answers;final BooleanSupplier cancelled;final Consumer<List<InvestigationReport.Source>> checkpoint;
         final long deadline;final List<Map<String,Object>> messages=new ArrayList<>();final List<Trace> trace=new ArrayList<>();
         final List<String> diagnostics=new ArrayList<>();final List<Report> subtasks=new ArrayList<>();boolean childMode=false;final Set<String> selected=new TreeSet<>(),readFindings=new HashSet<>(),callIds=new HashSet<>();
-        List<Question> questions=List.of();List<Explanation> explanations=List.of();Target target;InvestigationReport analysis;RepositoryInspector.Inventory repositoryInventory;Profile observedDatabase;DotnetSemantics.Result dotnetSemantics;MigrationPlan migrationPlan;
+        List<Question> questions=List.of();List<Explanation> explanations=List.of();Target target;InvestigationReport analysis;RepositoryInspector.Inventory repositoryInventory;Profile observedDatabase;DotnetSemantics.Result dotnetSemantics;MigrationPlan migrationPlan;FeasibilityPlan feasibilityPlan;
         int calls=0,toolCount=0,invalid=0,analysisCalls=0;boolean finished=false,clarifying=false,targetChosen=false,rulesListed=false,fallback=false,wasCancelled=false;
         Run(Path root,Request req,int revision,String parent,Map<String,String> answers,BooleanSupplier cancelled,Consumer<List<InvestigationReport.Source>> checkpoint) {
             this.root=root;this.req=req;this.revision=revision;this.parent=parent;this.answers=Map.copyOf(answers);this.cancelled=cancelled;this.checkpoint=checkpoint;
@@ -200,7 +200,7 @@ public final class AgentOrchestrator {
             return new Report(req.schemaVersion(),ENGINE,requestHash,req,revision,parent,status,
                     wasCancelled?"MODEL_LOOP_CANCELLED":fallback?"DETERMINISTIC_FALLBACK":"MODEL_TOOL_LOOP",start,Instant.now().toString(),target,
                     answers,questions,trace,List.copyOf(selected),analysis,explanations,
-                    explanations.isEmpty()?"NO_MODEL_EXPLANATION":"MODEL_EXPLANATION_UNVERIFIED",List.copyOf(new LinkedHashSet<>(diagnostics)),calls,repositoryInventory,subtasks,dotnetSemantics,migrationPlan);
+                    explanations.isEmpty()?"NO_MODEL_EXPLANATION":"MODEL_EXPLANATION_UNVERIFIED",List.copyOf(new LinkedHashSet<>(diagnostics)),calls,repositoryInventory,subtasks,dotnetSemantics,migrationPlan,feasibilityPlan);
         }
         private List<Question> subtaskQuestions(){
             String prompt="请补充子任务所需信息："+subtasks.stream().flatMap(r->r.questions().stream()).map(Question::prompt).distinct().collect(java.util.stream.Collectors.joining("；"));
@@ -303,6 +303,19 @@ public final class AgentOrchestrator {
                     migrationPlan=proposed;
                     yield Map.of("status","UNVERIFIED_PROPOSAL","stepCount",proposed.steps().size(),"referencedFactCount",proposed.steps().stream().flatMap(s->s.factIds().stream()).distinct().count());
                 }
+                case "draft_feasibility_plan" -> {
+                    require(analysis!=null,"ANALYSIS_REQUIRED","Run analysis before drafting a feasibility plan");
+                    var proposed=parse(args,FeasibilityPlan.class);
+                    Set<String> known=analysis.findings().stream().map(InvestigationReport.Finding::findingId).collect(java.util.stream.Collectors.toSet());
+                    Set<String> refs=proposed.steps().stream().flatMap(s->s.evidenceRefs().stream()).collect(java.util.stream.Collectors.toSet());
+                    require(!refs.isEmpty(),"FEASIBILITY_EVIDENCE_REQUIRED","At least one step must cite a finding");
+                    require(known.containsAll(refs),"FEASIBILITY_EVIDENCE_REJECTED","Plan cites a finding absent from this analysis");
+                    require(refs.stream().anyMatch(readFindings::contains),"FEASIBILITY_EVIDENCE_NOT_INSPECTED","Read the cited evidence before drafting the plan");
+                    feasibilityPlan=proposed;
+                    yield Map.of("status","UNVERIFIED_PROPOSAL","decision",proposed.decision(),
+                            "stepCount",proposed.steps().size(),"riskCount",proposed.risks().size(),
+                            "workload",Map.of("lowMonths",proposed.workload().lowMonths(),"highMonths",proposed.workload().highMonths(),"confidence",proposed.workload().confidence()));
+                }
                 case "ask_clarification" -> {
                     var input=parse(args,Clarify.class);require(input.questions()!=null&&!input.questions().isEmpty()&&input.questions().size()<=6,"INVALID_QUESTIONS","Ask 1..6 questions");
                     Set<String> fields=new HashSet<>();List<Question> pending=new ArrayList<>();
@@ -323,6 +336,9 @@ public final class AgentOrchestrator {
                     require(!dotnetMigration||dotnetSemantics.facts().isEmpty()||migrationPlan!=null,"SEMANTIC_PLAN_REQUIRED","Draft a fact-grounded migration plan before finishing");
                     if(migrationPlan!=null&&input.explanations()!=null&&input.explanations().isEmpty()) {
                         finished=true;yield Map.of("status","PARTIAL","planStatus","UNVERIFIED_PROPOSAL");
+                    }
+                    if(feasibilityPlan!=null&&input.explanations()!=null&&input.explanations().isEmpty()) {
+                        finished=true;yield Map.of("status","PARTIAL","planStatus","UNVERIFIED_PROPOSAL","decision",feasibilityPlan.decision());
                     }
                     if(analysis==null&&!subtasks.isEmpty()&&input.explanations()!=null&&input.explanations().isEmpty()) {
                         if(subtasks.stream().anyMatch(r->r.status()==Status.NEEDS_CLARIFICATION)) {
